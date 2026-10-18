@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.4
+- Zugriff auf den MQTT-Dienst des Supervisors freigeschaltet (hassio_api)
+
 ## 0.1.3
 - Shelly-Prüfung unter *Einstellungen*: erreichbar, Gerät/Generation, Anmeldung, Kanal, Ruhezustand und optional echtes Schalten mit Kontrolle, dass das Relais wieder abfällt
 
