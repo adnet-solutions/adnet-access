@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
+import time
 from pathlib import Path
 
 import uvicorn
@@ -17,6 +19,7 @@ from .shelly import Shelly
 from .web import create_phone_api, create_ui
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.getLogger("httpx").setLevel(logging.WARNING)
 log = logging.getLogger("adnet_access")
 
 
@@ -46,6 +49,8 @@ def _bg(coro, name: str) -> asyncio.Task:
 
 async def amain() -> None:
     opts = config.load()
+    os.environ["TZ"] = opts.timezone          # Uhrzeiten im Protokoll in Ortszeit
+    time.tzset()
     log.info("AD.NET Access %s startet", __version__)
     if not opts.pin_key:
         log.warning("pin_key ist leer – PINs sind dann nur schwach geschützt. Bitte setzen (gleich wie im ESPHome-Secret).")

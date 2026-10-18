@@ -7,13 +7,17 @@ from datetime import datetime, timedelta
 
 import httpx
 
+from .config import supervisor_token
+
 log = logging.getLogger(__name__)
 
 
 class HA:
     def __init__(self) -> None:
-        token = os.environ.get("SUPERVISOR_TOKEN", "")
+        token = supervisor_token()
         self.enabled = bool(token)
+        if not token:
+            log.warning("Kein Supervisor-Token – Kamera, Benachrichtigung und Kalender sind aus")
         self.client = httpx.AsyncClient(base_url="http://supervisor/core/api",
                                         headers={"Authorization": f"Bearer {token}"}, timeout=10)
 

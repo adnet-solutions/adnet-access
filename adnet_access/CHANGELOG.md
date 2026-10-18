@@ -1,5 +1,9 @@
 # Änderungen
 
+## 0.1.5
+- Behoben: Kamera-Snapshot, Push, Kalender und MQTT-Entitäten gingen nicht (Supervisor-Token wurde unter s6 nicht gefunden)
+- Protokoll in Ortszeit, weniger HTTP-Rauschen
+
 ## 0.1.4
 - Zugriff auf den MQTT-Dienst des Supervisors freigeschaltet (hassio_api)
 

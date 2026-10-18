@@ -1,5 +1,5 @@
 name: AD.NET Access
-version: "0.1.4"
+version: "0.1.5"
 slug: adnet_access
 description: Zutrittskontrolle für die Haustür (Wiegand-Tastatur mit Karte/PIN, Handy, Shelly, Logbuch mit Snapshot)
 url: https://github.com/adnet-solutions/adnet-access

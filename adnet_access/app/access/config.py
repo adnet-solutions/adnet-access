@@ -35,6 +35,21 @@ class Options:
     dev: bool = False
 
 
+def supervisor_token() -> str:
+    """Token für die Supervisor-/HA-API. Unter s6-overlay steht er nicht immer in der Umgebung des
+    Hauptprozesses, dann liegt er in /run/s6/container_environment."""
+    for name in ("SUPERVISOR_TOKEN", "HASSIO_TOKEN"):
+        if os.environ.get(name):
+            return os.environ[name]
+        f = Path("/run/s6/container_environment") / name
+        try:
+            if f.is_file():
+                return f.read_text().strip()
+        except OSError:
+            pass
+    return ""
+
+
 def load() -> Options:
     path = Path(os.environ.get("ADNET_OPTIONS", "/data/options.json"))
     raw = json.loads(path.read_text()) if path.exists() else {}

@@ -1,2 +1,4 @@
 """AD.NET Access – Zutrittskontrolle als Home-Assistant-Add-on."""
-__version__ = "0.1.0"
+import os
+
+__version__ = os.environ.get("ADNET_VERSION", "dev")   # vom HA-Build gesetzt (BUILD_VERSION)

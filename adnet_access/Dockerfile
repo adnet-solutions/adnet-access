@@ -6,5 +6,6 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY app/ ./
 
-ENV PYTHONUNBUFFERED=1
+ARG BUILD_VERSION=dev
+ENV PYTHONUNBUFFERED=1 ADNET_VERSION=${BUILD_VERSION}
 CMD ["python3", "-m", "access.main"]

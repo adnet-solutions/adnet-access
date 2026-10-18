@@ -9,6 +9,8 @@ import os
 import aiomqtt
 import httpx
 
+from .config import supervisor_token
+
 log = logging.getLogger(__name__)
 P = "adnet_access"
 DEV = {"identifiers": ["adnet_access"], "name": "Haustür Zutritt", "manufacturer": "AD.NET Solutions",
@@ -21,8 +23,9 @@ class MqttBridge:
         self.client: aiomqtt.Client | None = None
 
     async def _creds(self) -> dict | None:
-        token = os.environ.get("SUPERVISOR_TOKEN")
+        token = supervisor_token()
         if not token:
+            log.warning("Kein Supervisor-Token – MQTT-Entitäten deaktiviert")
             return None
         try:
             async with httpx.AsyncClient(timeout=5) as c:
@@ -43,6 +46,7 @@ class MqttBridge:
                                           password=creds.get("password"),
                                           will=aiomqtt.Will(f"{P}/status", "offline", retain=True)) as client:
                     self.client = client
+                    log.info("MQTT verbunden mit %s, Entitäten werden angelegt", creds["host"])
                     await client.publish(f"{P}/status", "online", retain=True)
                     await self.publish_discovery()
                     await client.subscribe(f"{P}/cmd/#")
