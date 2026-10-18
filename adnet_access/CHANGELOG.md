@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.7
+- Richtige Versionsnummer im Protokoll
+
 ## 0.1.6
 - Eigener MQTT-Broker einstellbar (`mqtt_host`, `mqtt_user`, `mqtt_password`, optional TLS), wenn kein Mosquitto-Add-on läuft
 

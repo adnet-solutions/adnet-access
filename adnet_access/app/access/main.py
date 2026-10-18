@@ -47,11 +47,24 @@ def _bg(coro, name: str) -> asyncio.Task:
     return asyncio.create_task(guard(), name=name)
 
 
+async def _version() -> str:
+    if __version__ != "dev" or not config.supervisor_token():
+        return __version__
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=3) as c:
+            r = await c.get("http://supervisor/addons/self/info",
+                            headers={"Authorization": f"Bearer {config.supervisor_token()}"})
+            return r.json()["data"]["version"]
+    except Exception:  # noqa: BLE001
+        return __version__
+
+
 async def amain() -> None:
     opts = config.load()
     os.environ["TZ"] = opts.timezone          # Uhrzeiten im Protokoll in Ortszeit
     time.tzset()
-    log.info("AD.NET Access %s startet", __version__)
+    log.info("AD.NET Access %s startet", await _version())
     if not opts.pin_key:
         log.warning("pin_key ist leer – PINs sind dann nur schwach geschützt. Bitte setzen (gleich wie im ESPHome-Secret).")
     Path(opts.data_dir).mkdir(parents=True, exist_ok=True)
