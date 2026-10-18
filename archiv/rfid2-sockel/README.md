@@ -229,3 +229,7 @@ Ein fertiges **MPR121-Touch-Tastenfeld 3 × 4** (ca. 38 × 79 mm, I²C) hängt a
 - **Pinbelegung AtomS3 Lite** (G1/G2 am Grove) am Gerät gegenprüfen.
 - **Wandler-Maße:** Das Gehäuse hat Platz für ca. 50 × 25 × 15 mm.
 - **Abstandshalter:** Der Sockel ist für die geklebten **5 mm** gebaut. Bei anderen: `config/namen.json` → `"zutritt": {"abstandshalter_mm": 5}` ändern und neu erzeugen.
+
+---
+
+> **Archiv-Hinweis:** Dieser Ordner stammt aus dem Branch `zutrittsmodul` des Repositorys *ring-doorbell-doppelplatte-mit-namen*. Der Sockel wurde dort von `scripts/generate.py` mit erzeugt; diese Änderungen (plus `config/namen.json` und der Verweis im Haupt-README) liegen als [`scripts/ring-repo-aenderungen.patch`](scripts/ring-repo-aenderungen.patch) bei und lassen sich dort bei Bedarf mit `git apply` wieder einspielen.

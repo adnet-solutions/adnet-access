@@ -1,0 +1,148 @@
+diff --git a/README.md b/README.md
+index 8316e5d..d70e75a 100644
+--- a/README.md
++++ b/README.md
+@@ -15,7 +15,8 @@
+ ```
+ stl/       Alle Druckteile (aus scripts/generate.py erzeugt)
+ 3mf/       Bambu-Studio-Projekt mit allen Druckplatten (folgt)
+-config/    namen.json – die Namen auf den Schildern
++config/    namen.json – die Namen auf den Schildern (+ Abschnitt "zutritt")
++zutritt/   optionales Zutrittsmodul (RFID/Handy, ESPHome), eigene Anleitung
+ scripts/   generate.py (erzeugt alle STL), preview.py (Vorschaubild)
+ fonts/     Schriftart Inter (SIL Open Font License)
+ images/    Vorschaubilder und Detailzeichnungen
+@@ -190,6 +191,16 @@ Laut Typenschild der Klingel: **8–24 V AC (5 VA)** oder **24 V DC (420 mA)** p
+ 
+ ---
+ 
++## Zutrittsmodul (optional): RFID und Handy
++
++Kleiner Sockel mit RFID-Leser, der **unter** die fertige Platte geschraubt wird (mittig unter den Klingeln), dazu ein NFC-Aufkleber fürs Handy unter dem Dach. Anbindung an Home Assistant über ESPHome. An der Platte muss nichts neu gedruckt werden. Es bleibt bei **einer** Wandbohrung und **einem** Kabel, die Inneneinheit übernimmt auch den 24-V-Verteiler für die Klingeln.
++
++→ **[zutritt/README.md](zutritt/README.md)**
++
++![Zutrittsmodul](zutritt/images/vorschau_zutritt.png)
++
++---
++
+ ## Namen ändern
+ 
+ Die Namen stehen in [`config/namen.json`](config/namen.json):
+diff --git a/config/namen.json b/config/namen.json
+index d486c7f..164d755 100644
+--- a/config/namen.json
++++ b/config/namen.json
+@@ -12,5 +12,8 @@
+     "vornamen": [
+       "Bernd"
+     ]
++  },
++  "zutritt": {
++    "abstandshalter_mm": 5
+   }
+ }
+diff --git a/scripts/generate.py b/scripts/generate.py
+index de6158f..e2fab8d 100644
+--- a/scripts/generate.py
++++ b/scripts/generate.py
+@@ -19,6 +19,8 @@ REPO = Path(__file__).resolve().parent.parent
+ ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ ap.add_argument("--config", default=str(REPO / "config" / "namen.json"), help="JSON-Datei mit den Namen")
+ ap.add_argument("--out", default=str(REPO / "stl"), help="Ausgabeverzeichnis fuer die STL-Dateien")
++ap.add_argument("--out-zutritt", default=str(REPO / "zutritt" / "stl"),
++                help="Ausgabeverzeichnis fuer die Teile des Zutrittsmoduls (nur wenn 'zutritt' in der Config steht)")
+ args = ap.parse_args()
+ OUT = Path(args.out)
+ OUT.mkdir(parents=True, exist_ok=True)
+@@ -313,3 +315,90 @@ def clip(gap):
+ 
+ save(clip(5.9), "klemmkappe_normal.stl")
+ save(clip(5.7), "klemmkappe_fest.stl")
++
++
++
++
++# =====================================================================================
++# Zutrittsmodul (optional): kleiner Sockel UNTER der fertigen Platte, mittig unter den Klingeln.
++# Die Platte selbst bleibt unveraendert. Im Sockel sitzt nur der RFID-Leser (M5Stack Unit RFID2).
++# Er wird mit 2 Schrauben von unten in die Unterkante der Platte geschraubt, 2 Zungen hinter
++# der Platte verhindern Kippen. Der NFC-Aufkleber fuers Handy klebt unter dem Dach (kein Druckteil).
++# Wird nur erzeugt, wenn in der Config ein Abschnitt "zutritt" steht. Details: zutritt/README.md
++# =====================================================================================
++ZCFG = CFG.get("zutritt")
++if ZCFG is not None:
++    OUTZ = Path(args.out_zutritt)
++    OUTZ.mkdir(parents=True, exist_ok=True)
++    GAP = float(ZCFG.get("abstandshalter_mm", 5.0))   # Luft hinter der Platte (geklebte Abstandshalter)
++
++    S_X0, S_X1 = -45.0, 45.0          # Breite 90 mm, mittig unter den Klingeln
++    S_TOP = -H / 2                    # Plattenunterkante (y = -100)
++    S_WALL, S_FRONT = 2.0, 1.6        # Wand- und Frontstaerke
++    S_IN_H = 25.0                     # lichte Hoehe (Unit 24 mm)
++    S_BOT = S_TOP - S_WALL - S_IN_H - S_WALL
++    Z_BACK = -GAP + 0.4               # Rueckkante 0.4 mm vor der Wand (Putz)
++    Z_FRONT = T                       # buendig mit der Plattenfront
++    IN_Y0, IN_Y1 = S_BOT + S_WALL, S_TOP - S_WALL
++    IN_YC = (IN_Y0 + IN_Y1) / 2
++    IN_Z1 = Z_FRONT - S_FRONT
++
++    BOSS_X = (-38.0, 38.0)            # Schrauben in die Plattenunterkante (z = T/2)
++    RFID = (-24.0, 24.0)              # Unit RFID2 48 x 24 x 8 mittig, Grove-Stecker links (-33 .. -24)
++    rfid_x = (RFID[0] + RFID[1]) / 2
++
++    outer = rrect(S_X1 - S_X0, S_TOP - S_BOT, 4.0).translate(((S_X0 + S_X1) / 2, (S_TOP + S_BOT) / 2))
++    outer += CrossSection.square((S_X1 - S_X0, 6.0)).translate((S_X0, S_TOP - 6.0))   # oben eckig (liegt an der Platte)
++    sock = outer.extrude(Z_FRONT - Z_BACK).translate((0, 0, Z_BACK))
++    sock -= box(S_X0 + S_WALL, S_X1 - S_WALL, IN_Y0, IN_Y1, Z_BACK - 1, IN_Z1)   # hinten offen (zur Wand)
++
++    # Schraubdome (Achse senkrecht), Schraube 3,0 x 40 Senkkopf von unten in die Plattenkante
++    SCREW_Z = T / 2
++    for bx in BOSS_X:
++        sock += Manifold.cylinder(S_TOP - S_BOT, 3.6, 3.6, 48).rotate((-90, 0, 0)).translate((bx, S_BOT, SCREW_Z)) \
++            ^ box(bx - 5, bx + 5, S_BOT, S_TOP, Z_BACK, Z_FRONT)
++        sock -= Manifold.cylinder(60, 1.65, 1.65, 32).rotate((-90, 0, 0)).translate((bx, S_BOT - 5, SCREW_Z))
++        sock -= Manifold.cylinder(1.6, 3.1, 1.5, 32).rotate((-90, 0, 0)).translate((bx, S_BOT - 0.01, SCREW_Z))  # Senkung unten
++
++    # Zungen hinter der Platte (gegen Kippen), druecken an die Plattenrueckseite
++    for (tx0, tx1) in ((-43.0, -30.0), (30.0, 43.0)):
++        sock += box(tx0, tx1, S_TOP - 0.01, S_TOP + 14.0, -min(3.0, GAP - 1.2), -0.15)
++
++    # Kabeldurchlass oben hinter der Platte (die Leser-Adern kommen hinter der Platte von der Mitte herunter)
++    sock -= box(-12.0, 12.0, S_TOP - S_WALL - 1, S_TOP + 1, Z_BACK - 1, -0.6)
++    # Ablaufloecher im Boden hinten
++    for dx in (-20.0, 20.0):
++        sock -= Manifold.cylinder(10, 1.5, 1.5, 24).rotate((-90, 0, 0)).translate((dx, S_BOT - 2, Z_BACK + 2.0))
++
++    # Einlage (zweites Filament, weiss, optional): Kontaktlos-Symbol 0.6 mm tief in der Front
++    icon = CrossSection()
++    for r in (3.0, 5.6, 8.2):
++        ring = CrossSection.circle(r + 0.7, 96) - CrossSection.circle(r - 0.7, 96)
++        icon += ring ^ CrossSection([[(0, 0), (30, -24), (30, 24)]])
++    icon += CrossSection.circle(1.2, 32)
++    icon = icon.translate((rfid_x - 5.0, IN_YC))
++    inlay = icon.extrude(0.6).translate((0, 0, Z_FRONT - 0.6))
++    sock -= inlay
++
++    # Pruefungen
++    assert BOSS_X[0] + 3.6 < RFID[0] - 9.0 and RFID[1] < BOSS_X[1] - 3.6, "Leser stoesst an die Schraubdome"
++    assert IN_Z1 - Z_BACK >= 8.4, "Leser passt nicht in die Tiefe"
++
++    # Fuer den Druck: stehend auf der Unterseite (Front senkrecht, Zungen zeigen nach oben)
++    def stand_fix(m, ref):
++        m = m.rotate((90, 0, 0))
++        b = ref.rotate((90, 0, 0)).bounding_box()
++        return m.translate((0, 0, -b[2]))
++
++    print("--- Zutrittsmodul ---")
++    _main = OUT
++    OUT = OUTZ
++    save(stand_fix(sock, sock), "sockel_zutritt.stl")
++    save(stand_fix(inlay, sock), "sockel_zutritt_symbol.stl")
++    OUT = _main
++    (OUTZ / "masse.json").write_text(json.dumps({
++        "sockel": {"x": [S_X0, S_X1], "y": [round(S_BOT, 1), S_TOP], "z": [round(Z_BACK, 1), Z_FRONT]},
++        "rfid": RFID, "schrauben_x": BOSS_X,
++        "innen_y": [round(IN_Y0, 1), round(IN_Y1, 1)], "innen_z1": IN_Z1,
++        "abstandshalter_mm": GAP,
++    }, indent=2), encoding="utf-8")
