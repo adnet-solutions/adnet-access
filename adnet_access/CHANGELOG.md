@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.3
+- Shelly-Prüfung unter *Einstellungen*: erreichbar, Gerät/Generation, Anmeldung, Kanal, Ruhezustand und optional echtes Schalten mit Kontrolle, dass das Relais wieder abfällt
+
 ## 0.1.2
 - Dauer des Shelly-Schaltimpulses einstellbar (`shelly_pulse_seconds`, Standard 1 s)
 

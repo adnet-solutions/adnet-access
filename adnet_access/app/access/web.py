@@ -284,8 +284,13 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
     @app.post("/test/{what}")
     async def test(request: Request, what: str):
         msg = ""
-        if what == "shelly":
-            msg = "Shelly geschaltet" if await engine.shelly.pulse() else "Shelly nicht erreichbar"
+        if what in ("shelly", "shelly_schalten"):
+            steps = await engine.shelly.diagnose(switch=what == "shelly_schalten")
+            if what == "shelly_schalten" and any(st.name == "Schalten" and st.ok for st in steps):
+                await engine.record(None, "test", "", True, "Shelly-Test: Tür geöffnet", info=True)
+            store = engine.snapshot_store()
+            return render(request, "settings.html", opts=opts, offline=engine.offline_list(), store=store,
+                          store_ok=str(store) == str(Path(opts.snapshot_dir or opts.media_dir)), shelly_steps=steps)
         elif what == "snapshot":
             lid = await engine.record(None, "test", "", True, "Test-Snapshot", info=True)
             await engine.snapshot(lid)

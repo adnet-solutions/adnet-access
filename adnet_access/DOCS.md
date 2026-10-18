@@ -37,6 +37,8 @@ Voraussetzungen: **MQTT** (Mosquitto-Add-on) für die HA-Entitäten, optional. O
 | `card_pin_timeout` | Sekunden für die PIN nach der Karte (Modus Karte + PIN) |
 | `lockout_attempts`, `lockout_seconds` | Sperre nach Fehlversuchen, die Dauer verdoppelt sich bei Wiederholung |
 
+**Shelly prüfen:** In der Seitenleiste unter *Zutritt → Einstellungen → Shelly prüfen*. Getestet werden Erreichbarkeit, Gerät (Gen2 oder neuer), Anmeldung, Kanal und Ruhezustand. „Prüfen und schalten“ schaltet zusätzlich wirklich (Tür geht auf) und kontrolliert, dass das Relais nach der Impulsdauer wieder abfällt.
+
 **Shelly absichern:** Im Offline-Fall schaltet der Leser den Shelly direkt per HTTP **ohne Passwort** (ESPHome kann keine Digest-Anmeldung). Deshalb: Shelly-Passwort setzen, aber im Router/Firewall dafür sorgen, dass nur **HA und der Leser** den Shelly erreichen (eigenes IoT-VLAN, Regel nur von diesen zwei IPs). Wer den Offline-Modus nicht will: im ESPHome-Secret `adnet_shelly_host` auf `0.0.0.0` setzen.
 
 ## 3. Bedienung

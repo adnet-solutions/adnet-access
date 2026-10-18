@@ -14,13 +14,24 @@
   <tr><th>Feiertage</th><td>Deutschland {{ opts.holidays_subdiv }}</td></tr>
   <tr><th>PIN-Schlüssel</th><td>{{ 'gesetzt' if opts.pin_key else 'FEHLT' }}</td></tr>
 </table>
-<h3>Testen</h3>
+<h3>Shelly prüfen</h3>
 <div class="row">
-  <form method="post" action="{{ base }}/test/shelly"><button>Shelly kurz schalten</button></form>
+  <form method="post" action="{{ base }}/test/shelly"><button>Shelly prüfen (ohne Schalten)</button></form>
+  <form method="post" action="{{ base }}/test/shelly_schalten" onsubmit="return confirm('Das schaltet den Shelly für {{ opts.shelly_pulse_seconds }} s – die Tür geht auf. Weiter?')"><button class="danger">Shelly prüfen und schalten</button></form>
+</div>
+{% if shelly_steps %}
+<table class="steps">
+  {% for st in shelly_steps %}
+  <tr><td class="st-{{ 'ok' if st.ok else ('bad' if st.ok == False else 'info') }}">{{ '✓' if st.ok else ('✗' if st.ok == False else 'ℹ') }}</td><th>{{ st.name }}</th><td>{{ st.detail }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+<h3>Weitere Tests</h3>
+<div class="row">
   <form method="post" action="{{ base }}/test/snapshot"><button>Snapshot aufnehmen</button></form>
   <form method="post" action="{{ base }}/test/push"><button>Test-Benachrichtigung</button></form>
   <form method="post" action="{{ base }}/test/liste"><button>Offline-Liste neu senden</button></form>
 </div>
 <h3>Offline-Liste</h3>
-<p class="muted">Diese Liste kennt der Leser, falls Home Assistant nicht läuft ({{ offline|length }} von max. 1500 Zeichen, {{ offline.split(';')|length if offline else 0 }} Einträge).</p>
+<p class="muted">Diese Liste kennt der Leser, falls Home Assistant nicht läuft ({{ offline|length }} von max. 1800 Zeichen, {{ offline.split(';')|length if offline else 0 }} Einträge).</p>
 {% endblock %}
