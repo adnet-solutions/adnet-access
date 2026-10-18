@@ -3,7 +3,7 @@
 {% block content %}
 <div class="bar"><h2>Personen</h2><a class="button primary" href="{{ base }}/personen/0">+ Person anlegen</a></div>
 <table>
-<thead><tr><th>Name</th><th>Modus</th><th>Gültig</th><th>Karten</th><th>Jetzt</th><th>Zuletzt</th></tr></thead>
+<thead><tr><th>Name</th><th>Modus</th><th>Gültig</th><th>Karten</th><th>Jetzt</th><th>Heute</th><th>Morgen<br><small class="muted">{{ tomorrow_label }}</small></th><th>Zuletzt</th></tr></thead>
 <tbody>
 {% for p in rows %}
 {% set st = status[p.id] %}
@@ -13,10 +13,13 @@
   <td>{{ p.valid_from or '–' }} bis {{ p.valid_to or 'offen' }}</td>
   <td>{{ p.n_cards }}</td>
   <td><span class="badge {{ 'erlaubt' if st[0] else 'abgelehnt' }}">{{ 'darf rein' if st[0] else 'nein' }}</span><br><small>{{ st[1] }}</small></td>
+  {% for day in (today[p.id], tomorrow[p.id]) %}
+  <td>{% if day[0] %}{% if day[0]|length == 1 and day[0][0] == ('00:00', '24:00') %}<span class="badge erlaubt">ganztägig</span>{% else %}{% for a, b in day[0] %}<span class="badge erlaubt">{{ a }}–{{ b }}</span> {% endfor %}{% endif %}{% else %}<span class="badge abgelehnt">nein</span><br><small>{{ day[1] }}</small>{% endif %}</td>
+  {% endfor %}
   <td>{{ (p.last or '–').replace('T', ' ') }}</td>
 </tr>
 {% else %}
-<tr><td colspan="6" class="muted">Noch niemand angelegt.</td></tr>
+<tr><td colspan="8" class="muted">Noch niemand angelegt.</td></tr>
 {% endfor %}
 </tbody>
 </table>

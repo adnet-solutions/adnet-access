@@ -39,6 +39,7 @@ class Engine:
         self.holiday_names: dict = {}
         self.entity_holiday: tuple | None = None   # (Datum, ist Feiertag) aus holidays_entity
         self.entity_next: tuple | None = None      # (Datum, Name) nächster Feiertag laut Entität
+        self.entity_holiday_tomorrow: tuple | None = None   # aus <entität>_morgen, falls vorhanden
         self.lockout = Lockout(opts.lockout_attempts, opts.lockout_seconds)
         self.pending: Pending | None = None
         self.learn: tuple[int, float] | None = None      # (person_id, bis)
@@ -58,8 +59,10 @@ class Engine:
 
     # Feiertage = Grundlage (HA-Entität ODER eingebaute Liste) + zusätzliche freie Tage (HA-Kalender)
     def _base_holiday(self, d) -> bool:
-        if self.opts.holidays_entity and self.entity_holiday is not None and self.entity_holiday[0] == d:
-            return self.entity_holiday[1]
+        if self.opts.holidays_entity:
+            for val in (self.entity_holiday, self.entity_holiday_tomorrow):
+                if val is not None and val[0] == d:
+                    return val[1]
         return d in self.holidays                      # eingebaute Liste (auch als Rückfall)
 
     def is_holiday(self, dt: datetime) -> bool:
@@ -89,6 +92,16 @@ class Engine:
             self.entity_holiday = (today, state == "on")
         else:
             self.entity_holiday = (today, state not in ("kein_feiertag", "off", "false", "0", "none", ""))
+        # Schulferien-Integration liefert auch <entität>_morgen
+        tm = await self.ha.get_state(self.opts.holidays_entity + "_morgen", quiet=True)
+        if tm and tm.get("state") not in (None, "unknown", "unavailable"):
+            tstate = str(tm["state"]).lower()
+            from datetime import timedelta as _td
+            is_h = tstate == "on" if self.opts.holidays_entity.startswith("binary_sensor.") else \
+                tstate not in ("kein_feiertag", "off", "false", "0", "none", "")
+            self.entity_holiday_tomorrow = (today + _td(days=1), is_h)
+        else:
+            self.entity_holiday_tomorrow = None
         attrs = st.get("attributes") or {}
         try:                                           # nächster Feiertag (Schulferien-Integration)
             nd = datetime.strptime(str(attrs.get("Datum", "")), "%d.%m.%Y").date()
@@ -135,6 +148,30 @@ class Engine:
                    bool(row["blocked"]), row["blocked_until"] or "", bool(row["ignore_vacation"]), bool(row["always"]),
                    prof)
         return p, dict(row)
+
+    def day_windows(self, person: Person, day, profiles: dict | None = None) -> tuple[list[tuple[str, str]], str]:
+        """Zeitfenster, in denen die Person an diesem Tag rein darf (15-Minuten-Raster), z. B.
+        [("07:00", "13:00")]. Ohne Fenster: ([], Grund). Kalendertermine zählen nur für „jetzt“."""
+        profiles = profiles if profiles is not None else self.profiles()
+        hol = self.is_holiday(datetime(day.year, day.month, day.day, 12))
+        vac = self.flag("vacation_lock")
+        windows: list[list[int]] = []
+        reasons: dict[str, int] = {}
+        for m in range(0, 1440, 15):
+            t = datetime(day.year, day.month, day.day, m // 60, m % 60)
+            ok, reason = check_access(person, profiles, t, is_holiday=hol, vacation_lock=vac)
+            if ok:
+                if windows and windows[-1][1] == m:
+                    windows[-1][1] = m + 15
+                else:
+                    windows.append([m, m + 15])
+            else:
+                reasons[reason] = reasons.get(reason, 0) + 1
+        fmt = lambda v: f"{v // 60:02d}:{v % 60:02d}"  # noqa: E731
+        if windows:
+            return [(fmt(a), fmt(b)) for a, b in windows], ""
+        reason = max(reasons, key=reasons.get) if reasons else ""
+        return [], ("Feiertag" if hol and reason in ("Feiertag", "außerhalb der Zeitfenster") else reason)
 
     def evaluate(self, person: Person, now: datetime) -> tuple[bool, str]:
         return check_access(person, self.profiles(), now, is_holiday=self.is_holiday(now),

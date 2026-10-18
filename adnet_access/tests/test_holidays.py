@@ -15,7 +15,7 @@ class FakeHA:
     def __init__(self, result=None, state=None):
         self.result, self.state = result, state
 
-    async def get_state(self, entity):
+    async def get_state(self, entity, quiet=False):
         return self.state
 
     async def calendar_dates(self, entity, start, end):

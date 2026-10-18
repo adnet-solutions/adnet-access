@@ -46,7 +46,7 @@ class HA:
         except Exception as e:  # noqa: BLE001
             log.warning("Benachrichtigung über %s fehlgeschlagen: %s", service, e)
 
-    async def get_state(self, entity: str) -> dict | None:
+    async def get_state(self, entity: str, quiet: bool = False) -> dict | None:
         if not (self.enabled and entity):
             return None
         try:
@@ -54,7 +54,8 @@ class HA:
             r.raise_for_status()
             return r.json()
         except Exception as e:  # noqa: BLE001
-            log.warning("Entität %s nicht lesbar: %s", entity, e)
+            if not quiet:
+                log.warning("Entität %s nicht lesbar: %s", entity, e)
             return None
 
     async def calendar_dates(self, entity: str, start: datetime, end: datetime) -> tuple[set, dict] | None:

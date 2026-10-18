@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.11
+- Personenliste: Spalten „Heute“ und „Morgen“ mit den Zeitfenstern, in denen die Person reinkommt (inkl. Feiertag, Sperre, Gültigkeit, Urlaubssperre)
+
 ## 0.1.10
 - Feiertage aus einer HA-Entität (`holidays_entity`, z. B. `sensor.feiertag_de_by`); `holidays_calendar` gilt jetzt zusätzlich (eigene freie Tage)
 

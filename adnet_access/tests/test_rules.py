@@ -79,3 +79,22 @@ def test_lockout():
 def test_pin_hash_stabil():
     h = pin_hash("geheim", "1234")
     assert h == pin_hash("geheim", "1234") and h != pin_hash("anders", "1234") and len(h) == 32
+
+
+def test_tagesfenster():
+    import tempfile
+    from datetime import date
+    from access.config import Options
+    from access.db import DB
+    from access.engine import Engine
+    d = tempfile.mkdtemp()
+    e = Engine(DB(d + "/x.db"), Options(data_dir=d, media_dir=d + "/m", snapshot_dir=d + "/m"), None, None)
+    putz = e.profiles()[2]                                   # Seed: Putzhilfe Di+Fr 7-13
+    p = Person(9, "P", profile_ids=[putz.id])
+    assert e.day_windows(p, date(2026, 10, 20)) == ([("07:00", "13:00")], "")      # Dienstag
+    w, why = e.day_windows(p, date(2026, 10, 21))
+    assert w == [] and why == "außerhalb der Zeitfenster"
+    assert e.day_windows(p, date(2027, 1, 6))[1] in ("Feiertag", "außerhalb der Zeitfenster")
+    assert e.day_windows(Person(8, "F", always=True), date(2026, 10, 21)) == ([("00:00", "24:00")], "")
+    w, why = e.day_windows(Person(7, "G", always=True, blocked=True), date(2026, 10, 21))
+    assert w == [] and why == "gesperrt"

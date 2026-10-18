@@ -91,11 +91,18 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
                     "(SELECT MAX(ts) FROM log l WHERE l.person_id=p.id AND l.result='erlaubt') AS last "
                     "FROM persons p ORDER BY p.name")
         now = engine.now()
-        status = {}
+        from datetime import timedelta
+        profiles = engine.profiles()
+        status, today, tomorrow = {}, {}, {}
         for r in rows:
-            res = engine.person(r["id"])
-            status[r["id"]] = engine.evaluate(res[0], now)
-        return render(request, "persons.html", rows=rows, status=status)
+            person = engine.person(r["id"])[0]
+            status[r["id"]] = engine.evaluate(person, now)
+            today[r["id"]] = engine.day_windows(person, now.date(), profiles)
+            tomorrow[r["id"]] = engine.day_windows(person, now.date() + timedelta(days=1), profiles)
+        return render(request, "persons.html", rows=rows, status=status, today=today, tomorrow=tomorrow,
+                      tomorrow_label=(now + timedelta(days=1)).strftime("%a %d.%m.").replace(
+                          "Mon", "Mo").replace("Tue", "Di").replace("Wed", "Mi").replace("Thu", "Do")
+                      .replace("Fri", "Fr").replace("Sat", "Sa").replace("Sun", "So"))
 
     @app.get("/personen/{pid}", response_class=HTMLResponse)
     async def person_edit(request: Request, pid: int):
