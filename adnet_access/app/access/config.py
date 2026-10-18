@@ -15,6 +15,7 @@ class Options:
     shelly_host: str = ""
     shelly_password: str = ""
     shelly_switch_id: int = 0
+    shelly_pulse_seconds: float = 1.0
     camera_entity: str = ""
     notify_service: str = ""
     calendar_entity: str = ""

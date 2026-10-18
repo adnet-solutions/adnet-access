@@ -1,5 +1,5 @@
 name: AD.NET Access
-version: "0.1.1"
+version: "0.1.2"
 slug: adnet_access
 description: Zutrittskontrolle für die Haustür (Wiegand-Tastatur mit Karte/PIN, Handy, Shelly, Logbuch mit Snapshot)
 url: https://github.com/adnet-solutions/adnet-access
@@ -30,6 +30,7 @@ options:
   shelly_host: ""
   shelly_password: ""
   shelly_switch_id: 0
+  shelly_pulse_seconds: 1.0
   camera_entity: ""
   notify_service: ""
   calendar_entity: ""
@@ -50,6 +51,7 @@ schema:
   shelly_host: str?
   shelly_password: password?
   shelly_switch_id: int(0,3)
+  shelly_pulse_seconds: float(0.2,10)
   camera_entity: str?
   notify_service: str?
   calendar_entity: str?

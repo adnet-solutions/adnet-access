@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.2
+- Dauer des Shelly-Schaltimpulses einstellbar (`shelly_pulse_seconds`, Standard 1 s)
+
 ## 0.1.1
 - Shelly und Leser dürfen leer bleiben (Einrichten, bevor die Hardware da ist)
 

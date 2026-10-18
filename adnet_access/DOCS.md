@@ -24,7 +24,8 @@ Voraussetzungen: **MQTT** (Mosquitto-Add-on) für die HA-Entitäten, optional. O
 | `esphome_host` | Name/IP des Lesers, z. B. `haustuer-zutritt.local` |
 | `esphome_key` | `adnet_api_key` aus den ESPHome-Secrets. Damit ist die Verbindung **verschlüsselt** (Noise). |
 | `pin_key` | `adnet_pin_key` aus den ESPHome-Secrets. Muss gleich sein, sonst passt keine PIN. |
-| `shelly_host`, `shelly_password`, `shelly_switch_id` | Shelly am Motorschloss (Gen2/Gen3, Benutzer `admin`) |
+| `shelly_host`, `shelly_password`, `shelly_switch_id` | Shelly am Motorschloss (Gen2/Gen3/Gen4, Benutzer `admin`) |
+| `shelly_pulse_seconds` | Wie lange das Relais schließt. Motorschloss mit Impuls-Eingang: **1 s**, elektrischer Türöffner (Summer): **3–5 s**. Das Abschalten macht der Shelly selbst. Für den Offline-Modus denselben Wert als `impuls_s` in `esphome/haustuer-zutritt.yaml` setzen. |
 | `camera_entity` | z. B. `camera.eingang_high` aus der UniFi-Protect-Integration |
 | `snapshot_crop` | optional Ausschnitt `x,y,breite,höhe` in Prozent, z. B. `30,10,40,80` |
 | `snapshot_dir` | **Speicherort der Bilder**, siehe Abschnitt 5 |

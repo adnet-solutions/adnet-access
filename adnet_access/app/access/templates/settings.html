@@ -5,7 +5,7 @@
 <p class="muted">Geändert werden die Werte im Add-on unter <em>Konfiguration</em>. Hier siehst du den Stand und kannst testen.</p>
 <table>
   <tr><th>Leser (ESPHome)</th><td>{{ opts.esphome_host }} – {{ 'verbunden' if esp and esp.connected else 'nicht verbunden' }}{% if not opts.esphome_key %} <span class="badge abgelehnt">kein Schlüssel</span>{% endif %}</td></tr>
-  <tr><th>Shelly</th><td>{{ opts.shelly_host or '–' }} (Kanal {{ opts.shelly_switch_id }}){% if not opts.shelly_password %} <span class="badge abgelehnt">ohne Passwort</span>{% endif %}</td></tr>
+  <tr><th>Shelly</th><td>{{ opts.shelly_host or '–' }} (Kanal {{ opts.shelly_switch_id }}, Impuls {{ opts.shelly_pulse_seconds }} s){% if not opts.shelly_password %} <span class="badge abgelehnt">ohne Passwort</span>{% endif %}</td></tr>
   <tr><th>Kamera</th><td>{{ opts.camera_entity or '–' }}{% if opts.snapshot_crop %} · Ausschnitt {{ opts.snapshot_crop }}{% endif %}</td></tr>
   <tr><th>Benachrichtigung</th><td>{{ opts.notify_service or '–' }}</td></tr>
   <tr><th>Kalender</th><td>{{ opts.calendar_entity or '–' }}</td></tr>

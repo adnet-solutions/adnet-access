@@ -51,7 +51,8 @@ async def amain() -> None:
         log.warning("pin_key ist leer – PINs sind dann nur schwach geschützt. Bitte setzen (gleich wie im ESPHome-Secret).")
     Path(opts.data_dir).mkdir(parents=True, exist_ok=True)
     db = DB(Path(opts.data_dir) / "adnet_access.db")
-    engine = Engine(db, opts, HA(), Shelly(opts.shelly_host, opts.shelly_password, opts.shelly_switch_id))
+    engine = Engine(db, opts, HA(), Shelly(opts.shelly_host, opts.shelly_password, opts.shelly_switch_id,
+                                              opts.shelly_pulse_seconds))
     esp = EspLink(opts.esphome_host, opts.esphome_key, engine)
     mqtt = MqttBridge(engine, esp)
     engine.feedback = esp.feedback
