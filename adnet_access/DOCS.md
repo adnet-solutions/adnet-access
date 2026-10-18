@@ -73,7 +73,7 @@ automation:
     actions:
       - action: "switch.turn_{{ 'on' if trigger.to_state.state == 'armed_away' else 'off' }}"
         target:
-          entity_id: switch.adnet_access_vacation_lock
+          entity_id: switch.haustur_zutritt_urlaubssperre
 ```
 Hinweis: Wer Zugriff auf den MQTT-Broker hat, kann über *Tür öffnen* die Tür öffnen. Den Broker also nur mit Benutzer/Passwort betreiben (Standard beim Mosquitto-Add-on).
 
