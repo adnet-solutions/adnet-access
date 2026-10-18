@@ -31,7 +31,8 @@ class Options:
     snapshot_days: int = 30
     log_months: int = 12
     holidays_subdiv: str = "BY"
-    holidays_calendar: str = ""      # z. B. calendar.holidays_in_germany (Feiertage-Integration von HA)
+    holidays_entity: str = ""        # Grundlage aus HA, z. B. sensor.feiertag_de_by (sonst eingebaute Liste)
+    holidays_calendar: str = ""      # zusätzliche freie Tage aus einem eigenen HA-Kalender
     timezone: str = "Europe/Berlin"
     card_pin_timeout: int = 15
     lockout_attempts: int = 3

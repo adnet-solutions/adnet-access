@@ -34,7 +34,8 @@ Voraussetzungen: **MQTT** für die HA-Entitäten, optional. Mit dem Mosquitto-Ad
 | `calendar_entity` | optional, z. B. `calendar.zutritt` |
 | `protect_link_template` | optional Link in die Protect-Zeitleiste, `{ts_ms}` wird durch die Zeit ersetzt |
 | `holidays_subdiv` | Bundesland für Feiertage (BY, BW, …), eingebaute Liste (Python-Paket `holidays`) |
-| `holidays_calendar` | optional: HA-Kalender, dessen Termine als Feiertage gelten, z. B. ein eigener Kalender „Betriebsferien Putzhilfe“. **Kein** Google-Feiertagskalender für ganz Deutschland: der enthält auch Feiertage anderer Bundesländer und Gedenktage (Halloween, Advent …). |
+| `holidays_entity` | optional: Feiertage aus einer HA-Entität statt der eingebauten Liste, z. B. `sensor.feiertag_de_by` der Schulferien-Integration oder ein `binary_sensor` (an = Feiertag). Ist sie nicht verfügbar, gilt die eingebaute Liste. |
+| `holidays_calendar` | optional: eigener HA-Kalender mit **zusätzlichen** freien Tagen (Brückentage, Urlaub der Putzhilfe …). Jeder Tag mit Termin zählt wie ein Feiertag. Keinen Google-Feiertagskalender für ganz Deutschland nehmen – der enthält auch fremde Bundesländer und Gedenktage. |
 | `card_pin_timeout` | Sekunden für die PIN nach der Karte (Modus Karte + PIN) |
 | `lockout_attempts`, `lockout_seconds` | Sperre nach Fehlversuchen, die Dauer verdoppelt sich bei Wiederholung |
 

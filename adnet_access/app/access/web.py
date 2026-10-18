@@ -33,15 +33,19 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
         return await call_next(request)
 
     def holiday_ctx() -> dict:
+        import holidays as _h
         today = engine.now().date()
-        if engine.holiday_days is not None:
-            days = sorted(d for d in engine.holiday_days if d >= today)[:3]
-        else:
-            import holidays as _h
-            cal = _h.Germany(subdiv=opts.holidays_subdiv or None, years=[today.year, today.year + 1])
-            days = sorted(d for d in cal.keys() if d >= today)[:3]
-        return {"next_holidays": [(d, engine.holiday_name(d)) for d in days],
-                "holidays_fallback": bool(opts.holidays_calendar) and engine.holiday_days is None}
+        cal = _h.Germany(subdiv=opts.holidays_subdiv or None, years=[today.year, today.year + 1])
+        days = {d: (cal.get(d) or "") for d in cal.keys() if d >= today}
+        if engine.entity_next and engine.entity_next[0] >= today:
+            days[engine.entity_next[0]] = engine.entity_next[1]
+        for d in engine.holiday_days or ():
+            if d >= today:
+                days[d] = engine.holiday_name(d)
+        nxt = sorted(days.items())[:3]
+        return {"next_holidays": nxt,
+                "holidays_fallback": bool(opts.holidays_entity) and engine.entity_holiday is None,
+                "extra_fallback": bool(opts.holidays_calendar) and engine.holiday_days is None}
 
     def render(request: Request, name: str, **ctx):
         if name == "settings.html":

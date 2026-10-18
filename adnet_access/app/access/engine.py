@@ -37,6 +37,8 @@ class Engine:
         self.holidays = holidays.Germany(subdiv=opts.holidays_subdiv or None)
         self.holiday_days: set | None = None       # gesetzt, wenn holidays_calendar genutzt wird
         self.holiday_names: dict = {}
+        self.entity_holiday: tuple | None = None   # (Datum, ist Feiertag) aus holidays_entity
+        self.entity_next: tuple | None = None      # (Datum, Name) nächster Feiertag laut Entität
         self.lockout = Lockout(opts.lockout_attempts, opts.lockout_seconds)
         self.pending: Pending | None = None
         self.learn: tuple[int, float] | None = None      # (person_id, bis)
@@ -54,19 +56,49 @@ class Engine:
     def now(self) -> datetime:
         return datetime.now(self.tz).replace(tzinfo=None)
 
+    # Feiertage = Grundlage (HA-Entität ODER eingebaute Liste) + zusätzliche freie Tage (HA-Kalender)
+    def _base_holiday(self, d) -> bool:
+        if self.opts.holidays_entity and self.entity_holiday is not None and self.entity_holiday[0] == d:
+            return self.entity_holiday[1]
+        return d in self.holidays                      # eingebaute Liste (auch als Rückfall)
+
     def is_holiday(self, dt: datetime) -> bool:
-        if self.holiday_days is not None:            # Feiertagskalender aus HA (holidays_calendar)
-            return dt.date() in self.holiday_days
-        return dt.date() in self.holidays
+        d = dt.date()
+        return self._base_holiday(d) or (self.holiday_days is not None and d in self.holiday_days)
 
     def holiday_name(self, d) -> str:
-        if self.holiday_days is not None:
-            return self.holiday_names.get(d, "") if d in self.holiday_days else ""
+        if self.holiday_days and d in self.holiday_days:
+            return self.holiday_names.get(d, "") or "eigener freier Tag"
+        if self.entity_next and self.entity_next[0] == d:
+            return self.entity_next[1]
         return self.holidays.get(d) or ""
 
+    async def refresh_holiday_entity(self) -> None:
+        """Heutigen Feiertag aus der HA-Entität lesen (z. B. sensor.feiertag_de_by der Schulferien-Integration
+        oder ein binary_sensor). Ist sie nicht verfügbar, gilt die eingebaute Liste."""
+        if not self.opts.holidays_entity:
+            self.entity_holiday = self.entity_next = None
+            return
+        st = await self.ha.get_state(self.opts.holidays_entity)
+        today = self.now().date()
+        if not st or st.get("state") in (None, "unknown", "unavailable"):
+            self.entity_holiday = None
+            return
+        state = str(st["state"]).lower()
+        if self.opts.holidays_entity.startswith("binary_sensor."):
+            self.entity_holiday = (today, state == "on")
+        else:
+            self.entity_holiday = (today, state not in ("kein_feiertag", "off", "false", "0", "none", ""))
+        attrs = st.get("attributes") or {}
+        try:                                           # nächster Feiertag (Schulferien-Integration)
+            nd = datetime.strptime(str(attrs.get("Datum", "")), "%d.%m.%Y").date()
+            self.entity_next = (nd, str(attrs.get("Name Feiertag", "")))
+        except ValueError:
+            self.entity_next = None
+
     async def refresh_holidays(self) -> None:
-        """Feiertage aus dem HA-Kalender holen (ein Jahr im Voraus). Schlägt das fehl, bleibt der letzte
-        Stand; gab es noch keinen, gilt die eingebaute Liste (holidays_subdiv)."""
+        """Zusätzliche freie Tage aus einem HA-Kalender holen (ein Jahr im Voraus). Schlägt das fehl,
+        bleibt der letzte Stand."""
         if not self.opts.holidays_calendar:
             self.holiday_days = None
             return

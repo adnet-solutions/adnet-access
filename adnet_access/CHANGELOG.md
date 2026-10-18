@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.10
+- Feiertage aus einer HA-Entität (`holidays_entity`, z. B. `sensor.feiertag_de_by`); `holidays_calendar` gilt jetzt zusätzlich (eigene freie Tage)
+
 ## 0.1.9
 - Feiertage wahlweise aus einem HA-Kalender (`holidays_calendar`, z. B. Integration „Feiertage“); Anzeige des nächsten Feiertags unter *Einstellungen*
 

@@ -12,8 +12,11 @@ from access.engine import Engine  # noqa: E402
 
 
 class FakeHA:
-    def __init__(self, result):
-        self.result = result
+    def __init__(self, result=None, state=None):
+        self.result, self.state = result, state
+
+    async def get_state(self, entity):
+        return self.state
 
     async def calendar_dates(self, entity, start, end):
         return self.result
@@ -33,12 +36,32 @@ def test_eingebaut_bayern():
     assert not engine(holidays_subdiv="NW").is_holiday(datetime(2026, 1, 6, 9))
 
 
-def test_kalender_ersetzt_liste_und_fallback():
+def test_kalender_ergaenzt_liste_und_fallback():
     e = engine(FakeHA(({date(2026, 10, 20)}, {date(2026, 10, 20): "Test"})), holidays_calendar="calendar.x")
-    assert not e.is_holiday(datetime(2026, 10, 20, 9))      # noch nicht geladen -> eingebaute Liste
+    assert not e.is_holiday(datetime(2026, 10, 20, 9))      # noch nicht geladen
     asyncio.run(e.refresh_holidays())
     assert e.is_holiday(datetime(2026, 10, 20, 9)) and e.holiday_name(date(2026, 10, 20)) == "Test"
-    assert not e.is_holiday(datetime(2026, 11, 1, 9))        # nur noch der Kalender zählt
+    assert e.is_holiday(datetime(2026, 11, 1, 9))            # gesetzliche Feiertage zählen weiter
     e.ha.result = None                                       # Kalender kurz nicht lesbar -> letzter Stand bleibt
     asyncio.run(e.refresh_holidays())
     assert e.is_holiday(datetime(2026, 10, 20, 9))
+
+
+def test_entitaet_als_grundlage(monkeypatch):
+    e = engine(FakeHA(state={"state": "kein_feiertag", "attributes": {"Name Feiertag": "All Saints' Day",
+                                                                    "Datum": "01.11.2026"}}),
+               holidays_entity="sensor.feiertag_de_by")
+    monkeypatch.setattr(e, "now", lambda: datetime(2026, 1, 6, 9))      # Heilige Drei Könige
+    asyncio.run(e.refresh_holiday_entity())
+    assert not e.is_holiday(datetime(2026, 1, 6, 9))        # Entität sagt: kein Feiertag -> gilt
+    assert e.holiday_name(date(2026, 11, 1)) == "All Saints' Day"
+    e.ha.state = {"state": "Heilige Drei Könige", "attributes": {}}
+    asyncio.run(e.refresh_holiday_entity())
+    assert e.is_holiday(datetime(2026, 1, 6, 9))
+    e.ha.state = {"state": "unavailable"}                   # nicht verfügbar -> eingebaute Liste
+    asyncio.run(e.refresh_holiday_entity())
+    assert e.is_holiday(datetime(2026, 1, 6, 9))
+    b = engine(FakeHA(state={"state": "on"}), holidays_entity="binary_sensor.nur_feiertage_de_by")
+    monkeypatch.setattr(b, "now", lambda: datetime(2026, 10, 20, 9))
+    asyncio.run(b.refresh_holiday_entity())
+    assert b.is_holiday(datetime(2026, 10, 20, 9))
