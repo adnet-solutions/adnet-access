@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.8
+- MQTT-Prüfung unter *Einstellungen*: Broker, Erreichbarkeit, TLS, Anmeldung, Senden/Empfangen, Dauerverbindung
+
 ## 0.1.7
 - Richtige Versionsnummer im Protokoll
 

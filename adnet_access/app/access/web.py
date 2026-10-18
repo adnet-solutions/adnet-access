@@ -35,7 +35,7 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
     def render(request: Request, name: str, **ctx):
         base = request.headers.get("X-Ingress-Path", "")
         return tpl.TemplateResponse(request, name, {"base": base, "MODES": MODES, "DAYS": DAY_NAMES,
-                                                    "esp": esp, "flag": engine.flag, **ctx})
+                                                    "esp": esp, "mqtt": mqtt, "flag": engine.flag, **ctx})
 
     def back(request: Request, path: str):
         return RedirectResponse(request.headers.get("X-Ingress-Path", "") + path, status_code=303)
@@ -284,6 +284,11 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
     @app.post("/test/{what}")
     async def test(request: Request, what: str):
         msg = ""
+        if what == "mqtt" and mqtt:
+            steps = await mqtt.diagnose()
+            store = engine.snapshot_store()
+            return render(request, "settings.html", opts=opts, offline=engine.offline_list(), store=store,
+                          store_ok=str(store) == str(Path(opts.snapshot_dir or opts.media_dir)), mqtt_steps=steps)
         if what in ("shelly", "shelly_schalten"):
             steps = await engine.shelly.diagnose(switch=what == "shelly_schalten")
             if what == "shelly_schalten" and any(st.name == "Schalten" and st.ok for st in steps):

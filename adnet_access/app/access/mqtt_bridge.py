@@ -21,10 +21,13 @@ class MqttBridge:
     def __init__(self, engine, esp) -> None:
         self.engine, self.esp = engine, esp
         self.client: aiomqtt.Client | None = None
+        self.last_error = ""
+        self.source = ""            # "Konfiguration" oder "Mosquitto-Add-on"
 
     async def _creds(self) -> dict | None:
         o = self.engine.opts
         if o.mqtt_host:                       # eigener Broker (nicht das Mosquitto-Add-on)
+            self.source = "Konfiguration"
             return {"host": o.mqtt_host, "port": o.mqtt_port or (8883 if o.mqtt_tls else 1883),
                     "username": o.mqtt_user or None, "password": o.mqtt_password or None, "ssl": o.mqtt_tls}
         token = supervisor_token()
@@ -35,6 +38,7 @@ class MqttBridge:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.get("http://supervisor/services/mqtt", headers={"Authorization": f"Bearer {token}"})
                 r.raise_for_status()
+                self.source = "Mosquitto-Add-on"
                 return r.json()["data"]
         except Exception as e:  # noqa: BLE001
             log.warning("Kein Mosquitto-Add-on gefunden (%s). Für einen eigenen Broker mqtt_host/mqtt_user/"
@@ -45,19 +49,14 @@ class MqttBridge:
         creds = await self._creds()
         if not creds:
             return
-        tls = None
-        if creds.get("ssl"):
-            import ssl
-            tls = ssl.create_default_context()
-            if self.engine.opts.mqtt_tls_insecure:      # selbstsigniertes Zertifikat am Broker
-                tls.check_hostname = False
-                tls.verify_mode = ssl.CERT_NONE
+        tls = self._tls(creds)
         while True:
             try:
                 async with aiomqtt.Client(creds["host"], int(creds.get("port", 1883)), username=creds.get("username"),
                                           password=creds.get("password"), tls_context=tls,
                                           will=aiomqtt.Will(f"{P}/status", "offline", retain=True)) as client:
                     self.client = client
+                    self.last_error = ""
                     log.info("MQTT verbunden mit %s, Entitäten werden angelegt", creds["host"])
                     await client.publish(f"{P}/status", "online", retain=True)
                     await self.publish_discovery()
@@ -67,8 +66,93 @@ class MqttBridge:
                         await self._on_cmd(str(msg.topic), msg.payload.decode())
             except (aiomqtt.MqttError, OSError) as e:
                 self.client = None
+                self.last_error = str(e)
                 log.warning("MQTT getrennt (%s), neuer Versuch in 10 s", e)
                 await asyncio.sleep(10)
+
+    def _tls(self, creds: dict):
+        if not creds.get("ssl"):
+            return None
+        import ssl
+        tls = ssl.create_default_context()
+        if self.engine.opts.mqtt_tls_insecure:      # selbstsigniertes Zertifikat am Broker
+            tls.check_hostname = False
+            tls.verify_mode = ssl.CERT_NONE
+        return tls
+
+    async def diagnose(self) -> list:
+        """Prüft Schritt für Schritt: Zugangsdaten, Netz, TLS, Anmeldung, Senden/Empfangen, Status der Brücke."""
+        from .shelly import Step
+        steps: list[Step] = []
+        creds = await self._creds()
+        if not creds:
+            return [Step("Broker", False, "Kein Broker: weder mqtt_host gesetzt noch Mosquitto-Add-on vorhanden")]
+        host, port = creds["host"], int(creds.get("port") or 1883)
+        steps.append(Step("Broker", True, f"{host}:{port} (aus {self.source}"
+                                          f"{', TLS' if creds.get('ssl') else ', unverschlüsselt'})"))
+        # 1. Netz
+        try:
+            _, w = await asyncio.wait_for(asyncio.open_connection(host, port), 4)
+            w.close()
+            steps.append(Step("Erreichbar", True, f"Port {port} ist offen"))
+        except asyncio.TimeoutError:
+            steps.append(Step("Erreichbar", False, f"{host}:{port} antwortet nicht – IP, Port oder Firewall prüfen"))
+            return steps
+        except OSError as e:
+            steps.append(Step("Erreichbar", False, f"{host}:{port}: {e.strerror or e} – läuft der Broker, stimmt der Port?"))
+            return steps
+        if not creds.get("ssl"):
+            steps.append(Step("Verschlüsselung", None, "ohne TLS – im Heimnetz üblich; Broker mit TLS: mqtt_tls einschalten"))
+        if not creds.get("username"):
+            steps.append(Step("Benutzer", None, "kein Benutzer gesetzt – nur ok, wenn der Broker anonyme Zugriffe erlaubt"))
+        # 2. Anmeldung + Senden/Empfangen
+        topic = f"{P}/test/{os.getpid()}-{int(asyncio.get_running_loop().time() * 1000)}"
+        try:
+            async with aiomqtt.Client(host, port, username=creds.get("username"), password=creds.get("password"),
+                                      tls_context=self._tls(creds), timeout=6,
+                                      identifier=f"adnet-access-test-{os.getpid()}") as c:
+                if creds.get("ssl"):
+                    steps.append(Step("Verschlüsselung", True, "TLS-Verbindung steht"))
+                steps.append(Step("Anmeldung", True, f"angemeldet{' als ' + creds['username'] if creds.get('username') else ''}"))
+                await c.subscribe(topic)
+                await c.publish(topic, "ping")
+                try:
+                    async with asyncio.timeout(4):
+                        async for msg in c.messages:
+                            if str(msg.topic) == topic:
+                                break
+                    steps.append(Step("Senden/Empfangen", True, "Testnachricht kam zurück"))
+                except TimeoutError:
+                    steps.append(Step("Senden/Empfangen", False, "Testnachricht kam nicht zurück – fehlen dem Benutzer "
+                                                                 f"Rechte auf {P}/# (ACL)?"))
+                await c.publish(topic, b"", retain=False)
+        except aiomqtt.MqttCodeError as e:
+            rc = getattr(e.rc, "value", e.rc)
+            if rc in (4, 134):
+                msg = "Benutzer oder Passwort falsch"
+            elif rc in (5, 135):
+                msg = ("Anmeldung abgelehnt – Benutzer/Passwort falsch oder Benutzer nicht freigeschaltet "
+                       "(Mosquitto meldet beides gleich)")
+            else:
+                msg = str(e)
+            steps.append(Step("Anmeldung", False, msg))
+            return steps
+        except aiomqtt.MqttError as e:
+            text = str(e)
+            if "SSL" in text or "certificate" in text.lower():
+                steps.append(Step("Verschlüsselung", False, f"TLS fehlgeschlagen: {text}. Selbstsigniert? "
+                                                            "mqtt_tls_insecure einschalten"))
+            else:
+                steps.append(Step("Anmeldung", False, f"Verbindung abgebrochen: {text}"))
+            return steps
+        # 3. laufende Verbindung des Add-ons
+        if self.client:
+            n = 5 + len(self.engine.db.q("SELECT id FROM persons"))
+            steps.append(Step("Add-on verbunden", True, f"läuft; {n} Entitäten an HA gemeldet (Gerät „Haustür Zutritt“)"))
+        else:
+            steps.append(Step("Add-on verbunden", False, "Testverbindung geht, die Dauerverbindung aber nicht"
+                              + (f" ({self.last_error})" if self.last_error else "") + " – Add-on neu starten"))
+        return steps
 
     async def _pub(self, topic: str, payload, retain: bool = True) -> None:
         if self.client:
