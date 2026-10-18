@@ -16,6 +16,12 @@ class Options:
     shelly_password: str = ""
     shelly_switch_id: int = 0
     shelly_pulse_seconds: float = 1.0
+    mqtt_host: str = ""          # leer = Mosquitto-Add-on automatisch
+    mqtt_port: int = 0           # 0 = 1883 bzw. 8883 mit TLS
+    mqtt_user: str = ""
+    mqtt_password: str = ""
+    mqtt_tls: bool = False
+    mqtt_tls_insecure: bool = False
     camera_entity: str = ""
     notify_service: str = ""
     calendar_entity: str = ""

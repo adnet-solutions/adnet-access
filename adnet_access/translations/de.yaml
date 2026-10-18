@@ -19,6 +19,22 @@ configuration:
   shelly_pulse_seconds:
     name: Schaltimpuls (Sekunden)
     description: So lange schließt das Shelly-Relais (0,2–10 s). Motorschloss mit Impuls-Eingang 1 s, elektrischer Türöffner/Summer 3–5 s. Gleicher Wert wie "impuls_s" in der ESPHome-Konfiguration (Offline-Modus).
+  mqtt_host:
+    name: MQTT-Broker (eigener)
+    description: Nur nötig, wenn kein Mosquitto-Add-on läuft, z. B. 192.168.2.37. Leer = Mosquitto-Add-on automatisch.
+  mqtt_port:
+    name: MQTT-Port
+    description: 0 = Standard (1883, mit TLS 8883)
+  mqtt_user:
+    name: MQTT-Benutzer
+  mqtt_password:
+    name: MQTT-Passwort
+  mqtt_tls:
+    name: MQTT verschlüsselt (TLS)
+    description: Nur einschalten, wenn der Broker TLS anbietet (meist Port 8883)
+  mqtt_tls_insecure:
+    name: TLS-Zertifikat nicht prüfen
+    description: Nur für selbstsignierte Zertifikate im Heimnetz
   camera_entity:
     name: Kamera für Snapshots
     description: z. B. camera.eingang_high (UniFi Protect)

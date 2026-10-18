@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.6
+- Eigener MQTT-Broker einstellbar (`mqtt_host`, `mqtt_user`, `mqtt_password`, optional TLS), wenn kein Mosquitto-Add-on läuft
+
 ## 0.1.5
 - Behoben: Kamera-Snapshot, Push, Kalender und MQTT-Entitäten gingen nicht (Supervisor-Token wurde unter s6 nicht gefunden)
 - Protokoll in Ortszeit, weniger HTTP-Rauschen

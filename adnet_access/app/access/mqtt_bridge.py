@@ -23,6 +23,10 @@ class MqttBridge:
         self.client: aiomqtt.Client | None = None
 
     async def _creds(self) -> dict | None:
+        o = self.engine.opts
+        if o.mqtt_host:                       # eigener Broker (nicht das Mosquitto-Add-on)
+            return {"host": o.mqtt_host, "port": o.mqtt_port or (8883 if o.mqtt_tls else 1883),
+                    "username": o.mqtt_user or None, "password": o.mqtt_password or None, "ssl": o.mqtt_tls}
         token = supervisor_token()
         if not token:
             log.warning("Kein Supervisor-Token – MQTT-Entitäten deaktiviert")
@@ -33,17 +37,25 @@ class MqttBridge:
                 r.raise_for_status()
                 return r.json()["data"]
         except Exception as e:  # noqa: BLE001
-            log.info("Kein MQTT-Broker verfügbar (%s) – HA-Entitäten deaktiviert", e)
+            log.warning("Kein Mosquitto-Add-on gefunden (%s). Für einen eigenen Broker mqtt_host/mqtt_user/"
+                        "mqtt_password in der Konfiguration setzen – bis dahin keine HA-Entitäten", e)
             return None
 
     async def run(self) -> None:
         creds = await self._creds()
         if not creds:
             return
+        tls = None
+        if creds.get("ssl"):
+            import ssl
+            tls = ssl.create_default_context()
+            if self.engine.opts.mqtt_tls_insecure:      # selbstsigniertes Zertifikat am Broker
+                tls.check_hostname = False
+                tls.verify_mode = ssl.CERT_NONE
         while True:
             try:
                 async with aiomqtt.Client(creds["host"], int(creds.get("port", 1883)), username=creds.get("username"),
-                                          password=creds.get("password"),
+                                          password=creds.get("password"), tls_context=tls,
                                           will=aiomqtt.Will(f"{P}/status", "offline", retain=True)) as client:
                     self.client = client
                     log.info("MQTT verbunden mit %s, Entitäten werden angelegt", creds["host"])
@@ -53,7 +65,7 @@ class MqttBridge:
                     asyncio.create_task(self._status_loop())
                     async for msg in client.messages:
                         await self._on_cmd(str(msg.topic), msg.payload.decode())
-            except aiomqtt.MqttError as e:
+            except (aiomqtt.MqttError, OSError) as e:
                 self.client = None
                 log.warning("MQTT getrennt (%s), neuer Versuch in 10 s", e)
                 await asyncio.sleep(10)

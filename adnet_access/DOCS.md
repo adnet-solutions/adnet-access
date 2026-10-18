@@ -15,7 +15,7 @@ Das Repository ist privat, deshalb kann der Add-on-Store es nicht selbst abholen
 **b) Als Add-on-Repository (wenn das Repo öffentlich ist)**
 *Add-on-Store* → ⋮ → *Repositories* → `https://github.com/adnet-solutions/adnet-access` hinzufügen.
 
-Voraussetzungen: **MQTT** (Mosquitto-Add-on) für die HA-Entitäten, optional. Ohne MQTT läuft alles, nur ohne Schalter in HA.
+Voraussetzungen: **MQTT** für die HA-Entitäten, optional. Mit dem Mosquitto-Add-on geht das automatisch. Läuft der Broker woanders (NAS, eigener Server), `mqtt_host`, `mqtt_user` und `mqtt_password` eintragen – am besten einen eigenen Benutzer für das Add-on anlegen. Ohne MQTT läuft alles, nur ohne Schalter in HA.
 
 ## 2. Einrichten (Reiter *Konfiguration*)
 
