@@ -1,0 +1,53 @@
+configuration:
+  esphome_host:
+    name: Leser (ESPHome-Gerät)
+    description: Hostname oder IP des AtomS3 an der Tür, z. B. haustuer-zutritt.local
+  esphome_key:
+    name: API-Schlüssel des Lesers
+    description: Der Noise-Schlüssel (api encryption key) aus der ESPHome-Konfiguration. Die Verbindung ist damit verschlüsselt.
+  pin_key:
+    name: PIN-Schlüssel
+    description: Geheimer Schlüssel, mit dem PINs gehasht werden. Muss identisch mit "pin_key" in den ESPHome-Secrets sein. Nachträglich ändern = alle PINs neu setzen.
+  shelly_host:
+    name: Shelly (Türöffner)
+    description: IP des Shelly, der parallel zum ekey-Relais schaltet
+  shelly_password:
+    name: Shelly-Passwort
+    description: Passwort des Shelly (Digest-Anmeldung, Benutzer admin)
+  shelly_switch_id:
+    name: Shelly-Kanal
+  camera_entity:
+    name: Kamera für Snapshots
+    description: z. B. camera.eingang_high (UniFi Protect)
+  notify_service:
+    name: Benachrichtigungsdienst
+    description: z. B. notify.mobile_app_enricos_iphone
+  calendar_entity:
+    name: Kalender für Termine
+    description: Optional. Termine mit Titel "Zutritt: Name1, Name2" geben diesen Personen für die Dauer des Termins Zutritt.
+  protect_link_template:
+    name: Link zu UniFi Protect
+    description: Optional, z. B. https://192.168.1.1/protect/timelapse/<kamera-id>?start={ts_ms} – {ts_ms}/{ts} werden ersetzt
+  snapshot_crop:
+    name: Bildausschnitt
+    description: Optional "x,y,breite,höhe" in Prozent, z. B. 30,10,40,80
+  snapshot_dir:
+    name: Speicherort Snapshots
+    description: Ordner unter /media. Standard /media/adnet_access (interne Platte). Für ein NAS (Einstellungen → System → Speicher → Netzwerkspeicher, Typ Medien) z. B. /media/nas_zutritt. Ist der Speicher nicht erreichbar, wird vorübergehend intern gespeichert.
+  snapshot_days:
+    name: Snapshots aufbewahren (Tage)
+  log_months:
+    name: Logbuch aufbewahren (Monate)
+  holidays_subdiv:
+    name: Bundesland für Feiertage
+    description: BY, BW, NW, ... (leer = nur bundesweite Feiertage)
+  timezone:
+    name: Zeitzone
+  card_pin_timeout:
+    name: Zeit für PIN nach Karte (Sekunden)
+  lockout_attempts:
+    name: Fehlversuche bis zur Sperre
+  lockout_seconds:
+    name: Sperrdauer (Sekunden, verdoppelt sich bei Wiederholung)
+network:
+  8098/tcp: Handy-Webhook (nur im Heimnetz)

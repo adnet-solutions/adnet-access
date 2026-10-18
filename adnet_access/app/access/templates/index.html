@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Übersicht{% endblock %}
+{% block content %}
+<section class="cards">
+  <div class="card">
+    <h3>Tür</h3>
+    <form method="post" action="{{ base }}/oeffnen"><button class="primary big">Tür öffnen</button></form>
+  </div>
+  <div class="card">
+    <h3>Sperren</h3>
+    <form method="post" action="{{ base }}/schalter/vacation_lock">
+      <button class="{{ 'danger' if flag('vacation_lock') else '' }}">Urlaubssperre: {{ 'AN' if flag('vacation_lock') else 'aus' }}</button>
+    </form>
+    <p class="muted">Nur Personen mit „trotz Urlaubssperre“ kommen rein.</p>
+    <form method="post" action="{{ base }}/schalter/keypad_locked">
+      <button class="{{ 'danger' if flag('keypad_locked') else '' }}">Tastatur gesperrt: {{ 'JA' if flag('keypad_locked') else 'nein' }}</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Letzte 24 Stunden</h3>
+    <p class="stat"><b>{{ stats.ok or 0 }}</b> geöffnet · <b>{{ stats.nok or 0 }}</b> abgelehnt</p>
+  </div>
+</section>
+<h2>Letzte Ereignisse</h2>
+{% include "_logrows.html" %}
+<p><a href="{{ base }}/logbuch">Ganzes Logbuch →</a></p>
+{% endblock %}

@@ -1,0 +1,41 @@
+"""Add-on-Optionen aus /data/options.json (lokal: Umgebungsvariable ADNET_OPTIONS)."""
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import dataclass, fields
+from pathlib import Path
+
+
+@dataclass
+class Options:
+    esphome_host: str = "haustuer-zutritt.local"
+    esphome_key: str = ""
+    pin_key: str = ""
+    shelly_host: str = ""
+    shelly_password: str = ""
+    shelly_switch_id: int = 0
+    camera_entity: str = ""
+    notify_service: str = ""
+    calendar_entity: str = ""
+    protect_link_template: str = ""
+    snapshot_crop: str = ""
+    snapshot_dir: str = "/media/adnet_access"   # z. B. USB-Stick /media/usbstick/zutritt oder NAS
+    snapshot_days: int = 30
+    log_months: int = 12
+    holidays_subdiv: str = "BY"
+    timezone: str = "Europe/Berlin"
+    card_pin_timeout: int = 15
+    lockout_attempts: int = 3
+    lockout_seconds: int = 60
+    # nicht in config.yaml: nur für Entwicklung
+    data_dir: str = "/data"
+    media_dir: str = "/media/adnet_access"
+    dev: bool = False
+
+
+def load() -> Options:
+    path = Path(os.environ.get("ADNET_OPTIONS", "/data/options.json"))
+    raw = json.loads(path.read_text()) if path.exists() else {}
+    known = {f.name for f in fields(Options)}
+    return Options(**{k: v for k, v in raw.items() if k in known})

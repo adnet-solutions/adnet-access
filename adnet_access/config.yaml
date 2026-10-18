@@ -1,0 +1,65 @@
+name: AD.NET Access
+version: "0.1.0"
+slug: adnet_access
+description: Zutrittskontrolle für die Haustür (Wiegand-Tastatur mit Karte/PIN, Handy, Shelly, Logbuch mit Snapshot)
+url: https://github.com/adnet-solutions/adnet-access
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:door-closed-lock
+panel_title: Zutritt
+panel_admin: true
+homeassistant_api: true
+services:
+  - mqtt:want
+map:
+  - media:rw
+ports:
+  8098/tcp: 8098
+ports_description:
+  8098/tcp: Handy-Webhook (nur im Heimnetz freigeben)
+options:
+  esphome_host: haustuer-zutritt.local
+  esphome_key: ""
+  pin_key: ""
+  shelly_host: ""
+  shelly_password: ""
+  shelly_switch_id: 0
+  camera_entity: ""
+  notify_service: ""
+  calendar_entity: ""
+  protect_link_template: ""
+  snapshot_crop: ""
+  snapshot_dir: /media/adnet_access
+  snapshot_days: 30
+  log_months: 12
+  holidays_subdiv: BY
+  timezone: Europe/Berlin
+  card_pin_timeout: 15
+  lockout_attempts: 3
+  lockout_seconds: 60
+schema:
+  esphome_host: str
+  esphome_key: password
+  pin_key: password
+  shelly_host: str
+  shelly_password: password?
+  shelly_switch_id: int(0,3)
+  camera_entity: str?
+  notify_service: str?
+  calendar_entity: str?
+  protect_link_template: str?
+  snapshot_crop: str?
+  snapshot_dir: match(^/media/.+)
+  snapshot_days: int(1,365)
+  log_months: int(1,60)
+  holidays_subdiv: str
+  timezone: str
+  card_pin_timeout: int(5,60)
+  lockout_attempts: int(2,10)
+  lockout_seconds: int(10,3600)

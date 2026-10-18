@@ -1,0 +1,266 @@
+# adnet-access: Firmware fuer den Atom an der Wiegand-Tastatur (UHPPOTE 13,56 MHz, Wiegand 26/34)
+#
+# Aufgabe des Atom:
+#   - Karte (on_tag) und PIN (Tasten + '#') von der Tastatur lesen
+#   - PIN sofort per HMAC-SHA256 verschluesseln, nie im Klartext weitergeben
+#   - Ereignisse ueber die VERSCHLUESSELTE ESPHome-API an das Add-on "adnet-access" melden
+#   - Offline-Modus: meldet sich das Add-on > 90 s nicht, entscheidet der Atom selbst anhand der
+#     zuletzt uebertragenen Liste und schaltet den Shelly direkt. Diese Entscheidungen merkt er sich im
+#     Text-Sensor "Offline-Protokoll"; das Add-on uebernimmt sie beim naechsten Verbinden ins Logbuch.
+#
+# Ereignis-JSON (Text-Sensor "Ereignis"): {"n": Zaehler, "t": "karte"|"pin", "v": Karten-ID bzw. PIN-HMAC}
+#
+# Anschluss (Grove-Port des AtomS3 Lite, ggf. ueber Spannungsteiler - siehe README):
+#   G1 = D0 (gruen),  G2 = D1 (weiss),  5V = rot (vom SD-15B-5),  GND = schwarz (gemeinsame Masse)
+
+substitutions:
+  name: haustuer-zutritt
+  friendly_name: Haustür Zutritt
+  shelly_host: !secret adnet_shelly_host     # nur fuer den Offline-Modus (Shelly per Firewall absichern)
+  shelly_id: "0"
+  impuls_s: "1"
+  pin_key: !secret adnet_pin_key             # identisch mit "pin_key" in den Add-on-Optionen
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  includes:
+    - adnet_access.h
+
+esp32:
+  board: m5stack-atoms3
+  framework:
+    type: esp-idf
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret adnet_api_key
+  actions:
+    # vom Add-on alle 30 s: "ich lebe" -> Atom bleibt im Online-Modus
+    - action: heartbeat
+      then:
+        - lambda: 'id(letzter_heartbeat) = millis();'
+    # vom Add-on bei jeder Aenderung: Offline-Liste (Format siehe adnet_access.h)
+    - action: liste_setzen
+      variables:
+        daten: string
+      then:
+        - lambda: |-
+            auto &a = id(offline_liste);
+            size_t n = std::min(daten.size(), a.size() - 1);
+            memcpy(a.data(), daten.data(), n);
+            a[n] = 0;
+            ESP_LOGI("adnet", "Offline-Liste aktualisiert (%u Zeichen)", (unsigned) n);
+    # vom Add-on nach jeder Entscheidung: kurz gruen (geoeffnet) oder rot (abgelehnt) an der Atom-LED
+    - action: rueckmeldung
+      variables:
+        ok: bool
+      then:
+        - if:
+            condition:
+              lambda: 'return ok;'
+            then:
+              - light.turn_on: {id: status_led, red: 0%, green: 100%, blue: 0%, brightness: 40%}
+            else:
+              - light.turn_on: {id: status_led, red: 100%, green: 0%, blue: 0%, brightness: 40%}
+        - delay: 2s
+        - light.turn_off: status_led
+    # vom Add-on nach dem Abholen des Offline-Protokolls
+    - action: offline_protokoll_loeschen
+      then:
+        - lambda: |-
+            id(offline_log) = "";
+            id(offline_protokoll).publish_state("");
+
+ota:
+  - platform: esphome
+    encryption:
+      key: !secret adnet_api_key
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Haustuer-Zutritt"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+time:
+  - platform: sntp
+    id: zeit
+    timezone: Europe/Berlin
+
+http_request:
+  timeout: 4s
+
+globals:
+  - id: letzter_heartbeat
+    type: uint32_t
+    initial_value: '0'
+  - id: seq
+    type: uint32_t
+    initial_value: '0'
+  - id: offline_liste
+    type: std::array<char, 1900>      # Add-on sendet max. 1800 Zeichen
+    restore_value: yes
+  - id: offline_log
+    type: std::string
+    initial_value: '""'
+  - id: wartende_karte
+    type: std::string
+    initial_value: '""'
+  - id: wartende_seit
+    type: uint32_t
+    initial_value: '0'
+
+wiegand:
+  - id: tastatur
+    d0:
+      number: GPIO1
+      mode:
+        input: true
+        pullup: true
+    d1:
+      number: GPIO2
+      mode:
+        input: true
+        pullup: true
+    on_tag:
+      then:
+        - lambda: |-
+            id(seq) += 1;
+            char buf[128];
+            snprintf(buf, sizeof(buf), "{\"n\":%u,\"t\":\"karte\",\"v\":\"%s\"}",
+                     (unsigned) id(seq), x.c_str());
+            id(ereignis).publish_state(buf);
+            if (!id(ist_online)) id(offline_karte).execute(x);
+
+key_collector:
+  - id: pin_sammler
+    source_id: tastatur
+    min_length: 4
+    max_length: 8
+    allowed_keys: "0123456789"
+    end_keys: "#"
+    end_key_required: true
+    back_keys: "*"
+    timeout: 10s
+    on_result:
+      then:
+        - lambda: |-
+            std::string h = adnet::pin_hmac("${pin_key}", x);
+            id(seq) += 1;
+            char buf[128];
+            snprintf(buf, sizeof(buf), "{\"n\":%u,\"t\":\"pin\",\"v\":\"%s\"}", (unsigned) id(seq), h.c_str());
+            id(ereignis).publish_state(buf);
+            if (!id(ist_online)) id(offline_pin).execute(h);
+
+binary_sensor:
+  - platform: template
+    id: ist_online
+    name: Add-on verbunden
+    entity_category: diagnostic
+    lambda: 'return id(letzter_heartbeat) != 0 && (millis() - id(letzter_heartbeat)) < 90000;'
+  - platform: status
+    name: Verbunden
+
+text_sensor:
+  # Ereignis-Kanal fuer das Add-on (in HA standardmaessig ausgeblendet, PINs nur als HMAC)
+  - platform: template
+    id: ereignis
+    name: Ereignis
+    entity_category: diagnostic
+    disabled_by_default: true
+  - platform: template
+    id: offline_protokoll
+    name: Offline-Protokoll
+    entity_category: diagnostic
+    disabled_by_default: true
+
+light:
+  # eingebaute RGB-LED des AtomS3 Lite (nur Rueckmeldung beim Testen, sitzt im Gehaeuse)
+  - platform: esp32_rmt_led_strip
+    id: status_led
+    name: Status-LED
+    entity_category: diagnostic
+    disabled_by_default: true
+    pin: GPIO35
+    num_leds: 1
+    chipset: WS2812
+    channel_colors: GRB
+
+sensor:
+  - platform: wifi_signal
+    name: WLAN-Signal
+    update_interval: 60s
+  - platform: uptime
+    name: Laufzeit
+    entity_category: diagnostic
+
+script:
+  - id: shelly_oeffnen
+    mode: single
+    then:
+      - http_request.get:
+          url: "http://${shelly_host}/rpc/Switch.Set?id=${shelly_id}&on=true&toggle_after=${impuls_s}"
+
+  - id: offline_merken
+    mode: queued
+    parameters:
+      text: string
+    then:
+      - lambda: |-
+          auto t = id(zeit).now();
+          char buf[96];
+          snprintf(buf, sizeof(buf), "%lld|%s\n", (long long) (t.is_valid() ? t.timestamp : 0), text.c_str());
+          id(offline_log) += buf;
+          if (id(offline_log).size() > 1500) id(offline_log) = id(offline_log).substr(id(offline_log).size() - 1500);
+          id(offline_protokoll).publish_state(id(offline_log));
+
+  - id: offline_karte
+    mode: queued
+    parameters:
+      uid: string
+    then:
+      - lambda: |-
+          auto t = id(zeit).now();
+          if (!t.is_valid()) { id(offline_merken).execute("karte:" + uid + ":keine_zeit"); return; }
+          int ws = ((t.day_of_week + 5) % 7) * 24 + t.hour;   // day_of_week: 1 = Sonntag
+          long tag = (long) (t.timestamp / 86400);
+          const char *liste = id(offline_liste).data();
+          if (adnet::offline_check(liste, 'K', uid, "", ws, tag)) {
+            id(shelly_oeffnen).execute();
+            id(offline_merken).execute("karte:" + uid + ":offen");
+          } else if (adnet::offline_needs_pin(liste, uid)) {
+            id(wartende_karte) = uid;
+            id(wartende_seit) = millis();
+            id(offline_merken).execute("karte:" + uid + ":warte_pin");
+          } else {
+            id(offline_merken).execute("karte:" + uid + ":abgelehnt");
+          }
+
+  - id: offline_pin
+    mode: queued
+    parameters:
+      hash: string
+    then:
+      - lambda: |-
+          auto t = id(zeit).now();
+          if (!t.is_valid()) { id(offline_merken).execute("pin:" + hash + ":keine_zeit"); return; }
+          int ws = ((t.day_of_week + 5) % 7) * 24 + t.hour;
+          long tag = (long) (t.timestamp / 86400);
+          const char *liste = id(offline_liste).data();
+          bool ok = false;
+          if (!id(wartende_karte).empty() && millis() - id(wartende_seit) < 15000) {
+            ok = adnet::offline_check(liste, 'C', id(wartende_karte), hash, ws, tag);
+            id(offline_merken).execute("karte+pin:" + id(wartende_karte) + ":" + hash + (ok ? ":offen" : ":abgelehnt"));
+            id(wartende_karte) = "";
+          } else {
+            ok = adnet::offline_check(liste, 'P', "", hash, ws, tag);
+            id(offline_merken).execute("pin:" + hash + (ok ? ":offen" : ":abgelehnt"));
+          }
+          if (ok) id(shelly_oeffnen).execute();

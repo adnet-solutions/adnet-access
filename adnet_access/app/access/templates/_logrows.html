@@ -1,0 +1,19 @@
+<table class="log">
+<thead><tr><th>Zeit</th><th>Person</th><th>Weg</th><th>Ergebnis</th><th>Grund</th><th>Bild</th></tr></thead>
+<tbody>
+{% for r in rows %}
+<tr class="r-{{ r.result }}">
+  <td>{{ r.ts.replace('T', ' ') }}</td>
+  <td>{% if r.person_id %}<a href="{{ base }}/personen/{{ r.person_id }}">{{ r.person_name }}</a>{% else %}{{ r.person_name or '–' }}{% endif %}
+      {% if r.credential %}<br><small>{{ r.credential }}</small>{% endif %}</td>
+  <td>{{ r.method }}</td>
+  <td><span class="badge {{ r.result }}">{{ r.result }}</span></td>
+  <td>{{ r.reason }}</td>
+  <td>{% if r.snapshot %}<a href="{{ base }}/snap/{{ r.id }}" target="_blank"><img class="thumb" loading="lazy" src="{{ base }}/snap/{{ r.id }}" alt=""></a>{% endif %}
+      {% if r.protect_link %}<br><a href="{{ r.protect_link }}" target="_blank" rel="noopener">Protect</a>{% endif %}</td>
+</tr>
+{% else %}
+<tr><td colspan="6" class="muted">Noch keine Einträge</td></tr>
+{% endfor %}
+</tbody>
+</table>

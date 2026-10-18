@@ -1,0 +1,87 @@
+# Haustür-Zutritt: M5Stack AtomS3 Lite + Unit RFID2 (WS1850S)
+#
+# Der Leser entscheidet NICHTS. Er meldet nur "Tag gescannt" an Home Assistant.
+# HA prüft Tag + Zeitfenster und schaltet den Shelly am Motorschloss.
+#
+# Pins (AtomS3 Lite):  Grove-Port  G2 = SDA, G1 = SCL  -> Unit RFID2
+# Vor dem ersten Flashen am Gerät prüfen (Pinbelegung steht auf der Rückseite des Atom).
+
+substitutions:
+  name: haustuer-zutritt
+  friendly_name: Haustür Zutritt
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: m5stack-atoms3
+  framework:
+    type: esp-idf
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret haustuer_zutritt_api_key
+
+ota:
+  - platform: esphome
+    encryption:
+      key: !secret haustuer_zutritt_api_key
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Haustuer-Zutritt"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+i2c:
+  sda: GPIO2
+  scl: GPIO1
+  frequency: 50kHz     # langsam, weil die Leitung durch die Wand ca. 1-2 m lang ist
+  scan: true
+
+rc522_i2c:
+  address: 0x28
+  update_interval: 300ms
+  on_tag:
+    then:
+      # Sperre gegen Mehrfachauslösung, solange die Karte vor dem Leser liegt
+      - if:
+          condition:
+            lambda: 'return millis() - id(letzter_scan) > 3000;'
+          then:
+            - lambda: 'id(letzter_scan) = millis();'
+            - homeassistant.tag_scanned: !lambda 'return x;'
+            - text_sensor.template.publish:
+                id: letzter_tag
+                state: !lambda 'return x;'
+
+globals:
+  - id: letzter_scan
+    type: uint32_t
+    initial_value: '0'
+
+text_sensor:
+  - platform: template
+    id: letzter_tag
+    name: Letzter Tag
+    icon: mdi:card-account-details
+    entity_category: diagnostic
+
+sensor:
+  - platform: wifi_signal
+    name: WLAN-Signal
+    update_interval: 60s
+  - platform: uptime
+    name: Laufzeit
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: status
+    name: Verbunden

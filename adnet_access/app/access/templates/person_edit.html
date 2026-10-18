@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name if p else 'Neue Person' }}{% endblock %}
+{% block content %}
+<h2>{{ p.name if p else 'Neue Person' }}</h2>
+<form method="post" action="{{ base }}/personen/{{ p.id if p else 0 }}" class="grid">
+  <fieldset>
+    <legend>Person</legend>
+    <label>Name <input name="name" required value="{{ p.name if p else '' }}"></label>
+    <label>Notiz <input name="note" value="{{ p.note if p else '' }}"></label>
+    <label>Gültig ab <input type="date" name="valid_from" value="{{ (p.valid_from or '')[:10] if p else '' }}"></label>
+    <label>Gültig bis (einschließlich) <input type="date" name="valid_to" value="{{ (p.valid_to or '')[:10] if p else '' }}"></label>
+    <label>Öffnen mit
+      <select name="mode">{% for k, v in MODES.items() %}<option value="{{ k }}" {{ 'selected' if p and p.mode == k }}>{{ v }}</option>{% endfor %}</select>
+    </label>
+    <label>Neue PIN <input name="pin" inputmode="numeric" autocomplete="off" pattern="[0-9]{4,8}" placeholder="{{ 'gesetzt – leer lassen zum Behalten' if p and p.pin_hash else '4–8 Ziffern (nur PIN: mind. 6)' }}"></label>
+    {% if p and p.pin_hash %}<label class="check"><input type="checkbox" name="pin_clear"> PIN löschen</label>{% endif %}
+  </fieldset>
+  <fieldset>
+    <legend>Wann</legend>
+    {% for pr in profiles %}
+      <label class="check"><input type="checkbox" name="profiles" value="{{ pr.id }}" {{ 'checked' if pr.id in sel }}> {{ pr.name }}</label>
+    {% endfor %}
+    <p class="muted"><a href="{{ base }}/zeitprofile">Zeitprofile bearbeiten</a></p>
+    <label class="check"><input type="checkbox" name="always" {{ 'checked' if p and p.always }}> Jederzeit (ohne Zeitprofil)</label>
+    <label class="check"><input type="checkbox" name="ignore_vacation" {{ 'checked' if p and p.ignore_vacation }}> Auch bei Urlaubssperre</label>
+  </fieldset>
+  <fieldset>
+    <legend>Sperre &amp; Benachrichtigung</legend>
+    <label class="check"><input type="checkbox" name="blocked" {{ 'checked' if p and p.blocked }}> Gesperrt</label>
+    <label>Gesperrt bis <input type="datetime-local" name="blocked_until" value="{{ p.blocked_until if p else '' }}"></label>
+    <label>Grund <input name="block_reason" value="{{ p.block_reason if p else '' }}"></label>
+    <label class="check"><input type="checkbox" name="notify" {{ 'checked' if p and p.notify }}> Mir Bescheid geben, wenn diese Person öffnet</label>
+    <label class="check"><input type="checkbox" name="phone_allowed" {{ 'checked' if p and p.phone_allowed }}> Darf per Handy öffnen</label>
+  </fieldset>
+  <div class="actions"><button class="primary">Speichern</button></div>
+</form>
+
+{% if p %}
+<section class="grid">
+<fieldset>
+  <legend>Karten</legend>
+  <table>
+  {% for c in cards %}
+    <tr class="{{ 'muted' if c.blocked }}">
+      <td><code>{{ c.uid }}</code></td>
+      <td><form method="post" action="{{ base }}/karten/{{ c.id }}/name" class="inline"><input name="label" value="{{ c.label }}" placeholder="Bezeichnung"><button>✓</button></form></td>
+      <td><form method="post" action="{{ base }}/karten/{{ c.id }}/sperren" class="inline"><button>{{ 'entsperren' if c.blocked else 'sperren' }}</button></form></td>
+      <td><form method="post" action="{{ base }}/karten/{{ c.id }}/loeschen" class="inline" onsubmit="return confirm('Karte löschen?')"><button class="danger">löschen</button></form></td>
+    </tr>
+  {% else %}<tr><td class="muted">Noch keine Karte.</td></tr>{% endfor %}
+  </table>
+  <form method="post" action="{{ base }}/personen/{{ p.id }}/anlernen">
+    <button class="primary" id="learn">{{ 'Warte auf Karte … (60 s)' if learning else 'Karte anlernen' }}</button>
+  </form>
+  <p id="learned" class="muted">Nach dem Klick die Karte innerhalb von 60 s an den Leser halten.</p>
+  <form method="post" action="{{ base }}/karten/zuordnen" class="inline">
+    <input type="hidden" name="person_id" value="{{ p.id }}">
+    <input name="uid" placeholder="Karten-ID von Hand" pattern="[0-9A-Fa-f]{4,20}"><button>hinzufügen</button>
+  </form>
+</fieldset>
+{% if p.phone_allowed %}
+<fieldset>
+  <legend>Handy</legend>
+  <p>Webhook für Kurzbefehl (iPhone) oder MacroDroid / HTTP Shortcuts (Android), Port 8098:</p>
+  <code class="block">http://&lt;home-assistant&gt;:8098/handy/{{ p.phone_token }}</code>
+  <p class="muted">Nur im WLAN/VPN nutzen – den Port nicht ins Internet freigeben. Der Link ist wie ein Schlüssel.</p>
+  <form method="post" action="{{ base }}/personen/{{ p.id }}/token" onsubmit="return confirm('Alter Link funktioniert danach nicht mehr. Weiter?')"><button>Neuen Link erzeugen</button></form>
+</fieldset>
+{% endif %}
+</section>
+<h3>Letzte Zutritte</h3>
+{% set rows = logs %}{% include "_logrows.html" %}
+<form method="post" action="{{ base }}/personen/{{ p.id }}/loeschen" onsubmit="return confirm('{{ p.name }} mit allen Karten löschen? Das Logbuch bleibt erhalten.')">
+  <button class="danger">Person löschen</button>
+</form>
+{% if learning %}
+<script>
+(function poll(){
+  fetch("{{ base }}/personen/{{ p.id }}/anlernen/status").then(r=>r.json()).then(s=>{
+    if (s.learned) { location.reload(); return; }
+    if (s.active) setTimeout(poll, 1000); else location.reload();
+  }).catch(()=>setTimeout(poll, 2000));
+})();
+</script>
+{% endif %}
+{% endif %}
+{% endblock %}

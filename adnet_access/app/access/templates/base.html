@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Zutritt{% endblock %} · AD.NET Access</title>
+<link rel="stylesheet" href="{{ base }}/static/style.css">
+</head>
+<body>
+<header>
+  <strong>Haustür</strong>
+  <nav>
+    <a href="{{ base }}/">Übersicht</a>
+    <a href="{{ base }}/personen">Personen</a>
+    <a href="{{ base }}/zeitprofile">Zeitprofile</a>
+    <a href="{{ base }}/logbuch">Logbuch</a>
+    <a href="{{ base }}/einstellungen">Einstellungen</a>
+  </nav>
+  <span class="conn {{ 'ok' if esp and esp.connected else 'bad' }}">Leser {{ 'verbunden' if esp and esp.connected else 'getrennt' }}</span>
+</header>
+<main>
+{% if msg %}<p class="msg">{{ msg }}</p>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

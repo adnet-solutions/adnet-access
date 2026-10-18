@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Zeitprofile{% endblock %}
+{% block content %}
+<div class="bar"><h2>Zeitprofile</h2><a class="button primary" href="{{ base }}/zeitprofile/0">+ Profil anlegen</a></div>
+<p class="muted">Ein Profil sind ein oder mehrere Zeitfenster. Personen können mehrere Profile haben. Einmalige Termine (z.&nbsp;B. Handwerker) gehen bequemer über den HA-Kalender.</p>
+<table>
+<thead><tr><th>Name</th><th>Zeitfenster</th><th>Feiertage</th><th>Personen</th></tr></thead>
+{% for pr in profs %}
+<tr>
+  <td><a href="{{ base }}/zeitprofile/{{ pr.id }}">{{ pr.name }}</a></td>
+  <td>{% for r in rules[pr.id] %}{% for d in range(7) %}{% if r.days|hasday(d) %}{{ DAYS[d] }} {% endif %}{% endfor %}{{ r.start }}–{{ r.end }}<br>{% else %}<span class="muted">keine</span>{% endfor %}</td>
+  <td>{{ 'gesperrt' if pr.holidays_off else 'erlaubt' }}</td>
+  <td>{{ usage[pr.id] }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

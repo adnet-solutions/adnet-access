@@ -1,0 +1,48 @@
+# Grundgerüst – die eigentliche HA-Steuerung wird ein eigenes Projekt.
+# Annahmen (anpassen):
+#   switch.haustuer_oeffner      = Shelly am Öffnungseingang des Motorschlosses (Impuls 1 s im Shelly einstellen)
+#   Tags in HA unter Einstellungen → Tags angelegt, z. B. "Putzfrau Karte"
+#   notify.mobile_app_enrico     = dein Handy
+
+alias: Haustür – Zutritt per Karte oder Handy
+mode: single
+max_exceeded: silent
+triggers:
+  # alle Tag-Scans; unbekannte Karten am Leser lösen so eine Push-Nachricht aus
+  - trigger: event
+    event_type: tag_scanned
+conditions:
+  - condition: template   # nur der Leser an der Tür oder der Handy-Aufkleber
+    value_template: >-
+      {{ trigger.event.data.device_id == 'GERAETE_ID_HAUSTUER_ZUTRITT'
+         or trigger.event.data.tag_id == 'familie-handy-aufkleber' }}
+variables:
+  karten_putzfrau: ["04-A1-B2-C3-D4-E5-F6"]   # Tag-IDs stehen nach dem ersten Scan unter Einstellungen → Tags
+  tag_name: "{{ trigger.event.data.name | default(trigger.event.data.tag_id) }}"
+  tag_id: "{{ trigger.event.data.tag_id }}"
+  ist_aufkleber: "{{ trigger.event.data.tag_id == 'familie-handy-aufkleber' }}"
+  # Beim Aufkleber kommt das Ereignis vom Handy – device_id sagt, WER gescannt hat
+  geraet: "{{ trigger.event.data.device_id | default('') }}"
+  erlaubt: >-
+    {% if ist_aufkleber %}
+      {{ geraet in ['GERAETE_ID_HANDY_ENRICO', 'GERAETE_ID_HANDY_FRAU'] }}
+    {% elif tag_id in karten_putzfrau %}
+      {{ now().weekday() in [0, 1, 2, 3, 4] and 7 <= now().hour < 14 }}
+    {% else %}
+      false
+    {% endif %}
+actions:
+  - if:
+      - condition: template
+        value_template: "{{ erlaubt }}"
+    then:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.haustuer_oeffner
+      - action: notify.mobile_app_enrico
+        data:
+          message: "Haustür geöffnet: {{ tag_name }}"
+    else:
+      - action: notify.mobile_app_enrico
+        data:
+          message: "Zutritt abgelehnt: {{ tag_name }} ({{ now().strftime('%H:%M') }})"

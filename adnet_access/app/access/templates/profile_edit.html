@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Zeitprofil{% endblock %}
+{% block content %}
+<h2>{{ prof.name if prof else 'Neues Zeitprofil' }}</h2>
+{% set n = (rules|length) + 3 %}
+<form method="post" action="{{ base }}/zeitprofile/{{ prof.id if prof else 0 }}">
+  <input type="hidden" name="rows" value="{{ n }}">
+  <label>Name <input name="name" required value="{{ prof.name if prof else '' }}"></label>
+  <label class="check"><input type="checkbox" name="holidays_off" {{ 'checked' if not prof or prof.holidays_off }}> An Feiertagen kein Zutritt</label>
+  <table class="rules">
+    <thead><tr>{% for d in DAYS %}<th>{{ d }}</th>{% endfor %}<th>von</th><th>bis</th></tr></thead>
+    {% for i in range(n) %}{% set r = rules[i] if i < rules|length else None %}
+    <tr>
+      {% for d in range(7) %}<td><input type="checkbox" name="r{{ i }}_d{{ d }}" {{ 'checked' if r and r.days|hasday(d) }}></td>{% endfor %}
+      <td><input type="time" name="r{{ i }}_start" value="{{ r.start if r else '' }}"></td>
+      <td><input name="r{{ i }}_end" value="{{ r.end if r else '' }}" placeholder="HH:MM" pattern="([01][0-9]|2[0-3]):[0-5][0-9]|24:00"></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted">Leere Zeilen werden ignoriert. „bis“ ist exklusiv, 24:00 = Mitternacht. Der Leser rechnet offline nur volle Stunden.</p>
+  <div class="actions"><button class="primary">Speichern</button></div>
+</form>
+{% if prof %}
+<form method="post" action="{{ base }}/zeitprofile/{{ prof.id }}/loeschen" onsubmit="return confirm('Profil löschen?')"><button class="danger">Profil löschen</button></form>
+{% endif %}
+{% endblock %}

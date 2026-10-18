@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Logbuch{% endblock %}
+{% block content %}
+<h2>Logbuch <small class="muted">({{ total }} Einträge)</small></h2>
+<form method="get" class="filters">
+  <select name="person"><option value="">alle Personen</option>{% for p in persons %}<option value="{{ p.id }}" {{ 'selected' if params.person == p.id|string }}>{{ p.name }}</option>{% endfor %}</select>
+  <select name="result"><option value="">alle Ergebnisse</option>{% for r in ['erlaubt','abgelehnt','info'] %}<option {{ 'selected' if params.result == r }}>{{ r }}</option>{% endfor %}</select>
+  <input type="date" name="von" value="{{ params.von or '' }}"> – <input type="date" name="bis" value="{{ params.bis or '' }}">
+  <button>Filtern</button>
+  <a class="button" href="{{ base }}/logbuch.csv?{{ qs }}">CSV</a>
+</form>
+{% include "_logrows.html" %}
+<p class="pager">
+  {% if page > 1 %}<a href="?{{ qs }}&seite={{ page - 1 }}">← neuer</a>{% endif %}
+  Seite {{ page }}
+  {% if page * 50 < total %}<a href="?{{ qs }}&seite={{ page + 1 }}">älter →</a>{% endif %}
+</p>
+{% endblock %}
