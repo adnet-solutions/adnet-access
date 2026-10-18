@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.9
+- Feiertage wahlweise aus einem HA-Kalender (`holidays_calendar`, z. B. Integration „Feiertage“); Anzeige des nächsten Feiertags unter *Einstellungen*
+
 ## 0.1.8
 - MQTT-Prüfung unter *Einstellungen*: Broker, Erreichbarkeit, TLS, Anmeldung, Senden/Empfangen, Dauerverbindung
 

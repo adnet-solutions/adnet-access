@@ -60,6 +60,9 @@ configuration:
   holidays_subdiv:
     name: Bundesland für Feiertage
     description: BY, BW, NW, ... (leer = nur bundesweite Feiertage)
+  holidays_calendar:
+    name: Feiertagskalender aus HA
+    description: Optional, z. B. calendar.holidays_in_germany (Integration „Feiertage“). Jeder Tag mit Termin gilt als Feiertag. Leer = eingebaute Liste für das Bundesland oben.
   timezone:
     name: Zeitzone
   card_pin_timeout:

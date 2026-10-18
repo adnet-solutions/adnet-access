@@ -12,7 +12,7 @@
   <tr><th>Kalender</th><td>{{ opts.calendar_entity or '–' }}</td></tr>
   <tr><th>Speicherort Bilder</th><td>{{ opts.snapshot_dir }}{% if not store_ok %} <span class="badge abgelehnt">nicht erreichbar – Ausweichordner {{ store }}</span>{% else %} <span class="badge erlaubt">ok</span>{% endif %}</td></tr>
   <tr><th>Aufbewahrung</th><td>Bilder {{ opts.snapshot_days }} Tage, Logbuch {{ opts.log_months }} Monate</td></tr>
-  <tr><th>Feiertage</th><td>Deutschland {{ opts.holidays_subdiv }}</td></tr>
+  <tr><th>Feiertage</th><td>{% if opts.holidays_calendar %}aus {{ opts.holidays_calendar }}{% if holidays_fallback %} <span class="badge abgelehnt">nicht lesbar – eingebaute Liste {{ opts.holidays_subdiv }}</span>{% endif %}{% else %}eingebaute Liste Deutschland {{ opts.holidays_subdiv }}{% endif %}{% if next_holidays %}<br><small>nächste: {% for d, n in next_holidays %}{{ d.strftime('%d.%m.') }} {{ n }}{{ ', ' if not loop.last }}{% endfor %}</small>{% endif %}</td></tr>
   <tr><th>PIN-Schlüssel</th><td>{{ 'gesetzt' if opts.pin_key else 'FEHLT' }}</td></tr>
 </table>
 <h3>Shelly prüfen</h3>

@@ -7,7 +7,7 @@ import os
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Awaitable, Callable
 from zoneinfo import ZoneInfo
@@ -35,6 +35,8 @@ class Engine:
         self.db, self.opts, self.ha, self.shelly = db, opts, ha, shelly
         self.tz = ZoneInfo(opts.timezone)
         self.holidays = holidays.Germany(subdiv=opts.holidays_subdiv or None)
+        self.holiday_days: set | None = None       # gesetzt, wenn holidays_calendar genutzt wird
+        self.holiday_names: dict = {}
         self.lockout = Lockout(opts.lockout_attempts, opts.lockout_seconds)
         self.pending: Pending | None = None
         self.learn: tuple[int, float] | None = None      # (person_id, bis)
@@ -53,7 +55,26 @@ class Engine:
         return datetime.now(self.tz).replace(tzinfo=None)
 
     def is_holiday(self, dt: datetime) -> bool:
+        if self.holiday_days is not None:            # Feiertagskalender aus HA (holidays_calendar)
+            return dt.date() in self.holiday_days
         return dt.date() in self.holidays
+
+    def holiday_name(self, d) -> str:
+        if self.holiday_days is not None:
+            return self.holiday_names.get(d, "") if d in self.holiday_days else ""
+        return self.holidays.get(d) or ""
+
+    async def refresh_holidays(self) -> None:
+        """Feiertage aus dem HA-Kalender holen (ein Jahr im Voraus). Schlägt das fehl, bleibt der letzte
+        Stand; gab es noch keinen, gilt die eingebaute Liste (holidays_subdiv)."""
+        if not self.opts.holidays_calendar:
+            self.holiday_days = None
+            return
+        now = self.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        res = await self.ha.calendar_dates(self.opts.holidays_calendar, now - timedelta(days=1),
+                                           now + timedelta(days=370))
+        if res is not None:
+            self.holiday_days, self.holiday_names = res
 
     def flag(self, key: str) -> bool:
         return self.db.get(key) == "1"

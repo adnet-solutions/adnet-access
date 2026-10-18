@@ -46,6 +46,36 @@ class HA:
         except Exception as e:  # noqa: BLE001
             log.warning("Benachrichtigung über %s fehlgeschlagen: %s", service, e)
 
+    async def calendar_dates(self, entity: str, start: datetime, end: datetime) -> tuple[set, dict] | None:
+        """Alle Tage mit Termin im Kalender (z. B. Feiertagskalender). None = Kalender nicht lesbar."""
+        if not (self.enabled and entity):
+            return None
+        try:
+            r = await self.client.get(f"/calendars/{entity}",
+                                      params={"start": start.isoformat(), "end": end.isoformat()})
+            r.raise_for_status()
+        except Exception as e:  # noqa: BLE001
+            log.warning("Feiertagskalender %s nicht lesbar: %s", entity, e)
+            return None
+        days: set = set()
+        names: dict = {}
+        for ev in r.json():
+            s, e_ = ev.get("start", {}), ev.get("end", {})
+            try:
+                if s.get("date"):                                   # ganztägig, Ende exklusiv
+                    d0, d1 = datetime.fromisoformat(s["date"]).date(), datetime.fromisoformat(e_["date"]).date()
+                else:
+                    d0 = datetime.fromisoformat(s["dateTime"]).date()
+                    d1 = datetime.fromisoformat(e_["dateTime"]).date() + timedelta(days=1)
+            except (KeyError, TypeError, ValueError):
+                continue
+            d = d0
+            while d < max(d1, d0 + timedelta(days=1)):
+                days.add(d)
+                names[d] = ev.get("summary") or ""
+                d += timedelta(days=1)
+        return days, names
+
     async def calendar_names_now(self, entity: str, now: datetime) -> set[str]:
         """Namen aus laufenden Terminen. Erkannt wird 'Zutritt: Name' oder 'Zutritt: Name1, Name2'."""
         if not (self.enabled and entity):

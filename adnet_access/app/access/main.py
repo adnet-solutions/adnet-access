@@ -24,7 +24,17 @@ log = logging.getLogger("adnet_access")
 
 
 async def calendar_loop(engine: Engine) -> None:
+    n = 0
     while True:
+        if engine.opts.holidays_calendar and n % 60 == 0:      # Feiertage stündlich auffrischen
+            before = engine.holiday_days
+            await engine.refresh_holidays()
+            if engine.holiday_days is not None and before is None:
+                nxt = sorted(d for d in engine.holiday_days if d >= engine.now().date())[:1]
+                log.info("Feiertage aus %s: %d Tage, nächster: %s", engine.opts.holidays_calendar,
+                         len(engine.holiday_days),
+                         f"{nxt[0]:%d.%m.%Y} {engine.holiday_name(nxt[0])}" if nxt else "–")
+        n += 1
         if engine.opts.calendar_entity:
             try:
                 names = await engine.ha.calendar_names_now(engine.opts.calendar_entity, engine.now())

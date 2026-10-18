@@ -32,7 +32,20 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
             return Response("Nur über Home Assistant erreichbar", status_code=403)
         return await call_next(request)
 
+    def holiday_ctx() -> dict:
+        today = engine.now().date()
+        if engine.holiday_days is not None:
+            days = sorted(d for d in engine.holiday_days if d >= today)[:3]
+        else:
+            import holidays as _h
+            cal = _h.Germany(subdiv=opts.holidays_subdiv or None, years=[today.year, today.year + 1])
+            days = sorted(d for d in cal.keys() if d >= today)[:3]
+        return {"next_holidays": [(d, engine.holiday_name(d)) for d in days],
+                "holidays_fallback": bool(opts.holidays_calendar) and engine.holiday_days is None}
+
     def render(request: Request, name: str, **ctx):
+        if name == "settings.html":
+            ctx = {**holiday_ctx(), **ctx}
         base = request.headers.get("X-Ingress-Path", "")
         return tpl.TemplateResponse(request, name, {"base": base, "MODES": MODES, "DAYS": DAY_NAMES,
                                                     "esp": esp, "mqtt": mqtt, "flag": engine.flag, **ctx})

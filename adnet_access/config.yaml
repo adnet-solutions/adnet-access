@@ -1,5 +1,5 @@
 name: AD.NET Access
-version: "0.1.8"
+version: "0.1.9"
 slug: adnet_access
 description: Zutrittskontrolle für die Haustür (Wiegand-Tastatur mit Karte/PIN, Handy, Shelly, Logbuch mit Snapshot)
 url: https://github.com/adnet-solutions/adnet-access
@@ -47,6 +47,7 @@ options:
   snapshot_days: 30
   log_months: 12
   holidays_subdiv: BY
+  holidays_calendar: ""
   timezone: Europe/Berlin
   card_pin_timeout: 15
   lockout_attempts: 3
@@ -74,6 +75,7 @@ schema:
   snapshot_days: int(1,365)
   log_months: int(1,60)
   holidays_subdiv: str
+  holidays_calendar: str?
   timezone: str
   card_pin_timeout: int(5,60)
   lockout_attempts: int(2,10)
