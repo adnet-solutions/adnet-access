@@ -30,12 +30,14 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | weiß-grün | GND | Tastatur schwarz | Wago `GND` |
 | blau | D0 | Tastatur D0 (grün) | Wago `D0 a` |
 | braun | D1 | Tastatur D1 (weiß) | Wago `D1 a` |
-| weiß-blau | LED | Tastatur LED (Reserve) | Wago `frei` |
-| weiß-braun | BEEP | Tastatur BEEP (Reserve) | Wago `frei` |
+| weiß-blau | LED | Tastatur **blau** (LED, Reserve) | Wago `frei` |
+| weiß-braun | BEEP | Tastatur **gelb** (BEEP, Reserve) | Wago `frei` |
 
-Die Aderfarben der Tastatur stehen auf dem Beipackzettel; immer danach gehen.
+Aderfarben laut Anleitung (Modell **HBK-D02K**, so von Amazon für die UHPPOTE-Tastatur bereitgestellt): rot +12 V, schwarz GND, grün D0, weiß D1, blau LED, gelb BEEP, grau Wiegand-34-Auswahl. Liegt eine andere Anleitung bei: immer danach gehen.
 
-**Wiegand 34 einstellen:** Bei der UHPPOTE die **schwarze und die graue Ader verbinden** (bzw. laut Beipackzettel „WG34“). Mit 26 Bit überträgt sie nur einen Teil der Karten-ID.
+**LED und Summer:** Laut Anleitung zeigt die Tastatur Grün bzw. Töne nur, wenn LED und BEEP vom Controller angesteuert werden (Ruhe: LED rot). Ohne Anschluss bleibt sie also stumm – ob auch der Tastenton entfällt, zeigt erst das Gerät. Eine eigene Einstellung für den Summer hat das Modell nicht.
+
+**Wiegand 34 einstellen:** **graue und schwarze Ader verbinden** (Standard ab Werk ist Wiegand 26). Mit 26 Bit überträgt sie nur einen Teil der Karten-ID.
 
 **Masse:** Minus von SD-15B-12, SD-15B-5, Atom und Tastatur liegen gemeinsam auf dem Wago `GND`. Der Ring-Kreis (24 V) bleibt davon getrennt, weil die SD-15B galvanisch trennen. Die Ring-Klingeln brauchen 24 V und hängen direkt am Netzteil.
 
