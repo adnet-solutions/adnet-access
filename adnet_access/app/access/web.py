@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from . import cardid
 from .rules import DAY_NAMES, MODES, parse_hm
 from .security import new_token, pin_hash
 
@@ -24,6 +25,8 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
     tpl = Jinja2Templates(directory=HERE / "templates")
     tpl.env.filters["hasday"] = lambda days, d: bool(int(days) & (1 << int(d)))
+    tpl.env.globals["card_alt"] = lambda u: [(cardid.READERS[r], ", ".join(cardid.for_reader(u, r)))
+                                             for r in cardid.READERS]
     db, opts = engine.db, engine.opts
 
     @app.middleware("http")
@@ -194,8 +197,8 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
 
     @app.post("/karten/zuordnen")
     async def card_assign(request: Request, uid: str = Form(...), person_id: int = Form(...)):
-        if not db.one("SELECT id FROM cards WHERE uid=?", (uid.upper(),)):
-            db.x("INSERT INTO cards(person_id, uid) VALUES(?,?)", (person_id, uid.upper()))
+        if not engine.find_card(uid):
+            db.x("INSERT INTO cards(person_id, uid) VALUES(?,?)", (person_id, cardid.normalize(uid)))
             await changed()
         return back(request, f"/personen/{person_id}")
 

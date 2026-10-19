@@ -23,8 +23,8 @@ Geprüft mit ESPHome 2026.9 (`esphome config`).
 
 ## Testaufbau ohne Tastatur (M5Stack Unit RFID2)
 
-Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** getestet werden: RFID2 per Grove-Kabel an den Atom, Atom per USB-C an Rechner oder Netzteil. Statt `haustuer-zutritt.yaml` die Datei `haustuer-zutritt-rfid2-test.yaml` (plus `adnet_access.h`) ins ESPHome-Add-on kopieren und flashen. Gerätename, Schlüssel und Ablauf sind gleich, das Add-on merkt keinen Unterschied – nur PIN gibt es nicht.
+Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** getestet werden: RFID2 per Grove-Kabel an den Atom, Atom per USB-C an Rechner oder Netzteil. In den Add-on-Optionen `reader_type: rfid2` setzen. Statt `haustuer-zutritt.yaml` die Datei `haustuer-zutritt-rfid2-test.yaml` (plus `adnet_access.h`) ins ESPHome-Add-on kopieren und flashen. Gerätename, Schlüssel und Ablauf sind gleich, das Add-on merkt keinen Unterschied – nur PIN gibt es nicht.
 
 - Karten anlernen, Zeitprofile, Logbuch, Snapshot, Push, Shelly, Offline-Modus: alles testbar.
-- Die Karten-ID kommt hier als Hex (`74-10-37-94`), an der Wiegand-Tastatur später als Dezimalzahl. **Nach dem Umstieg die Karten neu anlernen** (alte Einträge löschen).
+- Die Karten-ID kommt hier als Hex (`74-10-37-94`), an der Wiegand-Tastatur später als Dezimalzahl. Das Add-on rechnet beides ineinander um – **angelernte Karten bleiben gültig**. Beim Umstieg nur in den Add-on-Optionen `reader_type` von `rfid2` auf `wiegand34` stellen (für die Offline-Liste).
 - Umstieg: `haustuer-zutritt.yaml` öffnen, *Install → Wirelessly*. Gleicher Name, also Update per WLAN.

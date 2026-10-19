@@ -4,7 +4,7 @@
 <h2>Einstellungen</h2>
 <p class="muted">Geändert werden die Werte im Add-on unter <em>Konfiguration</em>. Hier siehst du den Stand und kannst testen.</p>
 <table>
-  <tr><th>Leser (ESPHome)</th><td>{{ opts.esphome_host }} – {{ 'verbunden' if esp and esp.connected else 'nicht verbunden' }}{% if not opts.esphome_key %} <span class="badge abgelehnt">kein Schlüssel</span>{% endif %}</td></tr>
+  <tr><th>Leser (ESPHome)</th><td>{{ opts.esphome_host }} · Typ {{ opts.reader_type }} – {{ 'verbunden' if esp and esp.connected else 'nicht verbunden' }}{% if not opts.esphome_key %} <span class="badge abgelehnt">kein Schlüssel</span>{% endif %}</td></tr>
   <tr><th>Shelly</th><td>{{ opts.shelly_host or '–' }} (Kanal {{ opts.shelly_switch_id }}, Impuls {{ opts.shelly_pulse_seconds }} s){% if not opts.shelly_password %} <span class="badge abgelehnt">ohne Passwort</span>{% endif %}</td></tr>
   <tr><th>MQTT</th><td>{{ opts.mqtt_host or 'Mosquitto-Add-on (automatisch)' }}{% if opts.mqtt_host %}:{{ opts.mqtt_port or (8883 if opts.mqtt_tls else 1883) }}{% endif %} – {{ 'verbunden' if mqtt and mqtt.client else 'nicht verbunden' }}</td></tr>
   <tr><th>Kamera</th><td>{{ opts.camera_entity or '–' }}{% if opts.snapshot_crop %} · Ausschnitt {{ opts.snapshot_crop }}{% endif %}</td></tr>

@@ -5,6 +5,9 @@ configuration:
   esphome_key:
     name: API-Schlüssel des Lesers
     description: Der Noise-Schlüssel (api encryption key) aus der ESPHome-Konfiguration. Die Verbindung ist damit verschlüsselt.
+  reader_type:
+    name: Lesertyp
+    description: "wiegand34 = Tastatur (graue + schwarze Ader verbunden), wiegand26 = Tastatur ab Werk, rfid2 = M5Stack RFID2 (Testaufbau). Angelernte Karten passen bei jedem Typ; die Einstellung bestimmt nur, in welchem Format der Leser seine Offline-Liste bekommt."
   pin_key:
     name: PIN-Schlüssel
     description: Geheimer Schlüssel, mit dem PINs gehasht werden. Muss identisch mit "pin_key" in den ESPHome-Secrets sein. Nachträglich ändern = alle PINs neu setzen.

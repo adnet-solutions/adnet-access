@@ -123,8 +123,8 @@ globals:
 
 # ---- TESTAUFBAU: M5Stack Unit RFID2 (WS1850S, I2C) am Grove-Port statt Wiegand-Tastatur ----
 # Nur Karten, keine PIN. Gleicher Gerätename und gleiche Schlüssel wie die Wiegand-Firmware, das Add-on
-# merkt den Wechsel nicht. ACHTUNG: Die Karten-ID hat hier ein anderes Format (Hex, z. B. 74-10-37-94)
-# als später an der Wiegand-Tastatur (Dezimalzahl) -> Karten nach dem Umstieg neu anlernen.
+# merkt den Wechsel nicht. Die Karten-ID kommt hier als Hex (z. B. 74-10-37-94), an der Tastatur als
+# Dezimalzahl – das Add-on rechnet um, angelernte Karten bleiben gültig. Add-on-Option reader_type: rfid2
 i2c:
   sda: GPIO2            # Grove gelb
   scl: GPIO1            # Grove weiß

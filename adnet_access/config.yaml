@@ -1,5 +1,5 @@
 name: AD.NET Access
-version: "0.1.12"
+version: "0.1.13"
 slug: adnet_access
 description: Zutrittskontrolle für die Haustür (Wiegand-Tastatur mit Karte/PIN, Handy, Shelly, Logbuch mit Snapshot)
 url: https://github.com/adnet-solutions/adnet-access
@@ -27,6 +27,7 @@ ports_description:
 options:
   esphome_host: haustuer-zutritt.local
   esphome_key: ""
+  reader_type: wiegand34
   pin_key: ""
   shelly_host: ""
   shelly_password: ""
@@ -56,6 +57,7 @@ options:
 schema:
   esphome_host: str?
   esphome_key: password
+  reader_type: list(wiegand34|wiegand26|rfid2)
   pin_key: password
   shelly_host: str?
   shelly_password: password?

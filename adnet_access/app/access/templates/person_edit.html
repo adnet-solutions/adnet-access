@@ -42,7 +42,7 @@
   <table>
   {% for c in cards %}
     <tr class="{{ 'muted' if c.blocked }}">
-      <td><code>{{ c.uid }}</code></td>
+      <td><code>{{ c.uid }}</code><br><small class="muted" title="{% for n, v in card_alt(c.uid) %}{{ n }}: {{ v }}&#10;{% endfor %}">auch als: {% for n, v in card_alt(c.uid) %}{% if v != c.uid %}{{ v }}{{ ' · ' if not loop.last }}{% endif %}{% endfor %}</small></td>
       <td><form method="post" action="{{ base }}/karten/{{ c.id }}/name" class="inline"><input name="label" value="{{ c.label }}" placeholder="Bezeichnung"><button>✓</button></form></td>
       <td><form method="post" action="{{ base }}/karten/{{ c.id }}/sperren" class="inline"><button>{{ 'entsperren' if c.blocked else 'sperren' }}</button></form></td>
       <td><form method="post" action="{{ base }}/karten/{{ c.id }}/loeschen" class="inline" onsubmit="return confirm('Karte löschen?')"><button class="danger">löschen</button></form></td>

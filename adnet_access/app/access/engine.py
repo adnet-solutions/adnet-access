@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 import holidays
 
+from . import cardid
 from .config import Options
 from .db import DB
 from .ha import HA
@@ -173,6 +174,17 @@ class Engine:
         reason = max(reasons, key=reasons.get) if reasons else ""
         return [], ("Feiertag" if hol and reason in ("Feiertag", "außerhalb der Zeitfenster") else reason)
 
+    def find_card(self, uid: str):
+        """Karte suchen – auch wenn sie mit einem anderen Lesertyp angelernt wurde (siehe cardid.py)."""
+        uid = cardid.normalize(uid)
+        row = self.db.one("SELECT * FROM cards WHERE uid=?", (uid,))
+        if row:
+            return row
+        for row in self.db.q("SELECT * FROM cards"):
+            if cardid.same_card(row["uid"], uid):
+                return row
+        return None
+
     def evaluate(self, person: Person, now: datetime) -> tuple[bool, str]:
         return check_access(person, self.profiles(), now, is_holiday=self.is_holiday(now),
                             calendar_names=self.calendar_names, vacation_lock=self.flag("vacation_lock"))
@@ -187,7 +199,7 @@ class Engine:
         if blocked := self._blocked_reason(t):
             await self.record(None, "karte", uid, False, blocked)
             return
-        card = self.db.one("SELECT * FROM cards WHERE uid=?", (uid,))
+        card = self.find_card(uid)
         if not card:
             await self._fail(None, "karte", uid, "unbekannte Karte")
             return
@@ -261,7 +273,7 @@ class Engine:
         """Ereignis, das der Atom ohne Add-on selbst entschieden hat (nur ins Logbuch, Tür ist schon offen)."""
         person = None
         if card:
-            row = self.db.one("SELECT person_id FROM cards WHERE uid=?", (card.upper(),))
+            row = self.find_card(card)
             person = self.person(row["person_id"]) if row else None
         elif pin:
             row = self.db.one("SELECT id FROM persons WHERE pin_hash=?", (pin,))
@@ -287,7 +299,7 @@ class Engine:
 
     async def _learn_card(self, person_id: int, uid: str) -> None:
         self.learn = None
-        existing = self.db.one("SELECT person_id FROM cards WHERE uid=?", (uid,))
+        existing = self.find_card(uid)
         if existing:
             self.learned[person_id] = f"bereits vergeben:{uid}"
             await self.record(None, "karte", uid, False, "Anlernen: Karte ist bereits vergeben", info=True)
@@ -450,10 +462,12 @@ class Engine:
                 continue
             cards = [c["uid"] for c in self.db.q("SELECT uid FROM cards WHERE person_id=? AND blocked=0", (person.id,))]
             pin = prow["pin_hash"]
+            rt = self.opts.reader_type
+            ids = [v for u in cards for v in cardid.for_reader(u, rt)]
             if person.mode in ("card", "card_or_pin"):
-                entries += [f"K:{u}|{mask}|{until}" for u in cards]
+                entries += [f"K:{u}|{mask}|{until}" for u in ids]
             if person.mode in ("pin", "card_or_pin") and pin:
                 entries.append(f"P:{pin}|{mask}|{until}")
             if person.mode == "card_and_pin" and pin:
-                entries += [f"C:{u},{pin}|{mask}|{until}" for u in cards]
+                entries += [f"C:{u},{pin}|{mask}|{until}" for u in ids]
         return ";".join(entries)

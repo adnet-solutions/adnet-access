@@ -11,6 +11,7 @@ from pathlib import Path
 class Options:
     esphome_host: str = "haustuer-zutritt.local"
     esphome_key: str = ""
+    reader_type: str = "wiegand34"   # wiegand34 | wiegand26 | rfid2 – Format der Offline-Liste
     pin_key: str = ""
     shelly_host: str = ""
     shelly_password: str = ""
