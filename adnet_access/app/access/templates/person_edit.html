@@ -55,7 +55,7 @@
   <p id="learned" class="muted">Nach dem Klick die Karte innerhalb von 60 s an den Leser halten.</p>
   <form method="post" action="{{ base }}/karten/zuordnen" class="inline">
     <input type="hidden" name="person_id" value="{{ p.id }}">
-    <input name="uid" placeholder="Karten-ID von Hand" pattern="[0-9A-Fa-f]{4,20}"><button>hinzufügen</button>
+    <input name="uid" placeholder="Karten-ID von Hand" pattern="[0-9A-Fa-f:-]{4,30}"><button>hinzufügen</button>
   </form>
 </fieldset>
 {% if p.phone_allowed %}

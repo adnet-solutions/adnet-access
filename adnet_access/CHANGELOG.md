@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.12
+- Karten-ID von Hand auch im Hex-Format mit Bindestrich (RFID2-Testleser)
+
 ## 0.1.11
 - Personenliste: Spalten „Heute“ und „Morgen“ mit den Zeitfenstern, in denen die Person reinkommt (inkl. Feiertag, Sperre, Gültigkeit, Urlaubssperre)
 
