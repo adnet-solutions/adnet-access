@@ -200,6 +200,10 @@ sensor:
   - platform: uptime
     name: Laufzeit
     entity_category: diagnostic
+  - platform: internal_temperature      # Chiptemperatur ESP32-S3 (liegt ca. 10-20 K ueber der Gehaeuseluft)
+    name: Chiptemperatur
+    entity_category: diagnostic
+    update_interval: 60s
 
 script:
   - id: shelly_oeffnen
