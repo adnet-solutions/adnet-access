@@ -4,7 +4,8 @@ Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
   - Delock 65524 (DC-Buchse 5,5 x 2,1 -> Klemmen) fuer das Netzteil Mean Well GST60A24 (24 V)
   - Mean Well SD-15B-12 (24 -> 12 V, Wiegand-Tastatur) und SD-15B-5 (24 -> 5 V, Atom)
   - M5Stack AtomS3 Lite (ESPHome)
-  - 3 x WAGO 221-415 (24 V+, 24 V-, gemeinsame Masse) + 5 x WAGO 221-413 (Spannungsteiler D0/D1, Reserve)
+  - 4 x WAGO 221-415 (24 V+, 24 V-, 2 x gemeinsame Masse) + 6 x WAGO 221-413 (Spannungsteiler D0/D1, LED, BEEP)
+  - Atom auf einem 16 mm hohen Podest: unten frei fuer zwei Dupont-Stecker (G5 = LED, G6 = BEEP ueber BAT85)
   - Oeffnung ueber der Wandbohrung (Cat-7-Kabel von hinten), Kerbe fuer das Netzteilkabel
 
 Druckteile:  innen_unterteil.stl, innen_deckel.stl, innen_niederhalter.stl (2 x drucken)
@@ -119,13 +120,15 @@ for (bx, by) in HOLD:
 
 # ---------------- WAGO-Aufnahmen: mittlere Spalte, Leitereinfuehrung zeigt nach links (zu den Wandlern) ----------------
 WAGO_X = 104.0                     # linke Kante (Einfuehrungsseite)
-wago_slots = [  # (Polzahl, y-Unterkante, Beschriftung)
-    (5, 6.0, "24V+"),
-    (5, 6.0 + 26.6 + 6.0, "24V-"),
-    (5, 6.0 + 2 * (26.6 + 6.0), "GND"),
-]
-WAGO2_X = 132.0                   # zweite Spalte: 221-413 fuer Spannungsteiler + Reserve
-wago_slots2 = [(3, 6.0 + i * (17.6 + 4.4), lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "frei"])]
+PITCH1 = WAGO_W[5] + CLR + 5.4   # 32.5 mm
+wago_slots = [(5, 4.0 + i * PITCH1, lbl) for i, lbl in enumerate(["24V+", "24V-", "GND", "GND 2"])]
+WAGO2_X = 132.0                   # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
+PITCH2 = WAGO_W[3] + CLR + 3.3   # 21.4 mm
+wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
+for _n, _y, _l in wago_slots:
+    assert _y + WAGO_W[_n] + CLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
+for _n, _y, _l in wago_slots2:
+    assert _y + WAGO_W[_n] + CLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 WALL_H_WAGO = 5.0
 for col_x, slots in ((WAGO_X, wago_slots), (WAGO2_X, wago_slots2)):
     for (n, y, lbl) in slots:
@@ -137,12 +140,32 @@ for col_x, slots in ((WAGO_X, wago_slots), (WAGO2_X, wago_slots2)):
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
                            "x": col_x + d / 2, "y": y + w / 2, "z": Z0})
 
-# ---------------- AtomS3 Lite: rechts oben, USB-C zeigt nach oben (zum Flashen erreichbar), Grove nach unten ----------
+# ---------------- AtomS3 Lite: rechts oben auf einem Podest ----------------
+# Die freien Pins (G5-G8, G38, G39, 5V, GND) sind Buchsen an der Unterseite. Der Atom liegt deshalb 16 mm hoch auf
+# vier Eckauflagen; darunter ist Platz fuer gerade Dupont-Stecker, die Kabel gehen seitlich durch Fenster raus.
+# USB-C zeigt nach oben (zum Flashen erreichbar), Grove nach unten.
 ATOM_X, ATOM_Y = 166.0, 96.0
+ATOM_LIFT = 16.0
 aw = ATOM + CLR
-shell += frame(ATOM_X, ATOM_Y, aw, aw, 6.0, sides="LRBT", gap=[("T", 6, aw - 6), ("B", 6, aw - 6)])
-shell += snap_noses(ATOM_X, ATOM_Y, aw, aw, Z0 + 6.0, along="y", length=8.0)
-parts_demo.append({"kind": "atom", "w": ATOM, "h": ATOM, "d": 9.5, "x": ATOM_X + aw / 2, "y": ATOM_Y + aw / 2, "z": Z0})
+PT = 1.6                                    # Wandstaerke Podest
+pod = box(ATOM_X - PT, ATOM_X + aw + PT, ATOM_Y - PT, ATOM_Y + aw + PT, Z0 - 0.01, Z0 + ATOM_LIFT + 6.0)
+pod -= box(ATOM_X, ATOM_X + aw, ATOM_Y, ATOM_Y + aw, Z0, Z0 + ATOM_LIFT + 7)
+for (cx0, cy0) in ((ATOM_X, ATOM_Y), (ATOM_X + aw - 4.0, ATOM_Y), (ATOM_X, ATOM_Y + aw - 4.0),
+                   (ATOM_X + aw - 4.0, ATOM_Y + aw - 4.0)):      # Eckauflagen 4 x 4 mm, Mitte bleibt frei
+    pod += box(cx0, cx0 + 4.0, cy0, cy0 + 4.0, Z0, Z0 + ATOM_LIFT)
+# Kabelfenster unter der Auflage auf allen vier Seiten, oben Aussparungen fuer USB-C und Grove
+for side in ("L", "R"):
+    xx = ATOM_X - PT - 1 if side == "L" else ATOM_X + aw - 1
+    pod -= box(xx, xx + PT + 2, ATOM_Y + 4.0, ATOM_Y + aw - 4.0, Z0 + 2.0, Z0 + ATOM_LIFT - 1.0)
+for side in ("B", "T"):
+    yy = ATOM_Y - PT - 1 if side == "B" else ATOM_Y + aw - 1
+    pod -= box(ATOM_X + 4.0, ATOM_X + aw - 4.0, yy, yy + PT + 2, Z0 + 2.0, Z0 + ATOM_LIFT - 1.0)
+    pod -= box(ATOM_X + 6.0, ATOM_X + aw - 6.0, yy, yy + PT + 2, Z0 + ATOM_LIFT, Z0 + ATOM_LIFT + 7)
+shell += pod
+shell += snap_noses(ATOM_X, ATOM_Y, aw, aw, Z0 + ATOM_LIFT + 6.0, along="y", length=8.0)
+assert ATOM_LIFT + 9.5 + 2.0 <= IN_Z, "Atom stoesst am Deckel an"
+parts_demo.append({"kind": "atom", "w": ATOM, "h": ATOM, "d": 9.5, "x": ATOM_X + aw / 2, "y": ATOM_Y + aw / 2,
+                   "z": Z0 + ATOM_LIFT})
 
 # ---------------- Delock 65524: unten, DC-Buchse zeigt zur Kabelkerbe ----------------
 DL_X, DL_Y = NOTCH_X - DELOCK_W / 2 - CLR / 2, 4.0
@@ -166,7 +189,7 @@ def tie_bridge(x, y, along_x=True):
     return b
 
 
-for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (160.0, 75.0, False), (NOTCH_X, 46.0, True)):
+for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (176.0, 84.0, False), (NOTCH_X, 46.0, True)):
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
@@ -201,11 +224,11 @@ def text_cs(s, cap, center=True):
 
 labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] - 2.6, 2.2),
           ("5 V", SD_X + SD_L / 2, SD_POS["SD-15B-5 (5 V)"][1] - 2.6 + 0.0, 2.2)]
-for (n, y, lbl) in wago_slots:
-    labels.append((lbl, WAGO_X + WAGO_D / 2, y + WAGO_W[n] + 2.4, 2.4))
-for (n, y, lbl) in wago_slots2:
-    labels.append((lbl, WAGO2_X + WAGO_D / 2, y + WAGO_W[n] + 2.0, 2.0))
-labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 3.4, 2.4), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.0, 2.4),
+for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
+    labels.append((lbl, WAGO_X - 5.6, y + (WAGO_W[n] + CLR) / 2, 2.0))
+for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
+    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.4, y + (WAGO_W[n] + CLR) / 2, 2.0))
+labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 4.4, 2.4), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.0, 2.4),
            ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 4.5, 2.4)]
 for (s, x, y, cap) in labels:
     if 1.5 < y < IN_H - 1.5:
