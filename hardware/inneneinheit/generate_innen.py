@@ -32,6 +32,8 @@ DELOCK_L, DELOCK_W, DELOCK_H = 27.0, 18.0, 15.0
 WAGO_D, WAGO_H = 18.6, 8.4                 # WAGO 221: Tiefe (Leitereinfuehrung -> Rueckseite), Hoehe (Datenblatt)
 WAGO_W = {3: 18.8, 5: 29.9}                # Breite je Polzahl (Datenblatt 221-413 / 221-415)
 CLR = 0.5                                  # Spiel in allen Aufnahmen
+WCLR = 0.2                                 # Spiel der Wagos quer (Probedruck: 0,5 mm war zu locker)
+WNOSE = 0.9                                # Rastnasen an den Wago-Seitenwaenden
 
 # ---------------- Gehaeuse ----------------
 IN_W, IN_H = 224.0, 132.0                  # Innenraum (x, y)
@@ -128,22 +130,22 @@ WAGO_X = 104.0                     # linke Kante (Einfuehrungsseite)
 wago_slots, _y = [], 4.0
 for _n, _l in ((5, "24V+"), (5, "24V-"), (5, "GND"), (3, "GND 2")):
     wago_slots.append((_n, _y, _l))
-    _y += WAGO_W[_n] + CLR + 4.4
+    _y += WAGO_W[_n] + WCLR + 4.4
 WAGO2_X = 132.0                   # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
-PITCH2 = WAGO_W[3] + CLR + 1.6   # 20.9 mm: benachbarte Aufnahmen teilen sich eine Wand
+PITCH2 = WAGO_W[3] + WCLR + 1.6   # 20.6 mm: benachbarte Aufnahmen teilen sich eine Wand
 wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
 for _n, _y, _l in wago_slots:
-    assert _y + WAGO_W[_n] + CLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
+    assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 for _n, _y, _l in wago_slots2:
-    assert _y + WAGO_W[_n] + CLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
+    assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 WALL_H_WAGO = 5.0
 for col_x, slots in ((WAGO_X, wago_slots), (WAGO2_X, wago_slots2)):
     for (n, y, lbl) in slots:
-        w = WAGO_W[n] + CLR                    # entlang y
+        w = WAGO_W[n] + WCLR                   # entlang y
         d = WAGO_D + CLR                       # entlang x
         # Rueckwand (rechts) + zwei Seitenwaende, links offen fuer die Leiter
         shell += frame(col_x, y, d, w, WALL_H_WAGO, sides="RBT")
-        shell += snap_noses(col_x, y, d, w, Z0 + WALL_H_WAGO, along="x", length=8.0)
+        shell += snap_noses(col_x, y, d, w, Z0 + WALL_H_WAGO, along="x", depth=WNOSE, length=8.0)
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
                            "x": col_x + d / 2, "y": y + w / 2, "z": Z0})
 
@@ -249,9 +251,9 @@ LBL = 3.0                                   # Schrifthoehe Bodenbeschriftung (mm
 labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2, 6.0),
           ("5 V", SD_X + SD_L / 2, SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, 6.0)]
 for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
-    labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + CLR) / 2, LBL))
+    labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
-    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.6, y + (WAGO_W[n] + CLR) / 2, LBL))
+    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
 labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
            ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 5.0, LBL)]
 LABEL_DEPTH = 0.8
@@ -331,3 +333,11 @@ for name, (x, y) in SD_POS.items():
 (OUT / "innen_bestueckung_demo.json").write_text(json.dumps(parts_demo, indent=1), encoding="utf-8")
 print(f"Gehaeuse aussen: {IN_W + 2 * WALL:.0f} x {IN_H + 2 * WALL:.0f} x {H_OUT + LID:.0f} mm")
 print(f"Wandbohrung: {BORE[0] + WALL:.0f} mm vom linken, {BORE[1] + WALL:.0f} mm vom unteren Aussenrand")
+
+# ---------------- Passungstest: je eine Aufnahme 221-413 und 221-415 (Druck ca. 10 min) ----------------
+_test = box(-4, 2 * (WAGO_D + CLR) + 14, -4, WAGO_W[5] + WCLR + 4, 0, Z0)
+for i, n in enumerate((3, 5)):
+    tx = 2 + i * (WAGO_D + CLR + 8)
+    _test += frame(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, WALL_H_WAGO, sides="RBT")
+    _test += snap_noses(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, Z0 + WALL_H_WAGO, along="x", depth=WNOSE, length=8.0)
+save(_test, "test_wago_aufnahme.stl")
