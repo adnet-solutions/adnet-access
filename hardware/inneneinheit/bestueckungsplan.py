@@ -36,9 +36,9 @@ bx, by, br = L["bore"]
 ax.add_patch(Circle((bx, by), br, fc="white", ec="#333", lw=1.5))
 ax.text(bx, by, "Cat 7\n(von hinten)", ha="center", va="center", fontsize=8)
 ax.add_patch(Rectangle((L["jack"][0] - L["jack"][1] / 2, -2.4), L["jack"][1], 2.4, fc="#c33"))
-ax.text(L["jack"][0], -6, "Loch Ø11 DC-Einbaubuchse (Netzteil von außen)", ha="center", fontsize=8, color="#c33")
+ax.text(L["jack"][0] - 6, -6, f"DC-Buchse Ø{L['jack'][1]:g} (Netzteil von außen)", ha="right", fontsize=8, color="#c33")
 ax.add_patch(Rectangle((L["pry"] - 5, -2.4), 10, 2.4, fc="#36c"))
-ax.text(L["pry"], -6, "Hebelkerbe Deckel", ha="center", fontsize=8, color="#36c")
+ax.text(L["pry"] + 2, -6, "Hebelkerbe Deckel", ha="left", fontsize=8, color="#36c")
 x0 = L["wago1"][0][0]
 ax.annotate("", xy=(x0 - 0.5, 8), xytext=(x0 - 12, 8), arrowprops=dict(arrowstyle="->"))
 ax.text(x0 - 6, 11, "Adern von links", ha="center", fontsize=7)

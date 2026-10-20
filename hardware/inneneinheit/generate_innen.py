@@ -48,7 +48,7 @@ BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschraub
 
 BORE = (202.0, 52.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
-NOTCH_X = 190.0                            # Lage der DC-Einbaubuchse in der Unterseite (x)
+NOTCH_X = 103.0                            # DC-Einbaubuchse unten im Adergang links der Wagos -> kurze Wege zu 24V+/24V-
 JACK_D, JACK_Z = 8.3, 14.0                 # Loch DC-Einbaubuchse DC-099 (M8); fuer M11-Typen auf 11,4 aufbohren; Hoehe Mitte
 
 
@@ -184,7 +184,7 @@ parts_demo.append({"kind": "atom", "w": ATOM, "h": ATOM, "d": 9.5, "x": ATOM_X +
 
 # ---------------- DC-Einbaubuchse in der Unterseite (Netzteil wird von aussen eingesteckt) ----------------
 _jack = Manifold.cylinder(WALL + 4, JACK_D / 2, JACK_D / 2, 64).rotate((-90, 0, 0)).translate((NOTCH_X, -WALL - 1, Z0 + JACK_Z))
-_pad = Manifold.cylinder(1.6, 10.0, 10.0, 64).rotate((-90, 0, 0)).translate((NOTCH_X, -0.01, Z0 + JACK_Z))  # Verstaerkung innen
+_pad = Manifold.cylinder(1.6, 7.5, 7.5, 64).rotate((-90, 0, 0)).translate((NOTCH_X, -0.01, Z0 + JACK_Z))  # Verstaerkung innen
 shell += _pad - box(NOTCH_X - 12, NOTCH_X + 12, -1, 3, -5, Z0)       # nicht unter den Boden ragen
 shell -= _jack
 DL_X, DL_Y, dw, dl = NOTCH_X - 8.0, 0.0, 16.0, 18.0                  # Bereich der Buchse innen (fuer Plan/Beschriftung)
@@ -203,7 +203,7 @@ def tie_bridge(x, y, along_x=True):
     return b
 
 
-for (tx, ty, ax) in ((BORE[0], BORE[1] + 24, True), (190.0, 86.0, False), (NOTCH_X - 12.0, 44.0, True)):
+for (tx, ty, ax) in ((BORE[0], BORE[1] + 24, True), (190.0, 86.0, False), (NOTCH_X, 30.0, True)):
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
