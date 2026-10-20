@@ -28,3 +28,7 @@ Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** geteste
 - Karten anlernen, Zeitprofile, Logbuch, Snapshot, Push, Shelly, Offline-Modus: alles testbar.
 - Die Karten-ID kommt hier als Hex (`74-10-37-94`), an der Wiegand-Tastatur später als Dezimalzahl. Das Add-on rechnet beides ineinander um – **angelernte Karten bleiben gültig**. Beim Umstieg nur in den Add-on-Optionen `reader_type` von `rfid2` auf `wiegand34` stellen (für die Offline-Liste).
 - Umstieg: `haustuer-zutritt.yaml` öffnen, *Install → Wirelessly*. Gleicher Name, also Update per WLAN.
+
+## Optional: Gehäusetemperatur (DS18B20)
+
+`gehaeusetemperatur.yaml` wird über `packages:` eingebunden. DS18B20: rot → 3,3 V, schwarz → GND, gelb → **G7**, 4,7 kΩ zwischen gelb und 3,3 V. Ohne Sensor läuft alles normal, die Entität „Gehäusetemperatur“ ist dann nicht verfügbar. Ganz abschalten: die Zeile unter `packages:` auskommentieren und neu flashen. Zusätzlich meldet der Atom immer seine **Chiptemperatur** (Diagnose, liegt 10–20 K über der Gehäuseluft).

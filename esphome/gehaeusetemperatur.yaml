@@ -1,0 +1,15 @@
+# Optional: Gehaeusetemperatur mit DS18B20 (1-Wire) an G7 des AtomS3 Lite.
+# Anschluss: DS18B20 rot -> 3,3 V, schwarz -> GND, gelb (Daten) -> G7, 4,7 kOhm zwischen Daten und 3,3 V.
+# Ohne Sensor laeuft die Firmware normal weiter, die Entitaet ist dann "nicht verfuegbar".
+# Abschalten: in haustuer-zutritt.yaml die Zeile unter "packages:" auskommentieren.
+
+one_wire:
+  - platform: gpio
+    pin: GPIO7
+
+sensor:
+  - platform: dallas_temp
+    name: Gehäusetemperatur
+    update_interval: 60s
+    filters:
+      - filter_out: 85.0          # Einschaltwert des DS18B20, kein Messwert
