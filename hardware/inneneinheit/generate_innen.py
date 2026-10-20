@@ -314,29 +314,42 @@ TXT2, TXT2_CAP = "ACCESS", 9.0
 ENGRAVE = 0.6
 
 
+LOGO_RIB = 0.8                                       # Steg zwischen grauen und orangen Flaechen (druckbar)
+LOGO_DEEP = 1.0                                      # orange Flaechen tiefer -> heben sich auch einfarbig ab
+
+
 def logo_cs(height):
-    """Logo-PNG (grau + orange) als eine Flaeche, Mitte im Ursprung, y nach oben."""
+    """Logo-PNG in (orange, grau) zerlegen; grau bekommt einen Steg zum Orange, damit N und A getrennt bleiben."""
     import cv2
     from PIL import Image
     a = np.array(Image.open(BASE / "assets" / "adnet_logo.png").convert("RGBA")).astype(int)
     r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
-    m = (al > 128) & ~((r > 240) & (g > 240) & (b > 240))
-    hpx, wpx = m.shape
+    vis = al > 128
+    masks = (vis & (r > 180) & (g < 140) & (r - g > 80), vis & (abs(r - g) < 25) & (abs(g - b) < 25) & (r < 200))
+    hpx, wpx = r.shape
     k = height / hpx
-    cs, _ = cv2.findContours(m.astype(np.uint8) * 255, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-    polys = []
-    for c in cs:
-        c = cv2.approxPolyDP(c, 0.6, True)[:, 0, :].astype(float)
-        if len(c) > 2:
-            polys.append([((x - wpx / 2) * k, (hpx / 2 - y) * k) for x, y in c])
-    return CrossSection(polys, fillrule=FillRule.EvenOdd)
+    out = []
+    for m in masks:
+        cs, _ = cv2.findContours(m.astype(np.uint8) * 255, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+        polys = []
+        for c in cs:
+            c = cv2.approxPolyDP(c, 0.6, True)[:, 0, :].astype(float)
+            if len(c) > 2:
+                polys.append([((x - wpx / 2) * k, (hpx / 2 - y) * k) for x, y in c])
+        out.append(CrossSection(polys, fillrule=FillRule.EvenOdd))
+    orange, grau = out
+    grau = grau - orange.offset(LOGO_RIB, JoinType.Miter)
+    return orange, grau
 
 
 _y1 = LOGO_Y - LOGO_H / 2 - 6.0 - TXT1_CAP / 2
 _y2 = _y1 - TXT1_CAP / 2 - 5.0 - TXT2_CAP / 2
-deco = (logo_cs(LOGO_H).translate((DECO_X, LOGO_Y)) + text_cs(TXT1, TXT1_CAP).translate((DECO_X, _y1))
+_lo, _lg = logo_cs(LOGO_H)
+deco = (_lg.translate((DECO_X, LOGO_Y)) + text_cs(TXT1, TXT1_CAP).translate((DECO_X, _y1))
         + text_cs(TXT2, TXT2_CAP).translate((DECO_X, _y2)))
-lid -= deco.mirror((1, 0)).translate((IN_W, 0)).extrude(ENGRAVE + 0.01).translate((0, 0, -0.01))   # Deckel liegt gespiegelt
+_pr = lambda cs: cs.mirror((1, 0)).translate((IN_W, 0))                                # Deckel liegt gespiegelt
+lid -= _pr(deco).extrude(ENGRAVE + 0.01).translate((0, 0, -0.01))
+lid -= _pr(_lo.translate((DECO_X, LOGO_Y))).extrude(LOGO_DEEP + 0.01).translate((0, 0, -0.01))
 
 # ---------------- Niederhalter fuer die Wandler (2 x drucken) ----------------
 span = (SD_W + 2 * CLR) + 2 * HOLD_OFF
