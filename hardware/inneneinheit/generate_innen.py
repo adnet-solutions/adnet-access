@@ -255,9 +255,12 @@ for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
 labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
            ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 5.0, LBL)]
 LABEL_DEPTH = 0.8
+label_inlay = Manifold()                    # Schrift als eigenes Teil (zweite Farbe mit AMS)
 for (s, x, y, cap) in labels:
     if 1.5 < y < IN_H - 1.5:
-        shell -= text_cs(s, cap).translate((x, y)).extrude(2).translate((0, 0, Z0 - LABEL_DEPTH))
+        cs = text_cs(s, cap).translate((x, y))
+        shell -= cs.extrude(2).translate((0, 0, Z0 - LABEL_DEPTH))
+        label_inlay += cs.extrude(LABEL_DEPTH).translate((0, 0, Z0 - LABEL_DEPTH))
 
 # ---------------- Deckel ----------------
 LIP, LIP_T = 2.0, 1.4
@@ -317,6 +320,7 @@ def save(m, name):
 
 
 save(shell, "innen_unterteil.stl")
+save(label_inlay, "innen_unterteil_schrift.stl")
 save(lid, "innen_deckel.stl")
 save(bar, "innen_niederhalter.stl")
 
