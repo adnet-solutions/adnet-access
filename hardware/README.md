@@ -95,7 +95,7 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 
 **Entwurf V2.1, noch nicht mit echten Teilen geprüft:** erst in PLA probedrucken und Wagos, Wandler, Delock und Atom einsetzen. Unklar ist vor allem, wo genau die Buchsen an der Atom-Unterseite sitzen; das Podest hat nur 4 × 4 mm Eckauflagen, die Mitte ist frei. Beschriftung im Boden: Spalte 1 links neben den Wagos, Spalte 2 rechts dahinter.
 
-**Vor dem Druck nachmessen:** Wagos (221-413 nachgemessen ca. 18,1 mm breit, 221-415 geschätzt 29,2 mm; Datenblatt nennt 18,8 bzw. 29,9 mm, real sind sie schmaler). Zum schnellen Prüfen: `test_wago_aufnahme.stl`. Die Wandler-Klemmleiste ragt ca. 11 mm über das Blechgehäuse hinaus; dahinter sind 16 mm Platz für die Adern bis zu den Wagos, Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
+**Vor dem Druck nachmessen:** Wagos (221-413 nachgemessen ca. 18,6 mm breit, 221-415 hochgerechnet 29,6 mm; Datenblatt nennt 18,8 bzw. 29,9 mm, real sind sie schmaler). Zum schnellen Prüfen: `test_wago_aufnahme.stl`. Die Wandler-Klemmleiste ragt ca. 11 mm über das Blechgehäuse hinaus; dahinter sind 16 mm Platz für die Adern bis zu den Wagos, Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
 
 ## Verdrahtung Schritt für Schritt
 
