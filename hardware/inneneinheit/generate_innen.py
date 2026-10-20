@@ -32,7 +32,7 @@ DELOCK_L, DELOCK_W, DELOCK_H = 27.0, 18.0, 15.0
 WAGO_D, WAGO_H = 18.6, 8.4                 # WAGO 221: Tiefe (Leitereinfuehrung -> Rueckseite), Hoehe (Datenblatt)
 WAGO_W = {3: 18.6, 5: 29.6}                # Breite je Polzahl: 221-413 nachgemessen 18,56; 221-415 hochgerechnet
 SD_TERM = 12.5                             # Klemmleiste ragt ueber das Blechgehaeuse hinaus (nachgemessen: 90,5 mm gesamt)
-WIRE_ROOM = 14.5                           # Platz fuer Adern zwischen Klemmleiste und Wagos
+WIRE_ROOM = 17.5                           # Platz fuer Adern zwischen Klemmleiste und Wagos
 CLR = 0.5                                  # Spiel in allen Aufnahmen
 WCLR = 0.3                                 # Spiel der Wagos quer
 WNOSE = 0.9                                # Rastnasen an den Wago-Seitenwaenden
@@ -44,9 +44,9 @@ IN_Z = SD_H + 4.0 + 2.0                    # lichte Hoehe: Wandler + Niederhalte
 R_OUT = 10.0                               # grosse Eckenradien wie die Klingelplatte
 BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschrauben
 
-BORE = (202.0, 42.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
+BORE = (202.0, 52.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
-NOTCH_X, NOTCH_W, NOTCH_H = 182.0, 10.0, 8.0   # Kerbe Netzteilkabel in der Unterkante (y = 0)
+NOTCH_X, NOTCH_W, NOTCH_H = 190.0, 10.0, 8.0   # Kerbe Netzteilkabel in der Unterkante (y = 0)
 
 
 def rrect(w, h, r, n=48):
@@ -104,7 +104,7 @@ def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
 
 
 # ---------------- Mean Well SD-15B: zwei Wandler links uebereinander, Klemmen zeigen nach rechts ----------------
-SD_X = 6.0
+SD_X = 3.0
 HOLD_OFF, HOLD_R = 4.6, 3.8                 # Dom-Abstand zum Wandler, Dom-Radius
 SD_GAP = 2 * (HOLD_OFF)                     # Platz zwischen den Wandlern fuer die Dome
 _y_lo = HOLD_OFF + HOLD_R + 0.2
@@ -133,7 +133,8 @@ wago_slots, _y = [], 4.0
 for _n, _l in ((5, "24V+"), (5, "24V-"), (5, "GND"), (3, "GND 2")):
     wago_slots.append((_n, _y, _l))
     _y += WAGO_W[_n] + WCLR + 4.4
-WAGO2_X = WAGO_X + 28.0           # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
+LABEL_GAP = 12.0                  # Gang zwischen den Spalten (Beschriftung Spalte 2)
+WAGO2_X = WAGO_X + WAGO_D + CLR + 1.6 + LABEL_GAP + 1.6   # Spalte 2: Einfuehrung zeigt nach RECHTS (Cat 7, Atom)
 PITCH2 = WAGO_W[3] + WCLR + 1.6   # 20.6 mm: benachbarte Aufnahmen teilen sich eine Wand
 wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
 for _n, _y, _l in wago_slots:
@@ -141,12 +142,12 @@ for _n, _y, _l in wago_slots:
 for _n, _y, _l in wago_slots2:
     assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 WALL_H_WAGO = 5.0
-for col_x, slots in ((WAGO_X, wago_slots), (WAGO2_X, wago_slots2)):
+for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, "LBT")):
     for (n, y, lbl) in slots:
         w = WAGO_W[n] + WCLR                   # entlang y
         d = WAGO_D + CLR                       # entlang x
-        # Rueckwand (rechts) + zwei Seitenwaende, links offen fuer die Leiter
-        shell += frame(col_x, y, d, w, WALL_H_WAGO, sides="RBT")
+        # Spalte 1: Rueckwand rechts, Adern von links (Wandler); Spalte 2: Rueckwand links, Adern von rechts
+        shell += frame(col_x, y, d, w, WALL_H_WAGO, sides=sides)
         shell += snap_noses(col_x, y, d, w, Z0 + WALL_H_WAGO, along="x", depth=WNOSE, length=8.0)
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
                            "x": col_x + d / 2, "y": y + w / 2, "z": Z0})
@@ -200,7 +201,7 @@ def tie_bridge(x, y, along_x=True):
     return b
 
 
-for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (190.0, 84.0, False), (NOTCH_X, 46.0, True)):
+for (tx, ty, ax) in ((BORE[0], BORE[1] + 24, True), (190.0, 86.0, False), (NOTCH_X - 12.0, 44.0, True)):
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
@@ -210,7 +211,7 @@ shell -= box(NOTCH_X - NOTCH_W / 2, NOTCH_X + NOTCH_W / 2, -WALL - 1, 1, H_OUT -
 # Positionen symmetrisch, weil der Deckel zum Drucken gewendet wird (x gespiegelt).
 HOOK_W, HOOK_T, HOOK_L, BUMP = 10.0, 1.6, 10.0, 1.0
 LIP_IN = 0.35                               # Abstand Haken-Aussenseite zur Innenwand
-HOOKS = [("B", 24.0), ("B", IN_W - 24.0), ("T", 24.0), ("T", IN_W - 24.0), ("L", IN_H / 2), ("R", IN_H / 2)]
+HOOKS = [("B", 16.0), ("B", IN_W - 16.0), ("T", 16.0), ("T", IN_W - 16.0), ("L", IN_H / 2), ("R", IN_H / 2)]
 # Lage der Rastnase relativ zur Deckelunterseite (installiert, nach unten gemessen)
 BUMP_TOP = HOOK_L - 3.2                     # Haltekante
 BUMP_BOT = HOOK_L - 0.4
@@ -255,9 +256,9 @@ labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2, 6.
 for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
     labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
-    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.0, y + (WAGO_W[n] + WCLR) / 2, LBL))
+    labels.append((lbl, WAGO2_X - 1.6 - LABEL_GAP / 2, y + (WAGO_W[n] + WCLR) / 2, LBL))   # im Gang links
 labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
-           ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 5.0, LBL)]
+           ("CAT 7", BORE[0], BORE[1] + BORE_OPEN / 2 + 4.6, LBL)]
 LABEL_DEPTH = 0.8
 label_inlay = Manifold()                    # Schrift als eigenes Teil (zweite Farbe mit AMS)
 for (s, x, y, cap) in labels:

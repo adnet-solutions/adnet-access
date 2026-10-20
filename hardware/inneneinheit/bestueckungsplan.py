@@ -42,6 +42,11 @@ ax.text(L["pry"], -6, "Hebelkerbe Deckel", ha="center", fontsize=8, color="#36c"
 x0 = L["wago1"][0][0]
 ax.annotate("", xy=(x0 - 0.5, 8), xytext=(x0 - 12, 8), arrowprops=dict(arrowstyle="->"))
 ax.text(x0 - 6, 11, "Adern von links", ha="center", fontsize=7)
+x2 = L["wago2"][0][0] + L["wago2"][0][2]
+ax.annotate("", xy=(x2 + 0.5, 70), xytext=(x2 + 9, 70), arrowprops=dict(arrowstyle="->"))
+ax.text(x2 + 5, 73, "Adern von rechts", ha="center", fontsize=7)
+ax.text((x0 + L["wago2"][0][0]) / 2 + 9.5, H - 2, "Kabel laufen über die Wagos (darüber ca. 25 mm frei)", ha="center", fontsize=7.5,
+        style="italic")
 ax.text(W / 2, H + 6, "OBEN  (Kabelkerben zeigen nach unten)", ha="center", fontsize=11, weight="bold")
 ax.text(W / 2, -12, "UNTEN", ha="center", fontsize=11, weight="bold")
 ax.set_xlim(-8, W + 8); ax.set_ylim(-16, H + 12); ax.set_aspect("equal"); ax.axis("off")
