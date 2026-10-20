@@ -1,7 +1,7 @@
 """Inneneinheit des Zutrittsmoduls (Version 2): flaches, weisses Aufputzgehaeuse an der Innenwand.
 
 Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
-  - Delock 65524 (DC-Buchse 5,5 x 2,1 -> Klemmen) fuer das Netzteil Mean Well GST60A24 (24 V)
+  - DC-Einbaubuchse 5,5 x 2,1 (Loch 11 mm, mit angeloeteten Adern) in der Unterseite: Netzteil GST60A24 wird von aussen eingesteckt
   - Mean Well SD-15B-12 (24 -> 12 V, Wiegand-Tastatur) und SD-15B-5 (24 -> 5 V, Atom)
   - M5Stack AtomS3 Lite (ESPHome)
   - 3 x WAGO 221-415 (24 V+, 24 V-, GND) + 7 x WAGO 221-413 (GND 2, Spannungsteiler D0/D1, LED, BEEP)
@@ -46,7 +46,8 @@ BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschraub
 
 BORE = (202.0, 52.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
-NOTCH_X, NOTCH_W, NOTCH_H = 190.0, 10.0, 8.0   # Kerbe Netzteilkabel in der Unterkante (y = 0)
+NOTCH_X = 190.0                            # Lage der DC-Einbaubuchse in der Unterseite (x)
+JACK_D, JACK_Z = 11.2, 14.0                # Lochdurchmesser (bei M12-Gewinde auf 12 mm aufbohren), Hoehe Mitte
 
 
 def rrect(w, h, r, n=48):
@@ -90,7 +91,7 @@ def frame(x0, y0, w, h, wall_h, sides="LRBT", gap=None, t=1.6):
 
 
 def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
-    """Kleine Rastnasen oben an zwei gegenueberliegenden Waenden (halten Wago/Atom/Delock nach dem Eindruecken)."""
+    """Kleine Rastnasen oben an zwei gegenueberliegenden Waenden (halten Wago/Atom nach dem Eindruecken)."""
     m = Manifold()
     if along == "y":   # Nasen an linker und rechter Wand
         yc = y0 + h / 2
@@ -179,14 +180,13 @@ assert ATOM_LIFT + 9.5 + 2.0 <= IN_Z, "Atom stoesst am Deckel an"
 parts_demo.append({"kind": "atom", "w": ATOM, "h": ATOM, "d": 9.5, "x": ATOM_X + aw / 2, "y": ATOM_Y + aw / 2,
                    "z": Z0 + ATOM_LIFT})
 
-# ---------------- Delock 65524: unten, DC-Buchse zeigt zur Kabelkerbe ----------------
-DL_X, DL_Y = NOTCH_X - DELOCK_W / 2 - CLR / 2, 4.0
-dw, dl = DELOCK_W + CLR, DELOCK_L + CLR
-shell += frame(DL_X, DL_Y, dw, dl, 7.0, sides="LR")
-shell += snap_noses(DL_X, DL_Y, dw, dl, Z0 + 7.0, along="y", length=10.0)
-shell += box(DL_X - 1.6, DL_X + dw + 1.6, DL_Y + dl, DL_Y + dl + 1.6, Z0 - 0.01, Z0 + 3.0)   # Anschlag hinten
-parts_demo.append({"kind": "delock", "w": DELOCK_W, "h": DELOCK_L, "d": DELOCK_H, "x": DL_X + dw / 2,
-                   "y": DL_Y + dl / 2, "z": Z0})
+# ---------------- DC-Einbaubuchse in der Unterseite (Netzteil wird von aussen eingesteckt) ----------------
+_jack = Manifold.cylinder(WALL + 4, JACK_D / 2, JACK_D / 2, 64).rotate((-90, 0, 0)).translate((NOTCH_X, -WALL - 1, Z0 + JACK_Z))
+_pad = Manifold.cylinder(1.6, 10.0, 10.0, 64).rotate((-90, 0, 0)).translate((NOTCH_X, -0.01, Z0 + JACK_Z))  # Verstaerkung innen
+shell += _pad - box(NOTCH_X - 12, NOTCH_X + 12, -1, 3, -5, Z0)       # nicht unter den Boden ragen
+shell -= _jack
+DL_X, DL_Y, dw, dl = NOTCH_X - 8.0, 0.0, 16.0, 18.0                  # Bereich der Buchse innen (fuer Plan/Beschriftung)
+parts_demo.append({"kind": "delock", "w": 14.0, "h": 16.0, "d": 14.0, "x": NOTCH_X, "y": 9.0, "z": Z0 + JACK_Z - 7})
 
 # ---------------- Wanddurchbruch (Cat 7) mit Kragen + Kabelbinder-Bruecken ----------------
 shell += cyl(*BORE, BORE_OPEN / 2 + 1.6, Z0 - 0.01, Z0 + 3.0)
@@ -205,7 +205,6 @@ for (tx, ty, ax) in ((BORE[0], BORE[1] + 24, True), (190.0, 86.0, False), (NOTCH
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
-shell -= box(NOTCH_X - NOTCH_W / 2, NOTCH_X + NOTCH_W / 2, -WALL - 1, 1, H_OUT - NOTCH_H, H_OUT + 1)
 
 # ---------------- Schnapp-Deckel: Rasthaken am Deckel, Nuten in der Gehaeusewand ----------------
 # Positionen symmetrisch, weil der Deckel zum Drucken gewendet wird (x gespiegelt).
@@ -257,7 +256,7 @@ for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
     labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
     labels.append((lbl, WAGO2_X - 1.6 - LABEL_GAP / 2, y + (WAGO_W[n] + WCLR) / 2, LBL))   # im Gang links
-labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
+labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", NOTCH_X, 24.0, LBL),
            ("CAT 7", BORE[0], BORE[1] + BORE_OPEN / 2 + 4.6, LBL)]
 LABEL_DEPTH = 0.8
 label_inlay = Manifold()                    # Schrift als eigenes Teil (zweite Farbe mit AMS)
@@ -298,7 +297,6 @@ def hook(side, pos):
 
 for side, pos in HOOKS:
     lid += hook(side, pos)
-lid -= box(NOTCH_X - NOTCH_W / 2 - 0.6, NOTCH_X + NOTCH_W / 2 + 0.6, -1, LIP_T + 2, LID - 0.1, LID + LIP + 1)
 # Lueftungsschlitze ueber den Wandlern (dezent, 2 Reihen)
 for row_y in (SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2):
     for i in range(7):
@@ -338,7 +336,7 @@ for name, (x, y) in SD_POS.items():
     "wago1": [[WAGO_X, y, WAGO_D + CLR, WAGO_W[n] + WCLR, l, n] for n, y, l in wago_slots],
     "wago2": [[WAGO2_X, y, WAGO_D + CLR, WAGO_W[n] + WCLR, l, n] for n, y, l in wago_slots2],
     "atom": [ATOM_X, ATOM_Y, aw], "delock": [DL_X, DL_Y, dw, dl], "bore": [BORE[0], BORE[1], BORE_OPEN / 2],
-    "notch": NOTCH_X, "pry": cx}, indent=1), encoding="utf-8")
+    "jack": [NOTCH_X, JACK_D], "pry": cx}, indent=1), encoding="utf-8")
 (OUT / "innen_bestueckung_demo.json").write_text(json.dumps(parts_demo, indent=1), encoding="utf-8")
 print(f"Gehaeuse aussen: {IN_W + 2 * WALL:.0f} x {IN_H + 2 * WALL:.0f} x {H_OUT + LID:.0f} mm")
 print(f"Wandbohrung: {BORE[0] + WALL:.0f} mm vom linken, {BORE[1] + WALL:.0f} mm vom unteren Aussenrand")

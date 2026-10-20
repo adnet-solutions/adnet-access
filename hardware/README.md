@@ -12,7 +12,7 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | **Mean Well GST60A24-P1J** (24 V / 2,5 A, Steckernetzteil) | 1 | **das eine Netzteil** für Ring + Tastatur + Atom | Reichelt, Conrad, Bürklin, TME (**nicht** Amazon/eBay: Fälschungen) |
 | **Mean Well SD-15B-12** (DC/DC 18–36 V → 12 V) | 1 | Tastatur | Conrad (ca. 13 €), Bürklin 62C2001, TME |
 | **Mean Well SD-15B-5** (DC/DC 18–36 V → 5 V) | 1 | Atom | wie oben |
-| **Delock 65524** DC-Buchse 5,5 × 2,1 mit Klemmen | 1 | Netzteil rein | |
+| **DC-Einbaubuchse 5,5 × 2,1 mm** zum Einschrauben, mit angelöteten Litzen (ca. 10 cm), Loch 11 mm, mind. 3 A | 1 | Netzteil GST60A24 wird von außen eingesteckt | z. B. shellyparts „DC-Einbaubuchse 5,5×2,1“; **nicht** Delock 65503 (nur 0,5 A, Lötfahnen). Typ mit M12-Gewinde: Loch auf 12 mm aufbohren |
 | **WAGO 221-415** (5 Klemmstellen) | 3 | `24V+`, `24V−`, `GND` | Elektro-Fachhandel, Reichelt, Conrad |
 | **WAGO 221-413** (3 Klemmstellen) | 7 | `GND 2`, `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | wie oben |
 | Schottky-Diode **BAT85** (DO-35) | 2 | LED/BEEP der Tastatur schalten, schützt den Atom | Reichelt, Conrad |
@@ -69,7 +69,7 @@ Gehäuse **229 × 137 × 39 mm**, flach, **PETG weiß**. Jedes Teil hat seine Au
 | Mitte, Spalte 1 | 3 × **WAGO 221-415**: `24V+`, `24V−`, `GND`, dazu 1 × **221-413** `GND 2` | eindrücken, Rastnasen |
 | Mitte, Spalte 2 | 6 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | eindrücken, Rastnasen |
 | rechts oben | **AtomS3 Lite** auf 16-mm-Podest (USB-C oben, Grove unten, darunter Platz für 2 Dupont-Stecker an G5/G6) | auf Eckauflagen, Rastnasen |
-| rechts unten | **Delock 65524** an der Kabelkerbe | eindrücken, Rastnasen |
+| rechts unten, Unterseite | **DC-Einbaubuchse** im Loch Ø 11,2 mm | von außen durchstecken, innen mit Mutter kontern (Wand innen auf 4 mm verstärkt) |
 | rechts | Öffnung **Ø 22 mm** über der Wandbohrung (Cat 7 von hinten) | Kabelbinder-Brücken |
 
 Die Aufnahmen sind im Boden beschriftet.
@@ -93,13 +93,13 @@ Die Aufnahmen sind im Boden beschriftet.
 
 Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinheit/generate_innen.py` (braucht `trimesh`, `shapely`, `manifold3d`, `fonttools`). Vorschau-Bilder: `python3 hardware/inneneinheit/vorschau.py`.
 
-**Entwurf V2.1, noch nicht mit echten Teilen geprüft:** erst in PLA probedrucken und Wagos, Wandler, Delock und Atom einsetzen. Unklar ist vor allem, wo genau die Buchsen an der Atom-Unterseite sitzen; das Podest hat nur 4 × 4 mm Eckauflagen, die Mitte ist frei. Beschriftung im Boden: Spalte 1 links neben den Wagos, Spalte 2 rechts dahinter.
+**Entwurf V2.1, noch nicht mit echten Teilen geprüft:** erst in PLA probedrucken und Wagos, Wandler, DC-Buchse und Atom einsetzen. Unklar ist vor allem, wo genau die Buchsen an der Atom-Unterseite sitzen; das Podest hat nur 4 × 4 mm Eckauflagen, die Mitte ist frei. Beschriftung im Boden: Spalte 1 links neben den Wagos, Spalte 2 rechts dahinter.
 
-**Vor dem Druck nachmessen:** Wagos (221-413 nachgemessen ca. 18,6 mm breit, 221-415 hochgerechnet 29,6 mm; Datenblatt nennt 18,8 bzw. 29,9 mm, real sind sie schmaler). Zum schnellen Prüfen: `test_wago_aufnahme.stl`. Die Wandler-Klemmleiste ragt ca. 12,5 mm über das Blechgehäuse hinaus (90,5 mm gesamt); dahinter sind 14,5 mm Platz für die Adern bis zu den Wagos, Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
+**Vor dem Druck nachmessen:** Wagos (221-413 nachgemessen ca. 18,6 mm breit, 221-415 hochgerechnet 29,6 mm; Datenblatt nennt 18,8 bzw. 29,9 mm, real sind sie schmaler). Zum schnellen Prüfen: `test_wago_aufnahme.stl`. Die Wandler-Klemmleiste ragt ca. 12,5 mm über das Blechgehäuse hinaus (90,5 mm gesamt); dahinter sind 14,5 mm Platz für die Adern bis zu den Wagos, SD-15 (78 × 51 × 28 mm).
 
 ## Verdrahtung Schritt für Schritt
 
-1. **24 V:** GST60A24 → Delock-Buchse → Wago `24V+` / `24V−`. Von dort: Ring-Paar (orange/weiß-orange), Eingang SD-15B-12, Eingang SD-15B-5.
+1. **24 V:** GST60A24 → DC-Einbaubuchse (von außen eingesteckt) → Litzen in Wago `24V+` / `24V−`. Von dort: Ring-Paar (orange/weiß-orange), Eingang SD-15B-12, Eingang SD-15B-5.
 2. **12 V:** SD-15B-12 `+V` → grüne Ader (Tastatur +12 V). `−V` → Wago `GND`.
 3. **5 V:** SD-15B-5 `+V` → rote Grove-Ader (Atom 5 V). `−V` → Wago `GND`.
 4. **GND-Wagos:** `GND` und `GND 2` mit einem kurzen Drahtstück verbinden. `GND`: Minus beider Wandler, schwarze Grove-Ader, weiß-grüne Ader (Tastatur GND), Brücke. `GND 2`: Brücke, untere Widerstände der Spannungsteiler, 2 Plätze Reserve.

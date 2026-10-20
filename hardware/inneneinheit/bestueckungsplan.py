@@ -31,12 +31,12 @@ ax_, ay, aw = L["atom"]
 comp(ax_, ay, aw, aw, "AtomS3\nLite", "#333", fs=9, tc="white")
 ax.text(ax_ + aw / 2, ay - 2, "USB-C ↑ oben · Grove ↓ unten", ha="center", va="top", fontsize=7.5)
 dx, dy, dw, dl = L["delock"]
-comp(dx, dy, dw, dl, "Delock\n24 V IN", "#444", fs=8, tc="white")
+comp(dx, dy, dw, dl, "DC-\nBuchse", "#444", fs=8, tc="white")
 bx, by, br = L["bore"]
 ax.add_patch(Circle((bx, by), br, fc="white", ec="#333", lw=1.5))
 ax.text(bx, by, "Cat 7\n(von hinten)", ha="center", va="center", fontsize=8)
-ax.add_patch(Rectangle((L["notch"] - 5, -2.4), 10, 2.4, fc="#c33"))
-ax.text(L["notch"], -6, "Kerbe Netzteilkabel", ha="center", fontsize=8, color="#c33")
+ax.add_patch(Rectangle((L["jack"][0] - L["jack"][1] / 2, -2.4), L["jack"][1], 2.4, fc="#c33"))
+ax.text(L["jack"][0], -6, "Loch Ø11 DC-Einbaubuchse (Netzteil von außen)", ha="center", fontsize=8, color="#c33")
 ax.add_patch(Rectangle((L["pry"] - 5, -2.4), 10, 2.4, fc="#36c"))
 ax.text(L["pry"], -6, "Hebelkerbe Deckel", ha="center", fontsize=8, color="#36c")
 x0 = L["wago1"][0][0]
@@ -47,7 +47,7 @@ ax.annotate("", xy=(x2 + 0.5, 70), xytext=(x2 + 9, 70), arrowprops=dict(arrowsty
 ax.text(x2 + 5, 73, "Adern von rechts", ha="center", fontsize=7)
 ax.text((x0 + L["wago2"][0][0]) / 2 + 9.5, H - 2, "Kabel laufen über die Wagos (darüber ca. 25 mm frei)", ha="center", fontsize=7.5,
         style="italic")
-ax.text(W / 2, H + 6, "OBEN  (Kabelkerben zeigen nach unten)", ha="center", fontsize=11, weight="bold")
+ax.text(W / 2, H + 6, "OBEN  (DC-Buchse sitzt unten)", ha="center", fontsize=11, weight="bold")
 ax.text(W / 2, -12, "UNTEN", ha="center", fontsize=11, weight="bold")
 ax.set_xlim(-8, W + 8); ax.set_ylim(-16, H + 12); ax.set_aspect("equal"); ax.axis("off")
 ax.set_title("Inneneinheit – Bestückung (Blick von vorn, Deckel ab)", fontsize=14, weight="bold")
