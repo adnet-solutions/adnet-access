@@ -121,6 +121,10 @@ Logo, „AD.NET solutions“ und „ACCESS“ sind mittig untereinander 0,6 mm i
 
 Drei vorgeprägte Bohrstellen (außen Kreis Ø 12,2 mm, Wand bleibt 0,8 mm dick und dicht): **rechte Seite unten**, **Oberseite rechts**, **Unterseite rechts**. Bei Bedarf mit Stufenbohrer auf 12 mm aufbohren und eine **Kabelverschraubung M12 × 1,5** (Klemmbereich ca. 3–6,5 mm, Gegenmutter innen) einsetzen. Innen ist an allen drei Stellen Platz für die Mutter.
 
+### Temperaturfühler (optional)
+
+Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Klemmen für einen **DS18B20 im Edelstahlröhrchen Ø 6 mm**: einfach von oben einklipsen. Ein nackter DS18B20 (kleines schwarzes Gehäuse mit 3 Beinchen) kommt in ein Stück Schrumpfschlauch oder wird mit einem Kabelbinder durch den Schlitz unter einer Klemme gebunden. Kabel zum Atom (G7, 3,3 V, GND) etwa 25 cm lang lassen, damit der Deckel zum Öffnen abgelegt werden kann. Firmware: `esphome/gehaeusetemperatur.yaml`.
+
 ### Innenverkabelung: Litze und Farben
 
 Litze: flexibel, 0,5 mm² (20 AWG), z. B. Silikonlitze oder H05V-K/LiYv. 24-V-Zuleitung von der DC-Buchse: 0,75 mm². Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig. Dünne Dupont-Adern (0,14 mm²) für den Atom: Ende 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².

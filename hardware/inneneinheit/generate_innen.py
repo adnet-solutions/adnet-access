@@ -321,6 +321,18 @@ def hook(side, pos):
 
 for side, pos in HOOKS:
     lid += hook(side, pos)
+# Halter fuer Temperaturfuehler DS18B20 (Edelstahlhuelse Oe 6 mm) innen am Deckel, ueber dem Gang zwischen den
+# Wago-Spalten (weit weg von den Wandlern). Zwei Klemmen, oben offen (5,0 mm Schlitz) -> Fuehler einklipsen.
+# Nackter DS18B20 (TO-92): in Schrumpfschlauch stecken oder mit Kabelbinder durch den Schlitz unter den Klemmen.
+TS_X, TS_Y0, TS_Y1 = 138.5, 52.0, 82.0      # Einbaulage: Mitte x, Klemmen bei y
+TS_R, TS_SLOT, TS_H = 3.15, 5.0, 8.0
+for _ty in (TS_Y0, TS_Y1):
+    _px = IN_W - TS_X                         # Deckel liegt gespiegelt
+    _c = box(_px - 5.0, _px + 5.0, _ty - 3.0, _ty + 3.0, LID - 0.01, LID + TS_H)
+    _c -= Manifold.cylinder(8, TS_R, TS_R, 48).rotate((-90, 0, 0)).translate((_px, _ty - 4, LID + TS_H - TS_R - 0.8))
+    _c -= box(_px - TS_SLOT / 2, _px + TS_SLOT / 2, _ty - 4, _ty + 4, LID + TS_H - TS_R - 0.8, LID + TS_H + 1)
+    _c -= box(_px - 5.5, _px + 5.5, _ty - 1.6, _ty + 1.6, LID + 0.8, LID + 2.6)   # Kabelbinder-Schlitz (3,2 x 1,8)
+    lid += _c
 # Lueftungsschlitze ueber den Wandlern (dezent, 2 Reihen)
 for row_y in (SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2):
     for i in range(7):
