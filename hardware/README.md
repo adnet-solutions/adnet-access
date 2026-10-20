@@ -13,8 +13,11 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | **Mean Well SD-15B-12** (DC/DC 18–36 V → 12 V) | 1 | Tastatur | Conrad (ca. 13 €), Bürklin 62C2001, TME |
 | **Mean Well SD-15B-5** (DC/DC 18–36 V → 5 V) | 1 | Atom | wie oben |
 | **Delock 65524** DC-Buchse 5,5 × 2,1 mit Klemmen | 1 | Netzteil rein | |
-| **WAGO 221-415** | 3 | `24V+`, `24V−`, `GND` | |
-| **WAGO 221-413** | 5 | `D0 a/b`, `D1 a/b`, `frei` | |
+| **WAGO 221-415** | 4 | `24V+`, `24V−`, `GND`, `GND 2` | |
+| **WAGO 221-413** | 6 | `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | |
+| Schottky-Diode **BAT85** (DO-35) | 2 | LED/BEEP der Tastatur schalten, schützt den Atom | Reichelt, Conrad |
+| Dupont-Kabel **Stecker–Buchse**, 10–20 cm | 2 | Atom G5/G6 → Diode | |
+| Schrumpfschlauch 1,5–2 mm | 10 cm | über Diode + Dupont-Buchse | |
 | Widerstand **10 kΩ**, ¼ W, bedrahtet | 4–8 | Spannungsteiler D0/D1 (nur falls nötig, siehe unten) | |
 | **Cat 7 Verlegekabel** (S/FTP, 4 × 2 × AWG23) | Wand + 1 m | das einzige Kabel nach außen | |
 | 13,56-MHz-Karten / Schlüsselanhänger (MIFARE) | nach Bedarf | | |
@@ -30,8 +33,8 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | weiß-grün | GND | Tastatur schwarz | Wago `GND` |
 | blau | D0 | Tastatur D0 (grün) | Wago `D0 a` |
 | braun | D1 | Tastatur D1 (weiß) | Wago `D1 a` |
-| weiß-blau | LED | Tastatur **blau** (LED, Reserve) | Wago `frei` |
-| weiß-braun | BEEP | Tastatur **gelb** (BEEP, Reserve) | Wago `frei` |
+| weiß-blau | LED | Tastatur **blau** (LED) | Wago `LED` |
+| weiß-braun | BEEP | Tastatur **gelb** (BEEP) | Wago `BEEP` |
 
 Aderfarben laut Anleitung (Modell **HBK-D02K**, so von Amazon für die UHPPOTE-Tastatur bereitgestellt): rot +12 V, schwarz GND, grün D0, weiß D1, blau LED, gelb BEEP, grau Wiegand-34-Auswahl. Liegt eine andere Anleitung bei: immer danach gehen.
 
@@ -63,9 +66,9 @@ Gehäuse **229 × 137 × 39 mm**, flach, **PETG weiß**. Jedes Teil hat seine Au
 |---|---|---|
 | links unten | **SD-15B-5** (24 → 5 V, Atom) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
 | links oben | **SD-15B-12** (24 → 12 V, Tastatur) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
-| Mitte, Spalte 1 | 3 × **WAGO 221-415**: `24V+`, `24V−`, `GND` | eindrücken, Rastnasen |
-| Mitte, Spalte 2 | 5 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `frei` | eindrücken, Rastnasen |
-| rechts oben | **AtomS3 Lite** (USB-C frei zum Flashen) | eindrücken, Rastnasen |
+| Mitte, Spalte 1 | 4 × **WAGO 221-415**: `24V+`, `24V−`, `GND`, `GND 2` | eindrücken, Rastnasen |
+| Mitte, Spalte 2 | 6 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | eindrücken, Rastnasen |
+| rechts oben | **AtomS3 Lite** auf 16-mm-Podest (USB-C oben, Grove unten, darunter Platz für 2 Dupont-Stecker an G5/G6) | auf Eckauflagen, Rastnasen |
 | rechts unten | **Delock 65524** an der Kabelkerbe | eindrücken, Rastnasen |
 | rechts | Öffnung **Ø 22 mm** über der Wandbohrung (Cat 7 von hinten) | Kabelbinder-Brücken |
 
@@ -85,6 +88,8 @@ Die Aufnahmen sind im Boden beschriftet.
 
 Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinheit/generate_innen.py` (braucht `trimesh`, `shapely`, `manifold3d`, `fonttools`). Vorschau-Bilder: `python3 hardware/inneneinheit/vorschau.py`.
 
+**Entwurf V2.1, noch nicht mit echten Teilen geprüft:** erst in PLA probedrucken und Wagos, Wandler, Delock und Atom einsetzen. Unklar ist vor allem, wo genau die Buchsen an der Atom-Unterseite sitzen; das Podest hat nur 4 × 4 mm Eckauflagen, die Mitte ist frei. Beschriftung im Boden: Spalte 1 links neben den Wagos, Spalte 2 rechts dahinter.
+
 **Vor dem Druck nachmessen:** Wagos (221-413 ca. 17,6 × 18,8 mm, 221-415 ca. 26,6 × 18,8 mm), Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
 
 ## Verdrahtung Schritt für Schritt
@@ -92,9 +97,10 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 1. **24 V:** GST60A24 → Delock-Buchse → Wago `24V+` / `24V−`. Von dort: Ring-Paar (orange/weiß-orange), Eingang SD-15B-12, Eingang SD-15B-5.
 2. **12 V:** SD-15B-12 `+V` → grüne Ader (Tastatur +12 V). `−V` → Wago `GND`.
 3. **5 V:** SD-15B-5 `+V` → rote Grove-Ader (Atom 5 V). `−V` → Wago `GND`.
-4. **GND-Wago:** Minus beider Wandler, schwarze Grove-Ader, weiß-grüne Ader (Tastatur GND), untere Widerstände.
+4. **GND-Wagos:** `GND` und `GND 2` mit einem kurzen Drahtstück verbinden. `GND`: Minus beider Wandler, schwarze Grove-Ader, weiß-grüne Ader (Tastatur GND), Brücke. `GND 2`: Brücke, untere Widerstände der Spannungsteiler, 2 Plätze Reserve.
 5. **D0/D1:** blau → `D0`, braun → `D1`, ggf. über die Teiler, dann an **G1 (D0)** und **G2 (D1)** des Atom.
-6. Netzteilkabel durch die Kerbe, mit Kabelbinder sichern.
+6. **LED/BEEP (erst nach dem Messen anschließen):** weiß-blaue Ader + **Anode** einer BAT85 (Seite ohne Ring) in den Wago `LED`. Auf die **Kathode** (Seite mit Ring) eine Dupont-Buchse stecken, Schrumpfschlauch drüber, Stecker in **G5** am Atom. Genauso weiß-braun → Wago `BEEP` → BAT85 → **G6**. Der Atom zieht die Leitung über die Diode auf GND (= LED grün bzw. Piep); bei 3,3 V sperrt die Diode, die 5 bzw. 12 V der Tastatur erreichen den Atom nicht.
+7. Netzteilkabel durch die Kerbe, mit Kabelbinder sichern.
 
 **Vor dem Einschalten:** An den Wandler-Ausgängen 12 V bzw. 5 V messen, erst dann Tastatur und Atom anklemmen. **Beim Flashen per USB-C die 5-V-Ader vom Wandler abklemmen.**
 
