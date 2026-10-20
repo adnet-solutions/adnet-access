@@ -230,6 +230,28 @@ for side, pos in HOOKS:
 PRY_W = 10.0
 shell -= box(cx - PRY_W / 2, cx + PRY_W / 2, -WALL - 1, -WALL + 1.0, H_OUT - 1.6, H_OUT + 1)
 
+# ---------------- Vorgeprägte Bohrstellen fuer Kabelverschraubung M12 (optional, z. B. eigenes Ring-Kabel) ----------------
+# Aussen 12,2 mm Kreis, 1,6 mm tief, innen bleibt 0,8 mm Wand stehen -> bleibt dicht, bis man aufbohrt (Stufenbohrer).
+KO_D, KO_LEFT, KO_Z = 12.2, 0.8, 17.0
+KNOCKOUTS = [("R", 25.0), ("T", 180.0), ("B", 180.0)]     # rechts unten, oben rechts, unten rechts (innen frei)
+
+
+def knockout(side, pos):
+    depth = WALL - KO_LEFT
+    c = Manifold.cylinder(depth + 1, KO_D / 2, KO_D / 2, 64)          # entlang +z
+    d = Manifold.cylinder(0.4, 1.5, 0.6, 24)                          # Zentrierkoernung (0,4 tief)
+    m = c + d.translate((0, 0, depth + 1 - 0.01))
+    z = Z0 + KO_Z
+    if side == "R":
+        return m.rotate((0, -90, 0)).translate((IN_W + WALL + 1, pos, z))
+    if side == "T":
+        return m.rotate((90, 0, 0)).translate((pos, IN_H + WALL + 1, z))
+    return m.rotate((-90, 0, 0)).translate((pos, -WALL - 1, z))
+
+
+for side, pos in KNOCKOUTS:
+    shell -= knockout(side, pos)
+
 # ---------------- Wandbefestigung: 2 Senkkopfloecher 4 x 30 ----------------
 for (wx, wy) in ((97.5, (SD_POS["SD-15B-5 (5 V)"][1] + SD_W + 2 * CLR + SD_POS["SD-15B-12 (12 V)"][1]) / 2), (186.0, 72.0)):
     shell -= cyl(wx, wy, 2.25, -1, Z0 + 1)

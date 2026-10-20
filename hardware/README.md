@@ -117,6 +117,10 @@ Der Shelly-Kontakt (O/I bzw. potentialfrei) kommt **parallel zum Kontakt des eke
 
 Logo, „AD.NET solutions“ und „ACCESS“ sind mittig untereinander 0,6 mm in die Außenseite eingraviert (einfarbig, z. B. alles weiß). Die Außenseite liegt beim Druck auf dem Bett; die Vertiefungen werden überbrückt, Brückeneinstellungen von Bambu Studio passen. Erhaben ginge nur mit Stützmaterial.
 
+### Optionale Kabelverschraubung (z. B. eigenes Kabel zur Ring)
+
+Drei vorgeprägte Bohrstellen (außen Kreis Ø 12,2 mm, Wand bleibt 0,8 mm dick und dicht): **rechte Seite unten**, **Oberseite rechts**, **Unterseite rechts**. Bei Bedarf mit Stufenbohrer auf 12 mm aufbohren und eine **Kabelverschraubung M12 × 1,5** (Klemmbereich ca. 3–6,5 mm, Gegenmutter innen) einsetzen. Innen ist an allen drei Stellen Platz für die Mutter.
+
 ### Innenverkabelung: Litze und Farben
 
 Litze: flexibel, 0,5 mm² (20 AWG), z. B. Silikonlitze oder H05V-K/LiYv. 24-V-Zuleitung von der DC-Buchse: 0,75 mm². Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig. Dünne Dupont-Adern (0,14 mm²) für den Atom: Ende 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
