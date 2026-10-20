@@ -30,9 +30,11 @@ SD_L, SD_W, SD_H = 78.0, 51.0, 28.0        # Mean Well SD-15 (Datenblatt 78 x 51
 ATOM = 24.0                                # AtomS3 Lite 24 x 24 x 9.5
 DELOCK_L, DELOCK_W, DELOCK_H = 27.0, 18.0, 15.0
 WAGO_D, WAGO_H = 18.6, 8.4                 # WAGO 221: Tiefe (Leitereinfuehrung -> Rueckseite), Hoehe (Datenblatt)
-WAGO_W = {3: 18.8, 5: 29.9}                # Breite je Polzahl (Datenblatt 221-413 / 221-415)
+WAGO_W = {3: 18.1, 5: 29.2}                # Breite je Polzahl: 221-413 nachgemessen 18,1; 221-415 geschaetzt
+SD_TERM = 11.0                             # Klemmleiste ragt am Wandler so weit ueber das Blechgehaeuse hinaus
+WIRE_ROOM = 16.0                           # Platz fuer Adern zwischen Klemmleiste und Wagos
 CLR = 0.5                                  # Spiel in allen Aufnahmen
-WCLR = 0.2                                 # Spiel der Wagos quer (Probedruck: 0,5 mm war zu locker)
+WCLR = 0.3                                 # Spiel der Wagos quer
 WNOSE = 0.9                                # Rastnasen an den Wago-Seitenwaenden
 
 # ---------------- Gehaeuse ----------------
@@ -44,7 +46,7 @@ BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschraub
 
 BORE = (202.0, 42.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
-NOTCH_X, NOTCH_W, NOTCH_H = 177.0, 10.0, 8.0   # Kerbe Netzteilkabel in der Unterkante (y = 0)
+NOTCH_X, NOTCH_W, NOTCH_H = 182.0, 10.0, 8.0   # Kerbe Netzteilkabel in der Unterkante (y = 0)
 
 
 def rrect(w, h, r, n=48):
@@ -102,7 +104,7 @@ def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
 
 
 # ---------------- Mean Well SD-15B: zwei Wandler links uebereinander, Klemmen zeigen nach rechts ----------------
-SD_X = 12.0
+SD_X = 6.0
 HOLD_OFF, HOLD_R = 4.6, 3.8                 # Dom-Abstand zum Wandler, Dom-Radius
 SD_GAP = 2 * (HOLD_OFF)                     # Platz zwischen den Wandlern fuer die Dome
 _y_lo = HOLD_OFF + HOLD_R + 0.2
@@ -114,8 +116,8 @@ for name, (x, y) in SD_POS.items():
     # Eckwinkel (8 mm hoch), rechte Seite frei fuer die Schraubklemmen
     shell += frame(x, y, w, h, 8.0, sides="LBT", gap=[("B", 14, w - 14), ("T", 14, w - 14)])
     # vierte Seite (Klemmenseite): nur niedrige Eckanschlaege, damit Klemmen und Adern frei bleiben
-    for yy in (y - 1.6, y + h - 4.0):
-        shell += box(x + w, x + w + 1.6, yy, yy + 5.6, Z0 - 0.01, Z0 + 3.5)
+    for yy in (y - 1.6, y + h - 2.4):
+        shell += box(x + w, x + w + 1.6, yy, yy + 4.0, Z0 - 0.01, Z0 + 2.5)
     bx = x + w * SD_BAR_F[name]
     HOLD += [(bx, y - HOLD_OFF), (bx, y + h + HOLD_OFF)]
     parts_demo.append({"kind": "buck", "w": SD_L, "h": SD_W, "d": SD_H, "x": x + w / 2, "y": y + h / 2, "z": Z0})
@@ -125,13 +127,13 @@ for (bx, by) in HOLD:
     shell -= cyl(bx, by, BOSS_HOLE / 2, Z0 + 4, Z0 + SD_H + 1)
 
 # ---------------- WAGO-Aufnahmen: mittlere Spalte, Leitereinfuehrung zeigt nach links (zu den Wandlern) ----------------
-WAGO_X = 104.0                     # linke Kante (Einfuehrungsseite)
+WAGO_X = SD_X + SD_L + 2 * CLR + SD_TERM + WIRE_ROOM   # 112: linke Kante (Einfuehrungsseite)
 # Spalte 1: 3 x 221-415 + 1 x 221-413 (GND 2: Bruecke + untere Teilerwiderstaende)
 wago_slots, _y = [], 4.0
 for _n, _l in ((5, "24V+"), (5, "24V-"), (5, "GND"), (3, "GND 2")):
     wago_slots.append((_n, _y, _l))
     _y += WAGO_W[_n] + WCLR + 4.4
-WAGO2_X = 132.0                   # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
+WAGO2_X = WAGO_X + 28.0           # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
 PITCH2 = WAGO_W[3] + WCLR + 1.6   # 20.6 mm: benachbarte Aufnahmen teilen sich eine Wand
 wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
 for _n, _y, _l in wago_slots:
@@ -153,7 +155,7 @@ for col_x, slots in ((WAGO_X, wago_slots), (WAGO2_X, wago_slots2)):
 # Die freien Pins (G5-G8, G38, G39, 5V, GND) sind Buchsen an der Unterseite. Der Atom liegt deshalb 16 mm hoch auf
 # vier Eckauflagen; darunter ist Platz fuer gerade Dupont-Stecker, die Kabel gehen seitlich durch Fenster raus.
 # USB-C zeigt nach oben (zum Flashen erreichbar), Grove nach unten.
-ATOM_X, ATOM_Y = 166.0, 96.0
+ATOM_X, ATOM_Y = 176.0, 96.0
 ATOM_LIFT = 16.0
 aw = ATOM + CLR
 PT = 1.6                                    # Wandstaerke Podest
@@ -198,7 +200,7 @@ def tie_bridge(x, y, along_x=True):
     return b
 
 
-for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (176.0, 84.0, False), (NOTCH_X, 46.0, True)):
+for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (190.0, 84.0, False), (NOTCH_X, 46.0, True)):
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
@@ -253,7 +255,7 @@ labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2, 6.
 for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
     labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
-    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.6, y + (WAGO_W[n] + WCLR) / 2, LBL))
+    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.0, y + (WAGO_W[n] + WCLR) / 2, LBL))
 labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
            ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 5.0, LBL)]
 LABEL_DEPTH = 0.8
@@ -330,6 +332,12 @@ save(bar, "innen_niederhalter.stl")
 for name, (x, y) in SD_POS.items():
     parts_demo.append({"kind": "bar", "w": 8.0, "h": span + 9.0, "d": 4.0, "x": x + (SD_L + 2 * CLR) * SD_BAR_F[name],
                        "y": y + (SD_W + 2 * CLR) / 2, "z": Z0 + SD_H})
+(OUT / "innen_layout.json").write_text(json.dumps({
+    "in_w": IN_W, "in_h": IN_H, "sd": {k: [x, y, SD_L, SD_W] for k, (x, y) in SD_POS.items()}, "sd_term": SD_TERM,
+    "wago1": [[WAGO_X, y, WAGO_D + CLR, WAGO_W[n] + WCLR, l, n] for n, y, l in wago_slots],
+    "wago2": [[WAGO2_X, y, WAGO_D + CLR, WAGO_W[n] + WCLR, l, n] for n, y, l in wago_slots2],
+    "atom": [ATOM_X, ATOM_Y, aw], "delock": [DL_X, DL_Y, dw, dl], "bore": [BORE[0], BORE[1], BORE_OPEN / 2],
+    "notch": NOTCH_X, "pry": cx}, indent=1), encoding="utf-8")
 (OUT / "innen_bestueckung_demo.json").write_text(json.dumps(parts_demo, indent=1), encoding="utf-8")
 print(f"Gehaeuse aussen: {IN_W + 2 * WALL:.0f} x {IN_H + 2 * WALL:.0f} x {H_OUT + LID:.0f} mm")
 print(f"Wandbohrung: {BORE[0] + WALL:.0f} mm vom linken, {BORE[1] + WALL:.0f} mm vom unteren Aussenrand")
