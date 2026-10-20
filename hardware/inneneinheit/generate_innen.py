@@ -49,7 +49,7 @@ BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschraub
 BORE = (202.0, 52.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
 NOTCH_X = 190.0                            # Lage der DC-Einbaubuchse in der Unterseite (x)
-JACK_D, JACK_Z = 11.4, 14.0                # Loch fuer DC-Einbaubuchse M11 (7/16"), z. B. RUNCCI-YUN R927; Hoehe Mitte
+JACK_D, JACK_Z = 8.3, 14.0                 # Loch DC-Einbaubuchse DC-099 (M8); fuer M11-Typen auf 11,4 aufbohren; Hoehe Mitte
 
 
 def rrect(w, h, r, n=48):
