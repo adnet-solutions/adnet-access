@@ -76,6 +76,8 @@ Die Aufnahmen sind im Boden beschriftet.
 
 ![Aufnahmen](inneneinheit/images/inneneinheit_leer.png)
 
+![Bestückungsplan](inneneinheit/images/bestueckung_plan.png)
+
 **Lage an der Wand:** Wandbohrung **204 mm vom linken** und **44 mm vom unteren Außenrand**. Gehäuse mit 2 Schrauben 4 × 30 + Dübel.
 
 **Deckel zum Aufschnappen:** 6 Rasthaken (je 2 an den Längsseiten, je 1 an den Schmalseiten) rasten in Nuten der Gehäusewand ein. Gerade aufsetzen und rundum andrücken. Öffnen: einen Schlitzschraubendreher in die Kerbe unten in der Mitte stecken, leicht drehen, dann den Deckel rundum abziehen.
