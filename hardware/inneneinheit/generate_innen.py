@@ -10,7 +10,7 @@ Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
 
 Druckteile:  innen_unterteil.stl, innen_deckel.stl, innen_niederhalter.stl (2 x drucken)
 Deckel:      wird aufgeschnappt (6 Rasthaken), Oeffnen mit Schlitzschraubendreher an der Kerbe unten Mitte
-Schrauben:   4 x 2,9 x 13 (Niederhalter), 2 x 4 x 30 + Duebel (Wand)
+Schrauben:   4 x 2,9 x 13 Linsenkopf (Niederhalter), 2 x 4 x 30 + Duebel (Wand)
 
 Koordinaten: Blick von vorn auf das geoeffnete Gehaeuse, Ursprung = linke untere Innenecke.
     python3 hardware/inneneinheit/generate_innen.py
@@ -356,7 +356,7 @@ span = (SD_W + 2 * CLR) + 2 * HOLD_OFF
 bar = rrect(span + 9.0, 8.0, 3.0).extrude(4.0)
 for dy in (-span / 2, span / 2):
     bar -= cyl(dy, 0, 1.7, -1, 5)
-    bar -= Manifold.cylinder(1.4, 1.7, 3.1, 48).translate((dy, 0, 4.0 - 1.39))
+    bar -= cyl(dy, 0, 3.1, 4.0 - 2.0, 5)          # Senkung fuer Linsenkopf 2,9 (Kopf 5,6 x 2,4) -> steht nur 0,4 mm ueber
 bar = bar.rotate((0, 0, 0))
 
 
