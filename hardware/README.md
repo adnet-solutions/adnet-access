@@ -115,7 +115,7 @@ Der Shelly-Kontakt (O/I bzw. potentialfrei) kommt **parallel zum Kontakt des eke
 
 ### Deckel mit Logo
 
-`innen_deckel_3farbig.3mf`: Deckel + Logo/Schrift grau + orange als bündige Einlage (0,6 mm, liegt beim Druck auf dem Bett → glatt wie das Druckbett). In Bambu Studio als ein Objekt mit drei Teilen öffnen, jedem Teil ein Filament zuweisen. Ohne AMS: nur `innen_deckel.stl` drucken, dann ist das Logo 0,6 mm vertieft. Erhaben geht nicht sauber, weil die Außenseite unten liegt.
+Logo, „AD.NET solutions“ und „ACCESS“ sind mittig untereinander 0,6 mm in die Außenseite eingraviert (einfarbig, z. B. alles weiß). Die Außenseite liegt beim Druck auf dem Bett; die Vertiefungen werden überbrückt, Brückeneinstellungen von Bambu Studio passen. Erhaben ginge nur mit Stützmaterial.
 
 ### Innenverkabelung: Litze und Farben
 

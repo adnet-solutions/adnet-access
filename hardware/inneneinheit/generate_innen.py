@@ -304,57 +304,39 @@ for row_y in (SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, SD_POS["SD-15B-12 (12 V)"]
     for i in range(7):
         sx = IN_W - (SD_X + 12 + i * 9.0) - 2.2       # Deckel liegt gespiegelt -> ueber den Wandlern
         lid -= box(sx, sx + 2.2, row_y - 12, row_y + 12, -1, LID + 1)
-# ---------------- Logo + "AD.NET ACCESS" aussen auf dem Deckel ----------------
-# Der Deckel liegt beim Druck mit der Aussenseite auf dem Druckbett. Logo und Schrift werden deshalb als
-# buendige Farbeinlage gedruckt (erste Schichten, glatt wie das Druckbett). Ohne AMS: innen_deckel.stl allein drucken (Logo dann 0,6 mm vertieft).
-LOGO_H, LOGO_X, LOGO_Y = 52.0, 152.0, 80.0          # Logohoehe, Mitte in Einbaulage (von aussen gesehen)
-TXT_CAP, TXT_Y = 8.0, 36.0
-INLAY = 0.6                                         # Tiefe der Einlage (3 Schichten a 0,2 mm)
+# ---------------- Logo + "AD.NET solutions / ACCESS" aussen auf dem Deckel (einfarbig, vertieft) ----------------
+# Der Deckel liegt beim Druck mit der Aussenseite auf dem Druckbett -> Logo und Schrift 0,6 mm eingraviert
+# (erhaben ginge nur mit Stuetzmaterial). Alles mittig untereinander.
+DECO_X = 152.0                                       # Mitte in Einbaulage (von aussen gesehen, rechts der Lueftung)
+LOGO_H, LOGO_Y = 46.0, 79.0
+TXT1, TXT1_CAP = "AD.NET solutions", 6.5
+TXT2, TXT2_CAP = "ACCESS", 9.0
+ENGRAVE = 0.6
 
 
 def logo_cs(height):
-    """Logo-PNG in Flaechen zerlegen: (orange, grau) als CrossSection, Mitte im Ursprung, y nach oben."""
+    """Logo-PNG (grau + orange) als eine Flaeche, Mitte im Ursprung, y nach oben."""
     import cv2
     from PIL import Image
     a = np.array(Image.open(BASE / "assets" / "adnet_logo.png").convert("RGBA")).astype(int)
     r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
-    vis = (al > 128) & ~((r > 240) & (g > 240) & (b > 240))
-    masks = (vis & (r > 180) & (g < 140), vis & (abs(r - g) < 25) & (abs(g - b) < 25) & (r < 220))
-    hpx, wpx = a.shape[:2]
+    m = (al > 128) & ~((r > 240) & (g > 240) & (b > 240))
+    hpx, wpx = m.shape
     k = height / hpx
-    out = []
-    for m in masks:
-        cs, _ = cv2.findContours(m.astype(np.uint8) * 255, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-        polys = []
-        for c in cs:
-            c = cv2.approxPolyDP(c, 0.6, True)[:, 0, :].astype(float)
-            if len(c) > 2:
-                polys.append([((x - wpx / 2) * k, (hpx / 2 - y) * k) for x, y in c])
-        out.append(CrossSection(polys, fillrule=FillRule.EvenOdd))
-    return out
+    cs, _ = cv2.findContours(m.astype(np.uint8) * 255, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    polys = []
+    for c in cs:
+        c = cv2.approxPolyDP(c, 0.6, True)[:, 0, :].astype(float)
+        if len(c) > 2:
+            polys.append([((x - wpx / 2) * k, (hpx / 2 - y) * k) for x, y in c])
+    return CrossSection(polys, fillrule=FillRule.EvenOdd)
 
 
-def text_pair(a_txt, b_txt, cap, gap):
-    """Zwei Woerter nebeneinander (fuer zwei Farben), gemeinsam zentriert."""
-    ca, cb = text_cs(a_txt, cap, center=False), text_cs(b_txt, cap, center=False)
-    wa, wb = ca.bounds()[2], cb.bounds()[2]
-    x0 = -(wa + gap + wb) / 2
-    return ca.translate((x0, 0)), cb.translate((x0 + wa + gap, 0))
-
-
-_lo, _lg = logo_cs(LOGO_H)
-_ta, _tb = text_pair("AD.NET", "ACCESS", TXT_CAP, TXT_CAP * 0.45)
-deco_grau = _lg.translate((LOGO_X, LOGO_Y)) + _ta.translate((LOGO_X, TXT_Y))
-deco_orange = _lo.translate((LOGO_X, LOGO_Y)) + _tb.translate((LOGO_X, TXT_Y))
-
-
-def to_print(cs):                                    # Einbaulage -> Druckkoordinaten (Deckel liegt gespiegelt)
-    return cs.mirror((1, 0)).translate((IN_W, 0))
-
-
-inlay_grau = to_print(deco_grau).extrude(INLAY)
-inlay_orange = to_print(deco_orange).extrude(INLAY)
-lid -= (to_print(deco_grau) + to_print(deco_orange)).extrude(INLAY + 0.01).translate((0, 0, -0.01))
+_y1 = LOGO_Y - LOGO_H / 2 - 6.0 - TXT1_CAP / 2
+_y2 = _y1 - TXT1_CAP / 2 - 5.0 - TXT2_CAP / 2
+deco = (logo_cs(LOGO_H).translate((DECO_X, LOGO_Y)) + text_cs(TXT1, TXT1_CAP).translate((DECO_X, _y1))
+        + text_cs(TXT2, TXT2_CAP).translate((DECO_X, _y2)))
+lid -= deco.mirror((1, 0)).translate((IN_W, 0)).extrude(ENGRAVE + 0.01).translate((0, 0, -0.01))   # Deckel liegt gespiegelt
 
 # ---------------- Niederhalter fuer die Wandler (2 x drucken) ----------------
 span = (SD_W + 2 * CLR) + 2 * HOLD_OFF
@@ -376,8 +358,6 @@ def save(m, name):
 save(shell, "innen_unterteil.stl")
 save(label_inlay, "innen_unterteil_schrift.stl")
 save(lid, "innen_deckel.stl")
-save(inlay_grau, "innen_deckel_logo_grau.stl")
-save(inlay_orange, "innen_deckel_logo_orange.stl")
 save(bar, "innen_niederhalter.stl")
 
 # Niederhalter-Platzhalter fuer die Vorschau
