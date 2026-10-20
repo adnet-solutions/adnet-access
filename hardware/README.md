@@ -64,8 +64,8 @@ Gehäuse **229 × 137 × 39 mm**, flach, **PETG weiß**. Jedes Teil hat seine Au
 
 | Aufnahme | Teil | Befestigung |
 |---|---|---|
-| links unten | **SD-15B-5** (24 → 5 V, Atom) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
-| links oben | **SD-15B-12** (24 → 12 V, Tastatur) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
+| links unten | **SD-15B-5** (24 → 5 V, Atom) | Eckwinkel + 2 Eckanschläge an der Klemmenseite + Niederhalter, 2 Senkkopf-Blechschrauben 2,9 × 13 (ISO 7050) |
+| links oben | **SD-15B-12** (24 → 12 V, Tastatur) | Eckwinkel + 2 Eckanschläge an der Klemmenseite + Niederhalter, 2 Senkkopf-Blechschrauben 2,9 × 13 (ISO 7050) |
 | Mitte, Spalte 1 | 3 × **WAGO 221-415**: `24V+`, `24V−`, `GND`, dazu 1 × **221-413** `GND 2` | eindrücken, Rastnasen |
 | Mitte, Spalte 2 | 6 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | eindrücken, Rastnasen |
 | rechts oben | **AtomS3 Lite** auf 16-mm-Podest (USB-C oben, Grove unten, darunter Platz für 2 Dupont-Stecker an G5/G6) | auf Eckauflagen, Rastnasen |

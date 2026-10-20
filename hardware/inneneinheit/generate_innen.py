@@ -111,6 +111,9 @@ for name, (x, y) in SD_POS.items():
     w, h = SD_L + 2 * CLR, SD_W + 2 * CLR
     # Eckwinkel (8 mm hoch), rechte Seite frei fuer die Schraubklemmen
     shell += frame(x, y, w, h, 8.0, sides="LBT", gap=[("B", 14, w - 14), ("T", 14, w - 14)])
+    # vierte Seite (Klemmenseite): nur niedrige Eckanschlaege, damit Klemmen und Adern frei bleiben
+    for yy in (y - 1.6, y + h - 4.0):
+        shell += box(x + w, x + w + 1.6, yy, yy + 5.6, Z0 - 0.01, Z0 + 3.5)
     bx = x + w * SD_BAR_F[name]
     HOLD += [(bx, y - HOLD_OFF), (bx, y + h + HOLD_OFF)]
     parts_demo.append({"kind": "buck", "w": SD_L, "h": SD_W, "d": SD_H, "x": x + w / 2, "y": y + h / 2, "z": Z0})
@@ -242,17 +245,19 @@ def text_cs(s, cap, center=True):
     return cs.translate((-(b[0] + b[2]) / 2 if center else -b[0], -(b[1] + b[3]) / 2))
 
 
-labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] - 2.6, 2.2),
-          ("5 V", SD_X + SD_L / 2, SD_POS["SD-15B-5 (5 V)"][1] - 2.6 + 0.0, 2.2)]
+LBL = 3.0                                   # Schrifthoehe Bodenbeschriftung (mm)
+labels = [("12 V", SD_X + SD_L / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2, 6.0),
+          ("5 V", SD_X + SD_L / 2, SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, 6.0)]
 for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
-    labels.append((lbl, WAGO_X - 5.6, y + (WAGO_W[n] + CLR) / 2, 2.0))
+    labels.append((lbl.replace("GND 2", "GND2"), WAGO_X - 5.6, y + (WAGO_W[n] + CLR) / 2, LBL))
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
-    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.4, y + (WAGO_W[n] + CLR) / 2, 2.0))
-labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 4.4, 2.4), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.0, 2.4),
-           ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 4.5, 2.4)]
+    labels.append((lbl, WAGO2_X + WAGO_D + CLR + 1.6 + 5.6, y + (WAGO_W[n] + CLR) / 2, LBL))
+labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", DL_X + dw / 2, DL_Y + dl + 4.6, LBL),
+           ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 5.0, LBL)]
+LABEL_DEPTH = 0.8
 for (s, x, y, cap) in labels:
     if 1.5 < y < IN_H - 1.5:
-        shell -= text_cs(s, cap).translate((x, y)).extrude(1).translate((0, 0, Z0 - 0.4))
+        shell -= text_cs(s, cap).translate((x, y)).extrude(2).translate((0, 0, Z0 - LABEL_DEPTH))
 
 # ---------------- Deckel ----------------
 LIP, LIP_T = 2.0, 1.4
