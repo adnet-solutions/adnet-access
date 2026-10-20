@@ -112,3 +112,22 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 ## Shelly
 
 Der Shelly-Kontakt (O/I bzw. potentialfrei) kommt **parallel zum Kontakt des ekey-Relais** am Motorschloss-Eingang. Er schaltet einen 1-s-Impuls (`Switch.Set` mit `toggle_after`). Shelly mit Passwort, Zugriff per Firewall nur von HA und dem Atom (siehe [`../adnet_access/DOCS.md`](../adnet_access/DOCS.md)).
+
+### Deckel mit Logo
+
+`innen_deckel_3farbig.3mf`: Deckel + Logo/Schrift grau + orange als bündige Einlage (0,6 mm, liegt beim Druck auf dem Bett → glatt wie das Druckbett). In Bambu Studio als ein Objekt mit drei Teilen öffnen, jedem Teil ein Filament zuweisen. Ohne AMS: nur `innen_deckel.stl` drucken, dann ist das Logo 0,6 mm vertieft. Erhaben geht nicht sauber, weil die Außenseite unten liegt.
+
+### Innenverkabelung: Litze und Farben
+
+Litze: flexibel, 0,5 mm² (20 AWG), z. B. Silikonlitze oder H05V-K/LiYv. 24-V-Zuleitung von der DC-Buchse: 0,75 mm². Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig. Dünne Dupont-Adern (0,14 mm²) für den Atom: Ende 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
+
+| Leitung | Farbe |
+|---|---|
+| 24 V + | rot |
+| 12 V + (Tastatur) | orange |
+| 5 V + (Atom) | violett |
+| alle Minus / GND / 24 V − | schwarz |
+| D0 | grün (wie Tastatur) |
+| D1 | weiß (wie Tastatur) |
+| LED | blau (wie Tastatur) |
+| BEEP | gelb (wie Tastatur) |
