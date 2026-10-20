@@ -156,7 +156,7 @@ for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, 
 # Die freien Pins (G5-G8, G38, G39, 5V, GND) sind Buchsen an der Unterseite. Der Atom liegt deshalb 16 mm hoch auf
 # vier Eckauflagen; darunter ist Platz fuer gerade Dupont-Stecker, die Kabel gehen seitlich durch Fenster raus.
 # USB-C zeigt nach oben (zum Flashen erreichbar), Grove nach unten.
-ATOM_X, ATOM_Y = 176.0, 96.0
+ATOM_X, ATOM_Y = 195.0, 96.0
 ATOM_LIFT = 16.0
 aw = ATOM + CLR
 PT = 1.6                                    # Wandstaerke Podest
