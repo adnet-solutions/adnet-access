@@ -12,7 +12,7 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | **Mean Well GST60A24-P1J** (24 V / 2,5 A, Steckernetzteil) | 1 | **das eine Netzteil** für Ring + Tastatur + Atom | Reichelt, Conrad, Bürklin, TME (**nicht** Amazon/eBay: Fälschungen) |
 | **Mean Well SD-15B-12** (DC/DC 18–36 V → 12 V) | 1 | Tastatur | Conrad (ca. 13 €), Bürklin 62C2001, TME |
 | **Mean Well SD-15B-5** (DC/DC 18–36 V → 5 V) | 1 | Atom | wie oben |
-| **DC-Einbaubuchse 5,5 × 2,1 mm** zum Einschrauben, mit angelöteten Litzen (ca. 10 cm), Loch 11 mm, mind. 3 A | 1 | Netzteil GST60A24 wird von außen eingesteckt | z. B. shellyparts „DC-Einbaubuchse 5,5×2,1“; **nicht** Delock 65503 (nur 0,5 A, Lötfahnen). Typ mit M12-Gewinde: Loch auf 12 mm aufbohren |
+| **DC-Einbaubuchse DC-099, 5,5 × 2,1 mm**, mit Litzen (ca. 10 cm), Gewinde M8 | 1 | Netzteil GST60A24 wird von außen eingesteckt | z. B. RUNCCI-YUN K12 (DC-099, 30 V / 10 A); **nicht** 5,5 × 2,5 mm, **nicht** Delock 65503 (0,5 A). Loch 8,3 mm, für M11-Typen auf 11,4 mm aufbohren |
 | **WAGO 221-415** (5 Klemmstellen) | 3 | `24V+`, `24V−`, `GND` | Elektro-Fachhandel, Reichelt, Conrad |
 | **WAGO 221-413** (3 Klemmstellen) | 7 | `GND 2`, `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | wie oben |
 | Schottky-Diode **BAT85** (DO-35) | 2 | LED/BEEP der Tastatur schalten, schützt den Atom | Reichelt, Conrad |
