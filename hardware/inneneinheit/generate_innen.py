@@ -9,7 +9,8 @@ Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
   - Oeffnung ueber der Wandbohrung (Cat-7-Kabel von hinten), Kerbe fuer das Netzteilkabel
 
 Druckteile:  innen_unterteil.stl, innen_deckel.stl, innen_niederhalter.stl (2 x drucken)
-Schrauben:   4 x Blechschraube 2,9 x 13 (Deckel), 4 x 2,9 x 13 (Niederhalter), 2 x 4 x 30 + Duebel (Wand)
+Deckel:      wird aufgeschnappt (6 Rasthaken), Oeffnen mit Schlitzschraubendreher an der Kerbe unten Mitte
+Schrauben:   4 x 2,9 x 13 (Niederhalter), 2 x 4 x 30 + Duebel (Wand)
 
 Koordinaten: Blick von vorn auf das geoeffnete Gehaeuse, Ursprung = linke untere Innenecke.
     python3 hardware/inneneinheit/generate_innen.py
@@ -198,11 +199,27 @@ for (tx, ty, ax) in ((BORE[0], BORE[1] + 20, True), (176.0, 84.0, False), (NOTCH
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
 shell -= box(NOTCH_X - NOTCH_W / 2, NOTCH_X + NOTCH_W / 2, -WALL - 1, 1, H_OUT - NOTCH_H, H_OUT + 1)
 
-# ---------------- Deckel-Schraubdome in den Ecken ----------------
-BOSSES = [(7.0, 7.0), (IN_W - 7.0, 7.0), (7.0, IN_H - 7.0), (IN_W - 7.0, IN_H - 7.0)]
-for (bx, by) in BOSSES:
-    shell += cyl(bx, by, BOSS_D / 2, Z0 - 0.01, H_OUT)
-    shell -= cyl(bx, by, BOSS_HOLE / 2, Z0 + 3, H_OUT + 1)
+# ---------------- Schnapp-Deckel: Rasthaken am Deckel, Nuten in der Gehaeusewand ----------------
+# Positionen symmetrisch, weil der Deckel zum Drucken gewendet wird (x gespiegelt).
+HOOK_W, HOOK_T, HOOK_L, BUMP = 10.0, 1.6, 10.0, 1.0
+LIP_IN = 0.35                               # Abstand Haken-Aussenseite zur Innenwand
+HOOKS = [("B", 24.0), ("B", IN_W - 24.0), ("T", 24.0), ("T", IN_W - 24.0), ("L", IN_H / 2), ("R", IN_H / 2)]
+# Lage der Rastnase relativ zur Deckelunterseite (installiert, nach unten gemessen)
+BUMP_TOP = HOOK_L - 3.2                     # Haltekante
+BUMP_BOT = HOOK_L - 0.4
+for side, pos in HOOKS:
+    z1, z0 = H_OUT - BUMP_TOP + 0.3, H_OUT - BUMP_BOT - 0.3
+    if side == "B":
+        shell -= box(pos - HOOK_W / 2 - 0.6, pos + HOOK_W / 2 + 0.6, -1.2, 0.01, z0, z1)
+    elif side == "T":
+        shell -= box(pos - HOOK_W / 2 - 0.6, pos + HOOK_W / 2 + 0.6, IN_H - 0.01, IN_H + 1.2, z0, z1)
+    elif side == "L":
+        shell -= box(-1.2, 0.01, pos - HOOK_W / 2 - 0.6, pos + HOOK_W / 2 + 0.6, z0, z1)
+    else:
+        shell -= box(IN_W - 0.01, IN_W + 1.2, pos - HOOK_W / 2 - 0.6, pos + HOOK_W / 2 + 0.6, z0, z1)
+# Hebelkerbe zum Oeffnen: unten Mitte, aussen in der Oberkante
+PRY_W = 10.0
+shell -= box(cx - PRY_W / 2, cx + PRY_W / 2, -WALL - 1, -WALL + 1.0, H_OUT - 1.6, H_OUT + 1)
 
 # ---------------- Wandbefestigung: 2 Senkkopfloecher 4 x 30 ----------------
 for (wx, wy) in ((97.5, (SD_POS["SD-15B-5 (5 V)"][1] + SD_W + 2 * CLR + SD_POS["SD-15B-12 (12 V)"][1]) / 2), (186.0, 72.0)):
@@ -244,10 +261,30 @@ ring = rrect(IN_W - 0.6, IN_H - 0.6, R_OUT - WALL - 0.3) - rrect(IN_W - 0.6 - 2 
                                                                R_OUT - WALL - 0.3 - LIP_T)
 lid += ring.extrude(LIP).translate((0, 0, LID - 0.01))
 lid = lid.translate((cx, cy, 0))
-for (bx, by) in BOSSES:
-    lid -= cyl(bx, by, BOSS_D / 2 + 0.5, LID - 0.02, LID + LIP + 1)
-    lid -= cyl(bx, by, 1.7, -1, LID + 1)
-    lid -= Manifold.cylinder(1.31, 1.7, 3.0, 48).translate((bx, by, -0.01))
+
+
+def hook(side, pos):
+    """Rasthaken in Druck-Koordinaten des Deckels (Deckelplatte z 0..LID, Haken waechst nach oben).
+    Profil in (aussen o, z): Haltekante steil (zur Platte hin), Auflaufschraege zur Spitze hin flach."""
+    zA, zB = LID + BUMP_TOP, LID + BUMP_BOT
+    prof = CrossSection([[(0.0, LID - 0.01), (HOOK_T, LID - 0.01), (HOOK_T, LID + HOOK_L), (0.0, LID + HOOK_L),
+                          (0.0, zB), (-BUMP, zA + 1.2), (-BUMP, zA + 0.5), (0.0, zA)]])
+    # Profil liegt in (o, z); in x/y-Ebene extrudieren und an die Seite drehen
+    m = prof.extrude(HOOK_W).translate((0, 0, -HOOK_W / 2))      # (o, z, w)
+    m = m.rotate((90, 0, 0))                                     # -> (o, w, z) mit z nach oben
+    if side == "B":        # Aussenseite zeigt nach -y
+        m = m.rotate((0, 0, 90)).translate((pos, LIP_IN, 0))
+    elif side == "T":
+        m = m.rotate((0, 0, -90)).translate((pos, IN_H - LIP_IN, 0))
+    elif side == "L":
+        m = m.translate((LIP_IN, pos, 0))
+    else:
+        m = m.rotate((0, 0, 180)).translate((IN_W - LIP_IN, pos, 0))
+    return m
+
+
+for side, pos in HOOKS:
+    lid += hook(side, pos)
 lid -= box(NOTCH_X - NOTCH_W / 2 - 0.6, NOTCH_X + NOTCH_W / 2 + 0.6, -1, LIP_T + 2, LID - 0.1, LID + LIP + 1)
 # Lueftungsschlitze ueber den Wandlern (dezent, 2 Reihen)
 for row_y in (SD_POS["SD-15B-5 (5 V)"][1] + SD_W / 2, SD_POS["SD-15B-12 (12 V)"][1] + SD_W / 2):

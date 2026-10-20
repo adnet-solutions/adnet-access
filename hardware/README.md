@@ -76,14 +76,16 @@ Die Aufnahmen sind im Boden beschriftet.
 
 ![Aufnahmen](inneneinheit/images/inneneinheit_leer.png)
 
-**Lage an der Wand:** Wandbohrung **204 mm vom linken** und **44 mm vom unteren Außenrand**. Gehäuse mit 2 Schrauben 4 × 30 + Dübel, Deckel mit 4 Blechschrauben 2,9 × 13.
+**Lage an der Wand:** Wandbohrung **204 mm vom linken** und **44 mm vom unteren Außenrand**. Gehäuse mit 2 Schrauben 4 × 30 + Dübel.
+
+**Deckel zum Aufschnappen:** 6 Rasthaken (je 2 an den Längsseiten, je 1 an den Schmalseiten) rasten in Nuten der Gehäusewand ein. Gerade aufsetzen und rundum andrücken. Öffnen: einen Schlitzschraubendreher in die Kerbe unten in der Mitte stecken, leicht drehen, dann den Deckel rundum abziehen.
 
 **Druckteile** ([`inneneinheit/stl/`](inneneinheit/stl/)):
 
 | Datei | Hinweis |
 |---|---|
 | `innen_unterteil.stl` | Boden aufs Bett, keine Stützen |
-| `innen_deckel.stl` | Außenseite unten |
+| `innen_deckel.stl` | Außenseite unten, Rasthaken zeigen nach oben – keine Stützen nötig |
 | `innen_niederhalter.stl` | **2 ×** drucken |
 
 Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinheit/generate_innen.py` (braucht `trimesh`, `shapely`, `manifold3d`, `fonttools`). Vorschau-Bilder: `python3 hardware/inneneinheit/vorschau.py`.
