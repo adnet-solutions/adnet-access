@@ -4,7 +4,7 @@ Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
   - Delock 65524 (DC-Buchse 5,5 x 2,1 -> Klemmen) fuer das Netzteil Mean Well GST60A24 (24 V)
   - Mean Well SD-15B-12 (24 -> 12 V, Wiegand-Tastatur) und SD-15B-5 (24 -> 5 V, Atom)
   - M5Stack AtomS3 Lite (ESPHome)
-  - 4 x WAGO 221-415 (24 V+, 24 V-, 2 x gemeinsame Masse) + 6 x WAGO 221-413 (Spannungsteiler D0/D1, LED, BEEP)
+  - 3 x WAGO 221-415 (24 V+, 24 V-, GND) + 7 x WAGO 221-413 (GND 2, Spannungsteiler D0/D1, LED, BEEP)
   - Atom auf einem 16 mm hohen Podest: unten frei fuer zwei Dupont-Stecker (G5 = LED, G6 = BEEP ueber BAT85)
   - Oeffnung ueber der Wandbohrung (Cat-7-Kabel von hinten), Kerbe fuer das Netzteilkabel
 
@@ -28,8 +28,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 SD_L, SD_W, SD_H = 78.0, 51.0, 28.0        # Mean Well SD-15 (Datenblatt 78 x 51 x 28)
 ATOM = 24.0                                # AtomS3 Lite 24 x 24 x 9.5
 DELOCK_L, DELOCK_W, DELOCK_H = 27.0, 18.0, 15.0
-WAGO_D, WAGO_H = 18.8, 8.2                 # WAGO 221: Tiefe (Leitereinfuehrung -> Rueckseite), Hoehe
-WAGO_W = {2: 13.1, 3: 17.6, 5: 26.6}       # Breite je Polzahl
+WAGO_D, WAGO_H = 18.6, 8.4                 # WAGO 221: Tiefe (Leitereinfuehrung -> Rueckseite), Hoehe (Datenblatt)
+WAGO_W = {3: 18.8, 5: 29.9}                # Breite je Polzahl (Datenblatt 221-413 / 221-415)
 CLR = 0.5                                  # Spiel in allen Aufnahmen
 
 # ---------------- Gehaeuse ----------------
@@ -120,10 +120,13 @@ for (bx, by) in HOLD:
 
 # ---------------- WAGO-Aufnahmen: mittlere Spalte, Leitereinfuehrung zeigt nach links (zu den Wandlern) ----------------
 WAGO_X = 104.0                     # linke Kante (Einfuehrungsseite)
-PITCH1 = WAGO_W[5] + CLR + 5.4   # 32.5 mm
-wago_slots = [(5, 4.0 + i * PITCH1, lbl) for i, lbl in enumerate(["24V+", "24V-", "GND", "GND 2"])]
+# Spalte 1: 3 x 221-415 + 1 x 221-413 (GND 2: Bruecke + untere Teilerwiderstaende)
+wago_slots, _y = [], 4.0
+for _n, _l in ((5, "24V+"), (5, "24V-"), (5, "GND"), (3, "GND 2")):
+    wago_slots.append((_n, _y, _l))
+    _y += WAGO_W[_n] + CLR + 4.4
 WAGO2_X = 132.0                   # zweite Spalte: 221-413 fuer Spannungsteiler, LED und BEEP
-PITCH2 = WAGO_W[3] + CLR + 3.3   # 21.4 mm
+PITCH2 = WAGO_W[3] + CLR + 1.6   # 20.9 mm: benachbarte Aufnahmen teilen sich eine Wand
 wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
 for _n, _y, _l in wago_slots:
     assert _y + WAGO_W[_n] + CLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"

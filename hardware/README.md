@@ -13,8 +13,8 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | **Mean Well SD-15B-12** (DC/DC 18–36 V → 12 V) | 1 | Tastatur | Conrad (ca. 13 €), Bürklin 62C2001, TME |
 | **Mean Well SD-15B-5** (DC/DC 18–36 V → 5 V) | 1 | Atom | wie oben |
 | **Delock 65524** DC-Buchse 5,5 × 2,1 mit Klemmen | 1 | Netzteil rein | |
-| **WAGO 221-415** | 4 | `24V+`, `24V−`, `GND`, `GND 2` | |
-| **WAGO 221-413** | 6 | `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | |
+| **WAGO 221-415** (5 Klemmstellen) | 3 | `24V+`, `24V−`, `GND` | Elektro-Fachhandel, Reichelt, Conrad |
+| **WAGO 221-413** (3 Klemmstellen) | 7 | `GND 2`, `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | wie oben |
 | Schottky-Diode **BAT85** (DO-35) | 2 | LED/BEEP der Tastatur schalten, schützt den Atom | Reichelt, Conrad |
 | Dupont-Kabel **Stecker–Buchse**, 10–20 cm | 2 | Atom G5/G6 → Diode | |
 | Schrumpfschlauch 1,5–2 mm | 10 cm | über Diode + Dupont-Buchse | |
@@ -66,7 +66,7 @@ Gehäuse **229 × 137 × 39 mm**, flach, **PETG weiß**. Jedes Teil hat seine Au
 |---|---|---|
 | links unten | **SD-15B-5** (24 → 5 V, Atom) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
 | links oben | **SD-15B-12** (24 → 12 V, Tastatur) | Eckwinkel + Niederhalter, 2 Schrauben 2,9 × 13 |
-| Mitte, Spalte 1 | 4 × **WAGO 221-415**: `24V+`, `24V−`, `GND`, `GND 2` | eindrücken, Rastnasen |
+| Mitte, Spalte 1 | 3 × **WAGO 221-415**: `24V+`, `24V−`, `GND`, dazu 1 × **221-413** `GND 2` | eindrücken, Rastnasen |
 | Mitte, Spalte 2 | 6 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | eindrücken, Rastnasen |
 | rechts oben | **AtomS3 Lite** auf 16-mm-Podest (USB-C oben, Grove unten, darunter Platz für 2 Dupont-Stecker an G5/G6) | auf Eckauflagen, Rastnasen |
 | rechts unten | **Delock 65524** an der Kabelkerbe | eindrücken, Rastnasen |
@@ -90,7 +90,7 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 
 **Entwurf V2.1, noch nicht mit echten Teilen geprüft:** erst in PLA probedrucken und Wagos, Wandler, Delock und Atom einsetzen. Unklar ist vor allem, wo genau die Buchsen an der Atom-Unterseite sitzen; das Podest hat nur 4 × 4 mm Eckauflagen, die Mitte ist frei. Beschriftung im Boden: Spalte 1 links neben den Wagos, Spalte 2 rechts dahinter.
 
-**Vor dem Druck nachmessen:** Wagos (221-413 ca. 17,6 × 18,8 mm, 221-415 ca. 26,6 × 18,8 mm), Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
+**Vor dem Druck nachmessen:** Wagos (laut Datenblatt 221-413: 18,8 × 18,6 × 8,4 mm, 221-415: 29,9 × 18,6 × 8,3 mm), Delock (27 × 18 × 15 mm), SD-15 (78 × 51 × 28 mm).
 
 ## Verdrahtung Schritt für Schritt
 
