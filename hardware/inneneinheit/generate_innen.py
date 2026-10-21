@@ -37,7 +37,7 @@ SD_TERM = 12.5                             # Klemmleiste ragt ueber das Blechgeh
 WIRE_ROOM = 17.5                           # Platz fuer Adern zwischen Klemmleiste und Wagos
 CLR = 0.5                                  # Spiel in allen Aufnahmen
 WCLR = 0.3                                 # Spiel der Wagos quer
-WNOSE = 0.9                                # Rastnasen an den Wago-Seitenwaenden
+WNOSE = 0.3                                # Klemmnasen an den Wago-Seitenwaenden (mit Einfuehrschraege, auf Federzungen)
 
 # ---------------- Gehaeuse ----------------
 IN_W, IN_H = 224.0, 132.0                  # Innenraum (x, y)
@@ -93,7 +93,7 @@ def frame(x0, y0, w, h, wall_h, sides="LRBT", gap=None, t=1.6):
 
 
 def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
-    """Kleine Rastnasen oben an zwei gegenueberliegenden Waenden (halten Wago/Atom nach dem Eindruecken)."""
+    """Kleine Rastnasen oben an zwei gegenueberliegenden Waenden (Atom-Podest)."""
     m = Manifold()
     if along == "y":   # Nasen an linker und rechter Wand
         yc = y0 + h / 2
@@ -104,6 +104,26 @@ def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
         m += box(xc - length / 2, xc + length / 2, y0 - 0.01, y0 + depth, z_top - 1.2, z_top)
         m += box(xc - length / 2, xc + length / 2, y0 + h - depth, y0 + h + 0.01, z_top - 1.2, z_top)
     return m
+
+
+def wago_clamp(x0, y0, w, h, z_top, depth, length=8.0, t=1.6):
+    """Klemmnasen fuer Wagos an unterer/oberer Wand: Profil mit Einfuehrschraege, Wandstueck als Federzunge
+    (Schlitze links/rechts). Rueckgabe (dazu, weg)."""
+    xc = x0 + w / 2
+    z0, z1 = z_top - 3.0, z_top            # Nase von 3 mm unter der Oberkante bis oben
+    # Profil in (Eindringtiefe, z): unten gerade, oben 45-Grad-Schraege zum Eindruecken
+    prof = CrossSection([[(0.0, z0), (depth, z0 + 0.4), (depth, z1 - depth - 0.6), (0.0, z1 - 0.6)]])
+    nose = prof.extrude(length).rotate((90, 0, 0))                  # (tiefe, laenge(-y), z)
+    nose = nose.rotate((0, 0, -90))                                 # tiefe -> +y, laenge -> x
+    bb = nose.bounding_box()
+    nose_b = nose.mirror((0, 1, 0)).translate((xc - (bb[0] + bb[3]) / 2, y0 - 0.01, 0))   # zeigt nach +y (innen)
+    nose_t = nose.translate((xc - (bb[0] + bb[3]) / 2, y0 + h + 0.01, 0))                  # zeigt nach -y (innen)
+    add = nose_b + nose_t
+    cut = Manifold()
+    for yy in (y0 - t - 0.5, y0 + h - 0.5):
+        for xs in (xc - length / 2 - 0.9, xc + length / 2 + 0.1):
+            cut += box(xs, xs + 0.8, yy, yy + t + 1.0, Z0 + 1.0, z_top + 1)
+    return add, cut
 
 
 # ---------------- Mean Well SD-15B: zwei Wandler links uebereinander, Klemmen zeigen nach rechts ----------------
@@ -144,16 +164,22 @@ for _n, _y, _l in wago_slots:
     assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 for _n, _y, _l in wago_slots2:
     assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
-WALL_H_WAGO = 5.0
+WALL_H_WAGO = 6.0
+_wago_cuts = []
 for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, "LBT")):
     for (n, y, lbl) in slots:
         w = WAGO_W[n] + WCLR                   # entlang y
         d = WAGO_D + CLR                       # entlang x
         # Spalte 1: Rueckwand rechts, Adern von links (Wandler); Spalte 2: Rueckwand links, Adern von rechts
         shell += frame(col_x, y, d, w, WALL_H_WAGO, sides=sides)
-        shell += snap_noses(col_x, y, d, w, Z0 + WALL_H_WAGO, along="x", depth=WNOSE, length=8.0)
+        _a, _c = wago_clamp(col_x, y, d, w, Z0 + WALL_H_WAGO, WNOSE)
+        _wago_cuts.append(_c)
+        shell += _a
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
                            "x": col_x + d / 2, "y": y + w / 2, "z": Z0})
+
+for _c in _wago_cuts:                       # Federzungen freischneiden (nach allen Waenden)
+    shell -= _c
 
 # ---------------- AtomS3 Lite: rechts oben auf einem Podest ----------------
 # Die freien Pins (G5-G8, G38, G39, 5V, GND) sind Buchsen an der Unterseite. Der Atom liegt deshalb 16 mm hoch auf
@@ -435,5 +461,6 @@ _test = rrect(_tw, _th, 5.0).extrude(Z0).translate((_tw / 2 - 4, _th / 2 - 4, 0)
 for i, n in enumerate((3, 5)):
     tx = 2 + i * (WAGO_D + CLR + 8)
     _test += frame(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, WALL_H_WAGO, sides="RBT")
-    _test += snap_noses(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, Z0 + WALL_H_WAGO, along="x", depth=WNOSE, length=8.0)
+    _a, _c = wago_clamp(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, Z0 + WALL_H_WAGO, WNOSE)
+    _test = (_test + _a) - _c
 save(_test, "test_wago_aufnahme.stl")
