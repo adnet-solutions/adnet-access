@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.21
+- Logbuch löschen nach Einstellungen → „Logbuch aufräumen“ verschoben (mit Anzahl der Einträge und den automatischen Aufräumfristen)
+
 ## 0.1.20
 - Filter jetzt auch in der Übersicht; neue Filter „Weg“ (Karte, PIN, Handy, offline …) und Suchfeld (Karte, Name, Grund)
 - Navigation zeigt die aktive Seite, Logbuch mit „zurück zur Übersicht“

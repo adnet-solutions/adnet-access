@@ -52,7 +52,7 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
 
     def render(request: Request, name: str, **ctx):
         if name == "settings.html":
-            ctx = {**holiday_ctx(), **ctx}
+            ctx = {**holiday_ctx(), "log_count": db.one("SELECT COUNT(*) n FROM log")["n"], **ctx}
         base = request.headers.get("X-Ingress-Path", "")
         return tpl.TemplateResponse(request, name, {"base": base, "MODES": MODES, "DAYS": DAY_NAMES,
                                                     "esp": esp, "mqtt": mqtt, "flag": engine.flag, **ctx})
@@ -309,11 +309,11 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
             try:
                 tage = max(int(form.get("tage", "30")), 1)
             except ValueError:
-                return back(request, "/logbuch")
+                return back(request, "/einstellungen")
         n, f = retention.delete_entries(db, engine.snapshot_file, tage, engine.now().replace(tzinfo=None))
         was = "komplett" if tage is None else f"älter als {tage} Tage"
         await engine.record(None, "web", "", False, f"Logbuch gelöscht ({was}): {n} Einträge, {f} Bilder", info=True)
-        return back(request, "/logbuch")
+        return back(request, f"/einstellungen?msg=Logbuch gelöscht: {n} Einträge, {f} Bilder")
 
     @app.get("/logbuch.csv")
     async def logbuch_csv(request: Request):

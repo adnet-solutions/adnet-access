@@ -1,5 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Einstellungen{% endblock %}
+{% block title %}Einstellungen<h3>Logbuch aufräumen</h3>
+<p class="muted">{{ log_count }} Einträge im Logbuch. Automatisch gelöscht werden Bilder nach {{ opts.snapshot_days }} Tagen und Einträge nach {{ opts.log_months }} Monaten.</p>
+<div class="log-delete">
+  <div class="del-row">
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Einträge älter als ' + this.tage.value + ' Tage samt Bildern löschen?')">
+      <input type="hidden" name="modus" value="alt">
+      <span>Älter als</span>
+      <input type="number" name="tage" value="30" min="1" max="3650" class="days">
+      <span>Tage</span>
+      <button class="danger">löschen</button>
+    </form>
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Wirklich das GANZE Logbuch samt allen Bildern löschen? Das lässt sich nicht rückgängig machen.')">
+      <input type="hidden" name="modus" value="alles">
+      <button class="danger">Alles löschen</button>
+    </form>
+  </div>
+  <p class="muted">Bilder werden mitgelöscht. Ein Eintrag „Logbuch gelöscht“ bleibt als Nachweis stehen.</p>
+</div>
+{% endblock %}
 {% block content %}
 <h2>Einstellungen</h2>
 <p class="muted">Geändert werden die Werte im Add-on unter <em>Konfiguration</em>. Hier siehst du den Stand und kannst testen.</p>
@@ -46,4 +66,24 @@
 </div>
 <h3>Offline-Liste</h3>
 <p class="muted">Diese Liste kennt der Leser, falls Home Assistant nicht läuft ({{ offline|length }} von max. 1800 Zeichen, {{ offline.split(';')|length if offline else 0 }} Einträge).</p>
+<h3>Logbuch aufräumen</h3>
+<p class="muted">{{ log_count }} Einträge im Logbuch. Automatisch gelöscht werden Bilder nach {{ opts.snapshot_days }} Tagen und Einträge nach {{ opts.log_months }} Monaten.</p>
+<div class="log-delete">
+  <div class="del-row">
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Einträge älter als ' + this.tage.value + ' Tage samt Bildern löschen?')">
+      <input type="hidden" name="modus" value="alt">
+      <span>Älter als</span>
+      <input type="number" name="tage" value="30" min="1" max="3650" class="days">
+      <span>Tage</span>
+      <button class="danger">löschen</button>
+    </form>
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Wirklich das GANZE Logbuch samt allen Bildern löschen? Das lässt sich nicht rückgängig machen.')">
+      <input type="hidden" name="modus" value="alles">
+      <button class="danger">Alles löschen</button>
+    </form>
+  </div>
+  <p class="muted">Bilder werden mitgelöscht. Ein Eintrag „Logbuch gelöscht“ bleibt als Nachweis stehen.</p>
+</div>
 {% endblock %}
