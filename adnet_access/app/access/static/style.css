@@ -42,3 +42,7 @@ code.block{display:block;padding:8px;background:var(--bg);border-radius:6px;word
 .stat{font-size:18px}
 @media (max-width:700px){table.log thead{display:none}table.log tr{display:block;border-bottom:1px solid var(--line)}table.log td{display:block;border:0;padding:3px 9px}}
 .steps td:first-child{width:28px;text-align:center;font-weight:700}.st-ok{color:var(--ok)}.st-bad{color:var(--bad)}.st-info{color:var(--info)}
+.live-hint{font-size:12px;margin-top:4px}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:4px;animation:livepuls 2s infinite}
+@keyframes livepuls{0%,100%{opacity:1}50%{opacity:.3}}
+table.log tr.neu td{background:rgba(255,200,0,.18);transition:background 1s}

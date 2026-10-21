@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.14
+- Logbuch und Übersicht aktualisieren sich live (alle 3 s, neue Einträge werden kurz hervorgehoben)
+
 ## 0.1.13
 - Karten werden unabhängig vom Leser erkannt (RFID2-Hex, Wiegand 34, Wiegand 26 werden umgerechnet) – kein Neuanlernen beim Umstieg
 - Neue Option `reader_type` für das Format der Offline-Liste

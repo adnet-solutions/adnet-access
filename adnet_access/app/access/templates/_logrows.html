@@ -1,3 +1,4 @@
+<div id="logrows">
 <table class="log">
 <thead><tr><th>Zeit</th><th>Person</th><th>Weg</th><th>Ergebnis</th><th>Grund</th><th>Bild</th></tr></thead>
 <tbody>
@@ -17,3 +18,31 @@
 {% endfor %}
 </tbody>
 </table>
+</div>
+{% if live is not defined or live %}
+<p class="muted live-hint"><span class="live-dot"></span> aktualisiert sich automatisch</p>
+<script>
+(function () {
+  var last = null, base = "{{ base }}";
+  async function poll() {
+    try {
+      var r = await fetch(base + "/logbuch/neuestes", {cache: "no-store"});
+      var id = (await r.json()).id;
+      if (last !== null && id !== last) {
+        var html = await (await fetch(location.href, {cache: "no-store"})).text();
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        ["logrows", "log-total"].forEach(function (k) {
+          var neu = doc.getElementById(k), alt = document.getElementById(k);
+          if (neu && alt) alt.innerHTML = neu.innerHTML;
+        });
+        var first = document.querySelector("#logrows tbody tr");
+        if (first) { first.classList.add("neu"); setTimeout(function () { first.classList.remove("neu"); }, 2500); }
+      }
+      last = id;
+    } catch (e) { /* HA kurz weg: naechster Versuch */ }
+    setTimeout(poll, 3000);
+  }
+  poll();
+})();
+</script>
+{% endif %}

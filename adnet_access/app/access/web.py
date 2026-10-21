@@ -280,6 +280,11 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
         qs = "&".join(f"{k}={v}" for k, v in params.items() if k != "seite" and v)
         return render(request, "log.html", rows=rows, total=total, page=page, persons=persons, params=params, qs=qs)
 
+    @app.get("/logbuch/neuestes")
+    async def logbuch_neuestes():
+        r = db.one("SELECT MAX(id) AS id FROM log")
+        return {"id": (r["id"] if r else None) or 0}
+
     @app.get("/logbuch.csv")
     async def logbuch_csv(request: Request):
         w, a = log_query(dict(request.query_params))
