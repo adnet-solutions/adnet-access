@@ -127,17 +127,35 @@ Drei vorgeprägte Bohrstellen (außen Kreis Ø 12,2 mm, Wand bleibt 0,8 mm dick 
 
 Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Klemmen für einen **DS18B20 im Edelstahlröhrchen Ø 6 mm**: einfach von oben einklipsen. Ein nackter DS18B20 (kleines schwarzes Gehäuse mit 3 Beinchen) kommt in ein Stück Schrumpfschlauch oder wird mit einem Kabelbinder durch den Schlitz unter einer Klemme gebunden. Kabel zum Atom (G7, 3,3 V, GND) etwa 25 cm lang lassen, damit der Deckel zum Öffnen abgelegt werden kann. Firmware: `esphome/adnet/gehaeusetemperatur.yaml`.
 
-### Innenverkabelung: Litze und Farben
+### Innenverkabelung: Adern und Belegung
 
-Litze: flexibel, 0,5 mm² (20 AWG), z. B. Silikonlitze oder H05V-K/LiYv. 24-V-Zuleitung von der DC-Buchse: 0,75 mm². Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig. Dünne Dupont-Adern (0,14 mm²) für den Atom: Ende 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
+Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindrähtig, schwarz mit aufgedruckten Nummern + grün-gelb). 1 m Leitung = 10 Adern à 1 m, reicht für die ganze Inneneinheit. Mantel abziehen, Adern einzeln verwenden; Stücke so schneiden, dass eine Nummer sichtbar bleibt (sonst Enden mit Edding beschriften). Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig.
 
-| Leitung | Farbe |
+| Ader | Funktion |
 |---|---|
-| 24 V + | rot |
-| 12 V + (Tastatur) | orange |
-| 5 V + (Atom) | violett |
-| alle Minus / GND / 24 V − | schwarz |
-| D0 | grün (wie Tastatur) |
-| D1 | weiß (wie Tastatur) |
-| LED | blau (wie Tastatur) |
-| BEEP | gelb (wie Tastatur) |
+| grün-gelb | GND / alle Minus (bei 24 V gibt es keinen Schutzleiter) |
+| 1 | 24 V + |
+| 2 | 24 V − |
+| 3 | 12 V + (Tastatur) |
+| 4 | 5 V + (Atom) |
+| 5 | D0 |
+| 6 | D1 |
+| 7 | LED |
+| 8 | BEEP |
+| 9 | Reserve |
+
+**Zum Atom** passen die 0,75er-Adern nicht in die Buchsen. Stattdessen:
+
+| Atom | Signal | Kabel |
+|---|---|---|
+| Grove G1 | D0 | Grove-Kabel, ein Ende abgeschnitten, Adern in die Wagos |
+| Grove G2 | D1 | Grove-Kabel |
+| Grove 5V | 5 V + | Grove-Kabel |
+| Grove GND | GND | Grove-Kabel |
+| G5 | LED (über BAT85) | Dupont-Kabel, ein Ende abisoliert |
+| G6 | BEEP (über BAT85) | Dupont-Kabel |
+| G7 | Temperatur DS18B20 (optional) | Dupont-Kabel |
+
+Dünne Dupont-/Grove-Adern (ca. 0,14 mm²) im Wago: 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
+
+**Belegungsschild zum Einkleben** (innen in den Deckel): `belegung_schild.stl` (Schrift vertieft) und `belegung_schild_schrift.stl` (passende Einlage für zweifarbigen Druck). 70 × 108 × 1,6 mm, Schrift 3 mm hoch. Platz innen am Deckel über dem Atom/rechten Wagos (von innen gesehen links neben den Fühlerklemmen), mit doppelseitigem Klebeband.
