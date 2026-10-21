@@ -7,7 +7,7 @@
 | `haustuer-zutritt-rfid2-test.yaml` | **Testaufbau** mit M5Stack Unit RFID2 am Grove-Port: nur Karten, keine PIN, sonst identisch |
 | `secrets.example.yaml` | Vorlage für die Secrets |
 
-Geprüft mit ESPHome 2026.9 (`esphome config`).
+Geprüft mit ESPHome 2026.7 und 2026.9 (`esphome config`). Hinweis: `rgb_order` ab 2027.3 durch `channel_colors` ersetzen.
 
 1. Die Dateien `haustuer-zutritt.yaml`, `adnet_access.h` und `adnet/gehaeusetemperatur.yaml` (im Unterordner `adnet/`, sonst zeigt ESPHome sie als eigenes Gerät) in den ESPHome-Ordner von HA kopieren (`/config/esphome/`).
 2. Werte aus `secrets.example.yaml` in die ESPHome-`secrets.yaml` übernehmen. Schlüssel erzeugen:

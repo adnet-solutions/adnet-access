@@ -80,8 +80,7 @@ api:
 
 ota:
   - platform: esphome
-    encryption:
-      key: !secret adnet_esphome_key
+    password: !secret adnet_esphome_key      # OTA-Passwort (laeuft ab ESPHome 2024.x)
 
 wifi:
   ssid: !secret wifi_ssid
@@ -194,7 +193,7 @@ light:
     pin: GPIO35
     num_leds: 1
     chipset: WS2812
-    channel_colors: GRB
+    rgb_order: GRB
 
 sensor:
   - platform: wifi_signal
