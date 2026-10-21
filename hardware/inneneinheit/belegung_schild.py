@@ -1,4 +1,6 @@
-"""Belegungsschild zum Einkleben innen in den Deckel (70 x 108 x 1,6 mm).
+"""Belegungsschild zum Einkleben innen in den Deckel (74 x 114 x 1,6 mm).
+
+Schrift: Inter ExtraBold, 3,5 mm Versalhoehe -> Strichstaerke ca. 0,8 mm (2 Linien mit 0,4er-Duese).
 
 Erzeugt stl/belegung_schild.stl (Schrift 0,6 mm vertieft) und stl/belegung_schild_schrift.stl
 (passende Einlage fuer zweifarbigen Druck: beide zusammen als ein Objekt laden).
@@ -12,9 +14,9 @@ from matplotlib.textpath import TextPath
 
 BASE = Path(__file__).resolve().parent
 OUT = BASE / "stl"
-FONT = str(BASE / "fonts" / "Inter-SemiBold.otf")
-W, H, T, DEPTH = 70.0, 108.0, 1.6, 0.6
-CAP, LINE = 3.0, 5.0
+FONT = str(BASE / "fonts" / "Inter-ExtraBold.otf")
+W, H, T, DEPTH = 74.0, 114.0, 1.6, 0.6
+CAP, LINE = 3.5, 5.3
 
 
 def text_cs(s, cap):
@@ -27,24 +29,24 @@ def text_cs(s, cap):
 
 ADERN = [("gn-ge", "GND / alle Minus"), ("1", "24 V +"), ("2", "24 V −"), ("3", "12 V + Tastatur"),
          ("4", "5 V + Atom"), ("5", "D0"), ("6", "D1"), ("7", "LED"), ("8", "BEEP"), ("9", "Reserve")]
-ATOM = [("G1", "D0 (Grove)"), ("G2", "D1 (Grove)"), ("5V/GND", "Grove"), ("G5", "LED über BAT85"),
-        ("G6", "BEEP über BAT85"), ("G7", "Temp. DS18B20")]
+ATOM = [("G1", "D0 (Grove)"), ("G2", "D1 (Grove)"), ("5V+GND", "Grove"), ("G5", "LED (BAT85)"),
+        ("G6", "BEEP (BAT85)"), ("G7", "Temp. DS18B20")]
 
-x0, x1 = 5.0, 25.0
-y = H - 8.0
+x0, x1 = 4.0, 27.0
+y = H - 8.5
 txt = CrossSection()
-txt += text_cs("Belegung Inneneinheit", 3.4).translate((x0, y))
-y -= LINE + 2.0
-txt += text_cs("Ader", 2.6).translate((x0, y)) + text_cs("Funktion", 2.6).translate((x1, y))
+txt += text_cs("Belegung", 4.0).translate((x0, y))
+y -= LINE + 1.5
+txt += text_cs("Ader", 3.0).translate((x0, y)) + text_cs("Funktion", 3.0).translate((x1, y))
 for a, f in ADERN:
     y -= LINE
     txt += text_cs(a, CAP).translate((x0, y)) + text_cs(f, CAP).translate((x1, y))
-y -= LINE + 3.0
-txt += text_cs("Atom", 2.6).translate((x0, y)) + text_cs("Signal", 2.6).translate((x1, y))
+y -= LINE + 2.0
+txt += text_cs("Atom", 3.0).translate((x0, y)) + text_cs("Signal", 3.0).translate((x1, y))
 for a, f in ATOM:
     y -= LINE
     txt += text_cs(a, CAP).translate((x0, y)) + text_cs(f, CAP).translate((x1, y))
-assert y > 3.0, f"Text zu lang (y={y:.1f})"
+assert y > 2.5, f"Text zu lang (y={y:.1f})"
 b = txt.bounds()
 assert b[2] < W - 3, f"Text zu breit ({b[2]:.1f} mm)"
 
