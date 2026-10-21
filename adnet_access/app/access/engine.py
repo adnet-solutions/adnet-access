@@ -344,11 +344,12 @@ class Engine:
                         (now.isoformat(timespec="seconds"), person.id if person else None,
                          person.name if person else "", method, cred, result, reason, protect))
         log.info("%s: %s %s (%s)", result, person.name if person else "?", method, reason)
-        asyncio.create_task(self._after(lid, person, method, granted, reason, row or {}, info or not snapshot))
+        asyncio.create_task(self._after(lid, person, method, granted, reason, row or {}, info or not snapshot,
+                                        when=now if ts else None))
         return lid
 
     async def _after(self, lid: int, person: Person | None, method: str, granted: bool, reason: str, row: dict,
-                     info: bool) -> None:
+                     info: bool, when: datetime | None = None) -> None:
         image = ""
         if not info:
             image = await self.snapshot(lid)
@@ -356,8 +357,9 @@ class Engine:
             await self.on_event({"id": lid, "person": person.name if person else "", "method": method,
                                  "granted": granted, "reason": reason, "image": image})
         if granted and row.get("notify") and self.opts.notify_service:
+            zeit = f"{when:%H:%M} (nachgemeldet)" if when else f"{self.now():%H:%M}"
             await self.ha.notify(self.opts.notify_service, "Haustür geöffnet",
-                                 f"{person.name} ({method}) um {self.now():%H:%M}", image)
+                                 f"{person.name} ({method}) um {zeit}", image)
 
     def snapshot_roots(self) -> list[Path]:
         """Alle Ordner, in denen Snapshots liegen dürfen (gewählter Speicherort + Ausweich-Ordner)."""

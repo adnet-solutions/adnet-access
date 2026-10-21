@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.18
+- Nachgemeldete Offline-Öffnungen: Push-Nachricht nennt die echte Uhrzeit („um 12:30 (nachgemeldet)“)
+
 ## 0.1.17
 - Ersatz-Kamerabild in der Benachrichtigung wieder entfernt (verhinderte bei gestörter Kamera die Zustellung)
 - Log zeigt, ob eine Benachrichtigung mit oder ohne Bild gesendet wurde
