@@ -57,7 +57,7 @@ api:
         - lambda: |-
             auto &a = id(offline_liste);
             size_t n = std::min(daten.size(), a.size() - 1);
-            memcpy(a.data(), daten.data(), n);
+            memcpy(a.data(), daten.c_str(), n);
             a[n] = 0;
             ESP_LOGI("adnet", "Offline-Liste aktualisiert (%u Zeichen)", (unsigned) n);
     # vom Add-on nach jeder Entscheidung: kurz gruen (geoeffnet) oder rot (abgelehnt) an der Atom-LED
@@ -156,7 +156,7 @@ rc522_i2c:
                 snprintf(buf, sizeof(buf), "{\"n\":%u,\"t\":\"karte\",\"v\":\"%s\"}",
                          (unsigned) id(seq), uid.c_str());
                 id(ereignis).publish_state(buf);
-                if (!id(ist_online)) id(offline_karte).execute(uid);
+                if (!id(ist_online).state) id(offline_karte).execute(uid);
 
 binary_sensor:
   - platform: template

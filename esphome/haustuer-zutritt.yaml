@@ -56,7 +56,7 @@ api:
         - lambda: |-
             auto &a = id(offline_liste);
             size_t n = std::min(daten.size(), a.size() - 1);
-            memcpy(a.data(), daten.data(), n);
+            memcpy(a.data(), daten.c_str(), n);
             a[n] = 0;
             ESP_LOGI("adnet", "Offline-Liste aktualisiert (%u Zeichen)", (unsigned) n);
     # vom Add-on nach jeder Entscheidung: kurz gruen (geoeffnet) oder rot (abgelehnt) an der Atom-LED
@@ -144,7 +144,7 @@ wiegand:
             snprintf(buf, sizeof(buf), "{\"n\":%u,\"t\":\"karte\",\"v\":\"%s\"}",
                      (unsigned) id(seq), x.c_str());
             id(ereignis).publish_state(buf);
-            if (!id(ist_online)) id(offline_karte).execute(x);
+            if (!id(ist_online).state) id(offline_karte).execute(x);
 
 key_collector:
   - id: pin_sammler
@@ -164,7 +164,7 @@ key_collector:
             char buf[128];
             snprintf(buf, sizeof(buf), "{\"n\":%u,\"t\":\"pin\",\"v\":\"%s\"}", (unsigned) id(seq), h.c_str());
             id(ereignis).publish_state(buf);
-            if (!id(ist_online)) id(offline_pin).execute(h);
+            if (!id(ist_online).state) id(offline_pin).execute(h);
 
 binary_sensor:
   - platform: template
