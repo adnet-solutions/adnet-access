@@ -34,6 +34,25 @@ def cleanup(db, roots, snapshot_days: int, log_months: int, now: datetime | None
     return files, removed
 
 
+def delete_entries(db, snapshot_file, older_than_days: int | None, now: datetime | None = None) -> tuple[int, int]:
+    """Logbuch von Hand leeren. older_than_days=None: alles. snapshot_file prueft Pfade (nur erlaubte Ordner).
+    Rueckgabe (geloeschte Eintraege, geloeschte Snapshots)."""
+    now = now or datetime.now()
+    if older_than_days is None:
+        where, args = "", ()
+    else:
+        where, args = " WHERE ts < ?", ((now - timedelta(days=older_than_days)).isoformat(timespec="seconds"),)
+    files = 0
+    for row in db.q(f"SELECT snapshot FROM log{where}", args):
+        p = snapshot_file(row["snapshot"]) if row["snapshot"] else None
+        if p:
+            p.unlink(missing_ok=True)
+            files += 1
+    n = db.one(f"SELECT COUNT(*) AS n FROM log{where}", args)["n"]
+    db.x(f"DELETE FROM log{where}", args)
+    return n, files
+
+
 async def loop(db, roots, snapshot_days: int, log_months: int) -> None:
     while True:
         try:

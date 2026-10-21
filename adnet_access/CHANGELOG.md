@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.19
+- Logbuch: Einträge älter als X Tage oder alles löschen (samt Bildern, mit Rückfrage); ein Nachweis-Eintrag bleibt stehen
+
 ## 0.1.18
 - Nachgemeldete Offline-Öffnungen: Push-Nachricht nennt die echte Uhrzeit („um 12:30 (nachgemeldet)“)
 

@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import cardid
+from . import retention, cardid
 from .rules import DAY_NAMES, MODES, parse_hm
 from .security import new_token, pin_hash
 
@@ -284,6 +284,21 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
     async def logbuch_neuestes():
         r = db.one("SELECT MAX(id) AS id FROM log")
         return {"id": (r["id"] if r else None) or 0}
+
+    @app.post("/logbuch/loeschen")
+    async def logbuch_loeschen(request: Request):
+        form = await request.form()
+        modus = form.get("modus", "alt")
+        tage = None
+        if modus != "alles":
+            try:
+                tage = max(int(form.get("tage", "30")), 1)
+            except ValueError:
+                return back(request, "/logbuch")
+        n, f = retention.delete_entries(db, engine.snapshot_file, tage, engine.now().replace(tzinfo=None))
+        was = "komplett" if tage is None else f"älter als {tage} Tage"
+        await engine.record(None, "web", "", False, f"Logbuch gelöscht ({was}): {n} Einträge, {f} Bilder", info=True)
+        return back(request, "/logbuch")
 
     @app.get("/logbuch.csv")
     async def logbuch_csv(request: Request):
