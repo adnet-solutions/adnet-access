@@ -281,7 +281,7 @@ for (n, y, lbl) in wago_slots:       # links neben dem Wago (Einfuehrungsseite)
 for (n, y, lbl) in wago_slots2:      # rechts hinter der Rueckwand
     labels.append((lbl, WAGO2_X - 1.6 - LABEL_GAP / 2, y + (WAGO_W[n] + WCLR) / 2, LBL))   # im Gang links
 labels += [("ATOM", ATOM_X + aw / 2, ATOM_Y - 5.0, LBL), ("24 V IN", NOTCH_X, 24.0, LBL),
-           ("CAT 7", BORE[0], BORE[1] + BORE_OPEN / 2 + 4.6, LBL)]
+           ("CAT 7", BORE[0], BORE[1] - BORE_OPEN / 2 - 4.6, LBL)]
 LABEL_DEPTH = 0.8
 label_inlay = Manifold()                    # Schrift als eigenes Teil (zweite Farbe mit AMS)
 for (s, x, y, cap) in labels:
