@@ -44,20 +44,18 @@ class HA:
         log.warning("Snapshot von %s fehlgeschlagen (3 Versuche): %s", entity, last)
         return None
 
-    async def notify(self, service: str, title: str, message: str, image: str = "", camera: str = "") -> None:
-        """service z. B. 'notify.mobile_app_enrico'; image = '/media/local/...'.
-        Ohne gespeichertes Bild, aber mit Kamera: aktuelles Kamerabild anhaengen (iOS: entity_id, Android: image)."""
+    async def notify(self, service: str, title: str, message: str, image: str = "") -> None:
+        """service z. B. 'notify.mobile_app_enrico'; image = '/media/local/...'"""
         if not (self.enabled and service):
             return
         domain, _, name = service.partition(".")
         data = {"title": title, "message": message}
         if image:
             data["data"] = {"image": image}
-        elif camera:
-            data["data"] = {"image": f"/api/camera_proxy/{camera}", "entity_id": camera}
         try:
             r = await self.client.post(f"/services/{domain}/{name}", json=data)
             r.raise_for_status()
+            log.info("Benachrichtigung gesendet%s", " mit Bild" if image else " ohne Bild")
         except Exception as e:  # noqa: BLE001
             log.warning("Benachrichtigung über %s fehlgeschlagen: %s", service, e)
 

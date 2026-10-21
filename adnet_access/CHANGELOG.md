@@ -1,8 +1,11 @@
 # Änderungen
 
+## 0.1.17
+- Ersatz-Kamerabild in der Benachrichtigung wieder entfernt (verhinderte bei gestörter Kamera die Zustellung)
+- Log zeigt, ob eine Benachrichtigung mit oder ohne Bild gesendet wurde
+
 ## 0.1.16
 - Snapshot in Full HD statt 4K anfordern (schneller, v. a. bei WLAN-Kameras), 15 s Zeit pro Versuch
-- Benachrichtigung: fehlt der gespeicherte Snapshot, wird das aktuelle Kamerabild angehängt
 
 ## 0.1.15
 - Kamera-Snapshot: bis zu 3 Versuche (UniFi Protect antwortet über HA gelegentlich mit HTTP 500), genauere Fehlermeldung im Log
