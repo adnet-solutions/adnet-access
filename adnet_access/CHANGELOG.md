@@ -1,5 +1,9 @@
 # Änderungen
 
+## 0.1.22
+- Fehler behoben: Personenseite war leer (Name, Speichern, Löschen gingen nicht) – Folge der Navigations-Markierung aus 0.1.20. Es wurden keine Daten gelöscht.
+- Test für alle Seiten ergänzt
+
 ## 0.1.21
 - Logbuch löschen nach Einstellungen → „Logbuch aufräumen“ verschoben (mit Anzahl der Einträge und den automatischen Aufräumfristen)
 
