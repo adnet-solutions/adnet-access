@@ -41,7 +41,7 @@ logger:
 
 api:
   encryption:
-    key: !secret adnet_api_key
+    key: !secret adnet_esphome_key
   actions:
     # vom Add-on alle 30 s: "ich lebe" -> Atom bleibt im Online-Modus
     - action: heartbeat
@@ -82,7 +82,7 @@ api:
 ota:
   - platform: esphome
     encryption:
-      key: !secret adnet_api_key
+      key: !secret adnet_esphome_key
 
 wifi:
   ssid: !secret wifi_ssid
