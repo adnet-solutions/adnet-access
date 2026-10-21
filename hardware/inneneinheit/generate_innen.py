@@ -49,7 +49,7 @@ BOSS_D, BOSS_HOLE = 8.0, 2.5               # Schraubdome fuer 2,9er Blechschraub
 BORE = (202.0, 52.0)                       # Mitte der Wandbohrung (Cat 7 kommt von hinten)
 BORE_OPEN = 22.0
 NOTCH_X = 103.0                            # DC-Einbaubuchse unten im Adergang links der Wagos -> kurze Wege zu 24V+/24V-
-JACK_D, JACK_Z = 8.3, 22.0                 # Loch DC-Einbaubuchse DC-099 (M8); fuer M11-Typen auf 11,4 aufbohren; Hoehe Mitte
+JACK_D, JACK_Z = 11.2, 22.0                # Loch DC-Einbaubuchse: Gewinde gemessen 10,73 mm (M11 bzw. 7/16"); Hoehe Mitte
 
 
 def rrect(w, h, r, n=48):
