@@ -464,3 +464,18 @@ for i, n in enumerate((3, 5)):
     _a, _c = wago_clamp(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, Z0 + WALL_H_WAGO, WNOSE)
     _test = (_test + _a) - _c
 save(_test, "test_wago_aufnahme.stl")
+
+# ---------------- Variantentest: 221-413 mit Nasentiefe 0,1 ... 0,5 mm (beschriftet, ein Druck) ----------------
+_var = [0.1, 0.2, 0.3, 0.4, 0.5]
+_dw, _ww = WAGO_D + CLR, WAGO_W[3] + WCLR
+_pitch = _ww + 1.6 + 6.0
+_vw, _vh = _dw + 1.6 + 12.0, len(_var) * _pitch + 6.0
+_vt = rrect(_vw, _vh, 5.0).extrude(Z0).translate((_vw / 2 - 10.0, _vh / 2 - 4.0, 0))
+for i, dpt in enumerate(_var):
+    vy = i * _pitch
+    _vt += frame(0, vy, _dw, _ww, WALL_H_WAGO, sides="RBT")
+    _a, _c = wago_clamp(0, vy, _dw, _ww, Z0 + WALL_H_WAGO, dpt)
+    _vt = (_vt + _a) - _c
+    _lab = text_cs(f"{dpt:.1f}".replace(".", ","), 4.0).rotate(90).translate((-5.5, vy + _ww / 2))
+    _vt -= _lab.extrude(1.0).translate((0, 0, Z0 - 0.6))           # 0,6 mm tief in die Grundplatte
+save(_vt, "test_wago_varianten.stl")
