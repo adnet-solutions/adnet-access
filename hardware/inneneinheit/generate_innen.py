@@ -422,7 +422,8 @@ print(f"Gehaeuse aussen: {IN_W + 2 * WALL:.0f} x {IN_H + 2 * WALL:.0f} x {H_OUT 
 print(f"Wandbohrung: {BORE[0] + WALL:.0f} mm vom linken, {BORE[1] + WALL:.0f} mm vom unteren Aussenrand")
 
 # ---------------- Passungstest: je eine Aufnahme 221-413 und 221-415 (Druck ca. 10 min) ----------------
-_test = box(-4, 2 * (WAGO_D + CLR) + 14, -4, WAGO_W[5] + WCLR + 4, 0, Z0)
+_tw, _th = 2 * (WAGO_D + CLR) + 18, WAGO_W[5] + WCLR + 8
+_test = rrect(_tw, _th, 5.0).extrude(Z0).translate((_tw / 2 - 4, _th / 2 - 4, 0))   # runde Ecken: hebt sich nicht ab
 for i, n in enumerate((3, 5)):
     tx = 2 + i * (WAGO_D + CLR + 8)
     _test += frame(tx, 0, WAGO_D + CLR, WAGO_W[n] + WCLR, WALL_H_WAGO, sides="RBT")
