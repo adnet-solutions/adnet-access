@@ -19,6 +19,8 @@ substitutions:
   shelly_host: !secret adnet_shelly_host     # nur fuer den Offline-Modus (Shelly per Firewall absichern)
   shelly_id: "0"
   impuls_s: "1"                              # Schaltimpuls in s, gleich wie shelly_pulse_seconds im Add-on
+  shelly_password: !secret adnet_shelly_password   # Shelly-Passwort (Benutzer admin); leer "" = ohne Passwort
+  shelly_uri: "/rpc/Switch.Set?id=${shelly_id}&on=true&toggle_after=${impuls_s}"
   pin_key: !secret adnet_pin_key             # identisch mit "pin_key" in den Add-on-Optionen
 
 packages:
@@ -100,6 +102,9 @@ http_request:
   timeout: 4s
 
 globals:
+  - id: shelly_auth
+    type: std::string
+    restore_value: false
   - id: letzter_heartbeat
     type: uint32_t
     initial_value: '0'
@@ -212,7 +217,39 @@ script:
     mode: single
     then:
       - http_request.get:
-          url: "http://${shelly_host}/rpc/Switch.Set?id=${shelly_id}&on=true&toggle_after=${impuls_s}"
+          url: "http://${shelly_host}${shelly_uri}"
+          collect_headers:
+            - www-authenticate
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code != 401) {
+                    ESP_LOGI("adnet", "Shelly offline geschaltet: HTTP %d", response->status_code);
+                    return;
+                  }
+                  const std::string pw = R"ADNETPW(${shelly_password})ADNETPW";
+                  if (pw.empty()) { ESP_LOGW("adnet", "Shelly verlangt Passwort, adnet_shelly_password ist leer"); return; }
+                  char cn[17];
+                  snprintf(cn, sizeof(cn), "%08x%08x", (unsigned) random_uint32(), (unsigned) random_uint32());
+                  id(shelly_auth) = adnet::digest_header(response->get_response_header("www-authenticate"), "GET",
+                                                         "${shelly_uri}", "admin", pw, cn);
+                  if (id(shelly_auth).empty()) ESP_LOGW("adnet", "Shelly: Anmeldedaten nicht lesbar");
+                  else id(shelly_mit_passwort).execute();
+          on_error:
+            then:
+              - logger.log: "Shelly nicht erreichbar"
+
+  - id: shelly_mit_passwort
+    mode: single
+    then:
+      - delay: 50ms
+      - http_request.get:
+          url: "http://${shelly_host}${shelly_uri}"
+          request_headers:
+            Authorization: !lambda 'return id(shelly_auth).c_str();'
+          on_response:
+            then:
+              - lambda: 'ESP_LOGI("adnet", "Shelly offline geschaltet (mit Passwort): HTTP %d", response->status_code);'
 
   - id: offline_merken
     mode: queued

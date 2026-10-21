@@ -32,3 +32,7 @@ Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** geteste
 ## Optional: Gehäusetemperatur (DS18B20)
 
 `adnet/gehaeusetemperatur.yaml` (im Unterordner `adnet/`, sonst zeigt ESPHome sie als eigenes Gerät) wird über `packages:` eingebunden. DS18B20: rot → 3,3 V, schwarz → GND, gelb → **G7**, 4,7 kΩ zwischen gelb und 3,3 V. Ohne Sensor läuft alles normal, die Entität „Gehäusetemperatur“ ist dann nicht verfügbar. Ganz abschalten: die Zeile unter `packages:` auskommentieren und neu flashen. Zusätzlich meldet der Atom immer seine **Chiptemperatur** (Diagnose, liegt 10–20 K über der Gehäuseluft).
+
+## Offline-Modus mit Shelly-Passwort
+
+Ist am Shelly ein Passwort gesetzt, meldet sich der Atom im Offline-Modus per HTTP-Digest (SHA-256) als `admin` an. Dafür `adnet_shelly_password` auch in die **ESPHome**-Secrets eintragen (ohne Passwort: `""`). Die Berechnung ist gegen das Testbeispiel aus RFC 7616 geprüft (`adnet::digest_header`).

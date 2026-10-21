@@ -73,4 +73,50 @@ inline bool offline_needs_pin(const char *liste, const std::string &uid) {
   return all.find(needle) != std::string::npos;
 }
 
+// ---------- Shelly Gen2+/Gen4: HTTP-Digest-Anmeldung (SHA-256, RFC 7616) fuer den Offline-Modus ----------
+inline std::string sha256_hex(const std::string &in) {
+  unsigned char out[32];
+  mbedtls_md(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), reinterpret_cast<const unsigned char *>(in.data()),
+             in.size(), out);
+  char hex[65];
+  for (int i = 0; i < 32; i++) snprintf(hex + 2 * i, 3, "%02x", out[i]);
+  hex[64] = 0;
+  return std::string(hex);
+}
+
+// Wert eines Parameters aus "Digest realm="x", nonce="y", algorithm=SHA-256"
+inline std::string auth_param(const std::string &h, const std::string &name) {
+  size_t p = 0;
+  while ((p = h.find(name, p)) != std::string::npos) {
+    bool start_ok = p == 0 || h[p - 1] == ' ' || h[p - 1] == ',';
+    size_t eq = p + name.size();
+    if (start_ok && eq < h.size() && h[eq] == '=') {
+      size_t v = eq + 1;
+      if (v < h.size() && h[v] == '"') {
+        size_t e = h.find('"', v + 1);
+        return e == std::string::npos ? "" : h.substr(v + 1, e - v - 1);
+      }
+      size_t e = h.find(',', v);
+      std::string r = h.substr(v, e == std::string::npos ? std::string::npos : e - v);
+      while (!r.empty() && r.back() == ' ') r.pop_back();
+      return r;
+    }
+    p = eq;
+  }
+  return "";
+}
+
+// Authorization-Header fuer eine Anfrage nach einer 401-Antwort (WWW-Authenticate) bauen.
+inline std::string digest_header(const std::string &www, const std::string &method, const std::string &uri,
+                                 const std::string &user, const std::string &password, const std::string &cnonce) {
+  const std::string realm = auth_param(www, "realm"), nonce = auth_param(www, "nonce");
+  if (realm.empty() || nonce.empty()) return "";
+  const std::string nc = "00000001", qop = "auth";
+  const std::string ha1 = sha256_hex(user + ":" + realm + ":" + password);
+  const std::string ha2 = sha256_hex(method + ":" + uri);
+  const std::string resp = sha256_hex(ha1 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + ha2);
+  return "Digest username=\"" + user + "\", realm=\"" + realm + "\", nonce=\"" + nonce + "\", uri=\"" + uri +
+         "\", algorithm=SHA-256, response=\"" + resp + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\"";
+}
+
 }  // namespace adnet
