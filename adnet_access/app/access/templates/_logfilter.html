@@ -1,0 +1,10 @@
+<form method="get" class="filters">
+  <select name="person"><option value="">alle Personen</option>{% for p in persons %}<option value="{{ p.id }}" {{ 'selected' if params.person == p.id|string }}>{{ p.name }}</option>{% endfor %}</select>
+  <select name="result"><option value="">alle Ergebnisse</option>{% for r in ['erlaubt','abgelehnt','info'] %}<option {{ 'selected' if params.result == r }}>{{ r }}</option>{% endfor %}</select>
+  <select name="weg"><option value="">alle Wege</option>{% for k, t in [('karte','Karte'),('pin','PIN'),('karte+pin','Karte + PIN'),('handy','Handy'),('manuell','Tür-öffnen-Knopf'),('offline','offline'),('web','Verwaltung')] %}<option value="{{ k }}" {{ 'selected' if params.weg == k }}>{{ t }}</option>{% endfor %}</select>
+  <input type="search" name="q" value="{{ params.q or '' }}" placeholder="Karte, Name, Grund …">
+  <input type="date" name="von" value="{{ params.von or '' }}"> – <input type="date" name="bis" value="{{ params.bis or '' }}">
+  <button>Filtern</button>
+  {% if params|select|list %}<a class="button" href="?">zurücksetzen</a>{% endif %}
+  {% if csv %}<a class="button" href="{{ base }}/logbuch.csv?{{ qs }}">CSV</a>{% endif %}
+</form>

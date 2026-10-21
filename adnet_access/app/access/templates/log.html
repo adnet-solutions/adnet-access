@@ -1,29 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Logbuch{% endblock %}
 {% block content %}
+<p><a href="{{ base }}/">← zurück zur Übersicht</a></p>
 <h2>Logbuch <small class="muted" id="log-total">({{ total }} Einträge)</small></h2>
-<form method="get" class="filters">
-  <select name="person"><option value="">alle Personen</option>{% for p in persons %}<option value="{{ p.id }}" {{ 'selected' if params.person == p.id|string }}>{{ p.name }}</option>{% endfor %}</select>
-  <select name="result"><option value="">alle Ergebnisse</option>{% for r in ['erlaubt','abgelehnt','info'] %}<option {{ 'selected' if params.result == r }}>{{ r }}</option>{% endfor %}</select>
-  <input type="date" name="von" value="{{ params.von or '' }}"> – <input type="date" name="bis" value="{{ params.bis or '' }}">
-  <button>Filtern</button>
-  <a class="button" href="{{ base }}/logbuch.csv?{{ qs }}">CSV</a>
-</form>
+{% set csv = true %}{% include "_logfilter.html" %}
 {% set live = (page == 1) %}
 {% include "_logrows.html" %}
 <details class="log-delete">
-  <summary>Einträge löschen</summary>
-  <form method="post" action="{{ base }}/logbuch/loeschen" class="inline"
-        onsubmit="return confirm('Einträge älter als ' + this.tage.value + ' Tage samt Bildern löschen?')">
-    <input type="hidden" name="modus" value="alt">
-    Älter als <input type="number" name="tage" value="30" min="1" max="3650" style="width:5em"> Tage
-    <button class="danger">löschen</button>
-  </form>
-  <form method="post" action="{{ base }}/logbuch/loeschen" class="inline"
-        onsubmit="return confirm('Wirklich das GANZE Logbuch samt allen Bildern löschen? Das lässt sich nicht rückgängig machen.')">
-    <input type="hidden" name="modus" value="alles">
-    <button class="danger">Alles löschen</button>
-  </form>
+  <summary>Einträge löschen …</summary>
+  <div class="del-row">
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Einträge älter als ' + this.tage.value + ' Tage samt Bildern löschen?')">
+      <input type="hidden" name="modus" value="alt">
+      <span>Älter als</span>
+      <input type="number" name="tage" value="30" min="1" max="3650" class="days">
+      <span>Tage</span>
+      <button class="danger">löschen</button>
+    </form>
+    <form method="post" action="{{ base }}/logbuch/loeschen"
+          onsubmit="return confirm('Wirklich das GANZE Logbuch samt allen Bildern löschen? Das lässt sich nicht rückgängig machen.')">
+      <input type="hidden" name="modus" value="alles">
+      <button class="danger">Alles löschen</button>
+    </form>
+  </div>
   <p class="muted">Bilder werden mitgelöscht. Ein Eintrag „Logbuch gelöscht“ bleibt als Nachweis stehen.</p>
 </details>
 <p class="pager">

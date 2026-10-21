@@ -10,11 +10,10 @@
 <header>
   <strong>Haustür</strong>
   <nav>
-    <a href="{{ base }}/">Übersicht</a>
-    <a href="{{ base }}/personen">Personen</a>
-    <a href="{{ base }}/zeitprofile">Zeitprofile</a>
-    <a href="{{ base }}/logbuch">Logbuch</a>
-    <a href="{{ base }}/einstellungen">Einstellungen</a>
+    {% set p = request.url.path.rstrip('/') %}
+    {% for href, label in [('', 'Übersicht'), ('/personen', 'Personen'), ('/zeitprofile', 'Zeitprofile'), ('/logbuch', 'Logbuch'), ('/einstellungen', 'Einstellungen')] %}
+    <a href="{{ base }}{{ href or '/' }}" class="{{ 'active' if (href and p.endswith(href)) or (not href and p in ('', base.rstrip('/'))) }}">{{ label }}</a>
+    {% endfor %}
   </nav>
   <span class="conn {{ 'ok' if esp and esp.connected else 'bad' }}">Leser {{ 'verbunden' if esp and esp.connected else 'getrennt' }}</span>
 </header>

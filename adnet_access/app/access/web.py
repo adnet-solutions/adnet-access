@@ -67,13 +67,43 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
                 await mqtt.publish_persons()
             await mqtt.publish_states()
 
+    # ---------------- Logbuch-Filter (Übersicht + Logbuch) ----------------
+    def log_query(params) -> tuple[str, list]:
+        where, args = [], []
+        if params.get("person"):
+            where.append("person_id=?")
+            args.append(int(params["person"]))
+        if params.get("result"):
+            where.append("result=?")
+            args.append(params["result"])
+        if params.get("von"):
+            where.append("ts>=?")
+            args.append(params["von"])
+        if params.get("bis"):
+            where.append("ts<=?")
+            args.append(params["bis"] + "T23:59:59")
+        weg = params.get("weg")
+        if weg == "offline":
+            where.append("method LIKE '%(offline)'")
+        elif weg:
+            where.append("method IN (?, ?)")
+            args += [weg, weg + " (offline)"]
+        if params.get("q"):
+            where.append("(credential LIKE ? OR reason LIKE ? OR person_name LIKE ?)")
+            args += [f"%{params['q'].strip()}%"] * 3
+        return (" WHERE " + " AND ".join(where)) if where else "", args
+
     # ---------------- Übersicht ----------------
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request):
-        rows = db.q("SELECT * FROM log ORDER BY id DESC LIMIT 15")
+        params = dict(request.query_params)
+        w, a = log_query(params)
+        rows = db.q(f"SELECT * FROM log{w} ORDER BY id DESC LIMIT 15", a)
+        persons = db.q("SELECT id, name FROM persons ORDER BY name")
         stats = db.one("SELECT COUNT(*) n, SUM(result='erlaubt') ok, SUM(result='abgelehnt') nok FROM log "
                        "WHERE ts >= date('now','-1 day')")
-        return render(request, "index.html", rows=rows, stats=stats)
+        return render(request, "index.html", rows=rows, stats=stats, persons=persons, params=params,
+                      filtered=bool(w))
 
     @app.post("/oeffnen")
     async def oeffnen(request: Request):
@@ -253,21 +283,6 @@ def create_ui(engine, esp=None, mqtt=None) -> FastAPI:
         return back(request, "/zeitprofile")
 
     # ---------------- Logbuch ----------------
-    def log_query(params) -> tuple[str, list]:
-        where, args = [], []
-        if params.get("person"):
-            where.append("person_id=?")
-            args.append(int(params["person"]))
-        if params.get("result"):
-            where.append("result=?")
-            args.append(params["result"])
-        if params.get("von"):
-            where.append("ts>=?")
-            args.append(params["von"])
-        if params.get("bis"):
-            where.append("ts<=?")
-            args.append(params["bis"] + "T23:59:59")
-        return (" WHERE " + " AND ".join(where)) if where else "", args
 
     @app.get("/logbuch", response_class=HTMLResponse)
     async def logbuch(request: Request):

@@ -1,5 +1,10 @@
 # Änderungen
 
+## 0.1.20
+- Filter jetzt auch in der Übersicht; neue Filter „Weg“ (Karte, PIN, Handy, offline …) und Suchfeld (Karte, Name, Grund)
+- Navigation zeigt die aktive Seite, Logbuch mit „zurück zur Übersicht“
+- Löschen-Bereich im Logbuch sauber ausgerichtet
+
 ## 0.1.19
 - Logbuch: Einträge älter als X Tage oder alles löschen (samt Bildern, mit Rückfrage); ein Nachweis-Eintrag bleibt stehen
 

@@ -22,6 +22,7 @@
   </div>
 </section>
 <h2>Letzte Ereignisse</h2>
+{% include "_logfilter.html" %}
 {% include "_logrows.html" %}
-<p><a href="{{ base }}/logbuch">Ganzes Logbuch →</a></p>
+<p><a href="{{ base }}/logbuch{{ '?' ~ request.query_params if filtered else '' }}">Ganzes Logbuch{{ ' mit diesem Filter' if filtered else '' }} →</a></p>
 {% endblock %}
