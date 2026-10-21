@@ -9,7 +9,7 @@
 
 Geprüft mit ESPHome 2026.9 (`esphome config`).
 
-1. Die Dateien `haustuer-zutritt.yaml`, `adnet_access.h` und `gehaeusetemperatur.yaml` in den ESPHome-Ordner von HA kopieren (`/config/esphome/`).
+1. Die Dateien `haustuer-zutritt.yaml`, `adnet_access.h` und `adnet/gehaeusetemperatur.yaml` (im Unterordner `adnet/`, sonst zeigt ESPHome sie als eigenes Gerät) in den ESPHome-Ordner von HA kopieren (`/config/esphome/`).
 2. Werte aus `secrets.example.yaml` in die ESPHome-`secrets.yaml` übernehmen. Schlüssel erzeugen:
    `openssl rand -base64 32` (API) und `openssl rand -hex 24` (PIN). Beide auch in die Add-on-Optionen eintragen.
 3. Erster Flash per USB-C (dabei die 5-V-Ader vom Wandler abklemmen), danach per WLAN.
@@ -23,7 +23,7 @@ Geprüft mit ESPHome 2026.9 (`esphome config`).
 
 ## Testaufbau ohne Tastatur (M5Stack Unit RFID2)
 
-Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** getestet werden: RFID2 per Grove-Kabel an den Atom, Atom per USB-C an Rechner oder Netzteil. In den Add-on-Optionen `reader_type: rfid2` setzen. Statt `haustuer-zutritt.yaml` die Datei `haustuer-zutritt-rfid2-test.yaml` (plus `adnet_access.h` und `gehaeusetemperatur.yaml`) ins ESPHome-Add-on kopieren und flashen. Gerätename, Schlüssel und Ablauf sind gleich, das Add-on merkt keinen Unterschied – nur PIN gibt es nicht.
+Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** getestet werden: RFID2 per Grove-Kabel an den Atom, Atom per USB-C an Rechner oder Netzteil. In den Add-on-Optionen `reader_type: rfid2` setzen. Statt `haustuer-zutritt.yaml` die Datei `haustuer-zutritt-rfid2-test.yaml` (plus `adnet_access.h` und `adnet/gehaeusetemperatur.yaml` im Unterordner `adnet/`) ins ESPHome-Add-on kopieren und flashen. Gerätename, Schlüssel und Ablauf sind gleich, das Add-on merkt keinen Unterschied – nur PIN gibt es nicht.
 
 - Karten anlernen, Zeitprofile, Logbuch, Snapshot, Push, Shelly, Offline-Modus: alles testbar.
 - Die Karten-ID kommt hier als Hex (`74-10-37-94`), an der Wiegand-Tastatur später als Dezimalzahl. Das Add-on rechnet beides ineinander um – **angelernte Karten bleiben gültig**. Beim Umstieg nur in den Add-on-Optionen `reader_type` von `rfid2` auf `wiegand34` stellen (für die Offline-Liste).
@@ -31,4 +31,4 @@ Solange die Wiegand-Tastatur fehlt, kann der Atom mit der **Unit RFID2** geteste
 
 ## Optional: Gehäusetemperatur (DS18B20)
 
-`gehaeusetemperatur.yaml` wird über `packages:` eingebunden. DS18B20: rot → 3,3 V, schwarz → GND, gelb → **G7**, 4,7 kΩ zwischen gelb und 3,3 V. Ohne Sensor läuft alles normal, die Entität „Gehäusetemperatur“ ist dann nicht verfügbar. Ganz abschalten: die Zeile unter `packages:` auskommentieren und neu flashen. Zusätzlich meldet der Atom immer seine **Chiptemperatur** (Diagnose, liegt 10–20 K über der Gehäuseluft).
+`adnet/gehaeusetemperatur.yaml` (im Unterordner `adnet/`, sonst zeigt ESPHome sie als eigenes Gerät) wird über `packages:` eingebunden. DS18B20: rot → 3,3 V, schwarz → GND, gelb → **G7**, 4,7 kΩ zwischen gelb und 3,3 V. Ohne Sensor läuft alles normal, die Entität „Gehäusetemperatur“ ist dann nicht verfügbar. Ganz abschalten: die Zeile unter `packages:` auskommentieren und neu flashen. Zusätzlich meldet der Atom immer seine **Chiptemperatur** (Diagnose, liegt 10–20 K über der Gehäuseluft).

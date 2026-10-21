@@ -125,7 +125,7 @@ Drei vorgeprägte Bohrstellen (außen Kreis Ø 12,2 mm, Wand bleibt 0,8 mm dick 
 
 ### Temperaturfühler (optional)
 
-Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Klemmen für einen **DS18B20 im Edelstahlröhrchen Ø 6 mm**: einfach von oben einklipsen. Ein nackter DS18B20 (kleines schwarzes Gehäuse mit 3 Beinchen) kommt in ein Stück Schrumpfschlauch oder wird mit einem Kabelbinder durch den Schlitz unter einer Klemme gebunden. Kabel zum Atom (G7, 3,3 V, GND) etwa 25 cm lang lassen, damit der Deckel zum Öffnen abgelegt werden kann. Firmware: `esphome/gehaeusetemperatur.yaml`.
+Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Klemmen für einen **DS18B20 im Edelstahlröhrchen Ø 6 mm**: einfach von oben einklipsen. Ein nackter DS18B20 (kleines schwarzes Gehäuse mit 3 Beinchen) kommt in ein Stück Schrumpfschlauch oder wird mit einem Kabelbinder durch den Schlitz unter einer Klemme gebunden. Kabel zum Atom (G7, 3,3 V, GND) etwa 25 cm lang lassen, damit der Deckel zum Öffnen abgelegt werden kann. Firmware: `esphome/adnet/gehaeusetemperatur.yaml`.
 
 ### Innenverkabelung: Litze und Farben
 

@@ -22,7 +22,7 @@ substitutions:
   pin_key: !secret adnet_pin_key             # identisch mit "pin_key" in den Add-on-Optionen
 
 packages:
-  gehaeusetemperatur: !include gehaeusetemperatur.yaml   # DS18B20 an G7 (optional); Zeile auskommentieren = aus
+  gehaeusetemperatur: !include adnet/gehaeusetemperatur.yaml   # DS18B20 an G7 (optional); Zeile auskommentieren = aus
 
 esphome:
   name: ${name}
