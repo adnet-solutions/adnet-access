@@ -117,6 +117,8 @@ Der Shelly-Kontakt (O/I bzw. potentialfrei) kommt **parallel zum Kontakt des eke
 
 Logo, „AD.NET solutions“ und „ACCESS“ sind mittig untereinander 0,6 mm in die Außenseite eingraviert (einfarbig, z. B. alles weiß). Die Außenseite liegt beim Druck auf dem Bett; die Vertiefungen werden überbrückt, Brückeneinstellungen von Bambu Studio passen. Erhaben ginge nur mit Stützmaterial.
 
+Für späteres Einfärben gibt es die passenden Einlagen als eigene STLs: `innen_deckel_einlage_logo_grau.stl`, `innen_deckel_einlage_logo_orange.stl` (1 mm tief), `innen_deckel_einlage_schrift.stl`. In Bambu Studio alle vier Dateien zusammen importieren und bei der Frage „als ein Objekt mit mehreren Teilen laden“ mit **Ja** bestätigen, dann sitzen sie exakt in den Vertiefungen.
+
 ### Optionale Kabelverschraubung (z. B. eigenes Kabel zur Ring)
 
 Drei vorgeprägte Bohrstellen (außen Kreis Ø 12,2 mm, Wand bleibt 0,8 mm dick und dicht): **rechte Seite unten**, **Oberseite rechts**, **Unterseite rechts**. Bei Bedarf mit Stufenbohrer auf 12 mm aufbohren und eine **Kabelverschraubung M12 × 1,5** (Klemmbereich ca. 3–6,5 mm, Gegenmutter innen) einsetzen. Innen ist an allen drei Stellen Platz für die Mutter.

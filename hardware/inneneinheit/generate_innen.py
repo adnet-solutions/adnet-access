@@ -384,6 +384,11 @@ deco = (_lg.translate((DECO_X, LOGO_Y)) + text_cs(TXT1, TXT1_CAP).translate((DEC
 _pr = lambda cs: cs.mirror((1, 0)).translate((IN_W, 0))                                # Deckel liegt gespiegelt
 lid -= _pr(deco).extrude(ENGRAVE + 0.01).translate((0, 0, -0.01))
 lid -= _pr(_lo.translate((DECO_X, LOGO_Y))).extrude(LOGO_DEEP + 0.01).translate((0, 0, -0.01))
+# Einlagen passgenau zu den Vertiefungen (fuer spaeteres Einfaerben: zusammen mit dem Deckel als ein Objekt laden)
+einlage_logo_grau = _pr(_lg.translate((DECO_X, LOGO_Y))).extrude(ENGRAVE)
+einlage_logo_orange = _pr(_lo.translate((DECO_X, LOGO_Y))).extrude(LOGO_DEEP)
+einlage_schrift = _pr(text_cs(TXT1, TXT1_CAP).translate((DECO_X, _y1))
+                      + text_cs(TXT2, TXT2_CAP).translate((DECO_X, _y2))).extrude(ENGRAVE)
 
 # ---------------- Niederhalter fuer die Wandler (2 x drucken) ----------------
 span = (SD_W + 2 * CLR) + 2 * HOLD_OFF
@@ -405,6 +410,9 @@ def save(m, name):
 save(shell, "innen_unterteil.stl")
 save(label_inlay, "innen_unterteil_schrift.stl")
 save(lid, "innen_deckel.stl")
+save(einlage_logo_grau, "innen_deckel_einlage_logo_grau.stl")
+save(einlage_logo_orange, "innen_deckel_einlage_logo_orange.stl")
+save(einlage_schrift, "innen_deckel_einlage_schrift.stl")
 save(bar, "innen_niederhalter.stl")
 
 # Niederhalter-Platzhalter fuer die Vorschau
