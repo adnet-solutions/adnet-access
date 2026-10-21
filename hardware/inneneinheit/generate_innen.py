@@ -37,7 +37,8 @@ SD_TERM = 12.5                             # Klemmleiste ragt ueber das Blechgeh
 WIRE_ROOM = 17.5                           # Platz fuer Adern zwischen Klemmleiste und Wagos
 CLR = 0.5                                  # Spiel in allen Aufnahmen
 WCLR = 0.3                                 # Spiel der Wagos quer
-WNOSE = 0.3                                # Klemmnasen an den Wago-Seitenwaenden (mit Einfuehrschraege, auf Federzungen)
+WNOSE = 0.5                                # Klemmnasen (Variantentest: 0,5 passt am besten)
+# an den Wago-Seitenwaenden (mit Einfuehrschraege, auf Federzungen)
 
 # ---------------- Gehaeuse ----------------
 IN_W, IN_H = 224.0, 132.0                  # Innenraum (x, y)
@@ -106,7 +107,7 @@ def snap_noses(x0, y0, w, h, z_top, along="y", depth=0.6, length=6.0):
     return m
 
 
-def wago_clamp(x0, y0, w, h, z_top, depth, length=8.0, t=1.6):
+def wago_clamp(x0, y0, w, h, z_top, depth, length=8.0, t=1.6, sides="BT"):
     """Klemmnasen fuer Wagos an unterer/oberer Wand: Profil mit Einfuehrschraege, Wandstueck als Federzunge
     (Schlitze links/rechts). Rueckgabe (dazu, weg)."""
     xc = x0 + w / 2
@@ -118,9 +119,13 @@ def wago_clamp(x0, y0, w, h, z_top, depth, length=8.0, t=1.6):
     bb = nose.bounding_box()
     nose_b = nose.mirror((0, 1, 0)).translate((xc - (bb[0] + bb[3]) / 2, y0 - 0.01, 0))   # zeigt nach +y (innen)
     nose_t = nose.translate((xc - (bb[0] + bb[3]) / 2, y0 + h + 0.01, 0))                  # zeigt nach -y (innen)
-    add = nose_b + nose_t
+    add = Manifold()
+    if "B" in sides:
+        add += nose_b
+    if "T" in sides:
+        add += nose_t
     cut = Manifold()
-    for yy in (y0 - t - 0.5, y0 + h - 0.5):
+    for yy in [y for k, y in (("B", y0 - t - 0.5), ("T", y0 + h - 0.5)) if k in sides]:
         for xs in (xc - length / 2 - 0.9, xc + length / 2 + 0.1):
             cut += box(xs, xs + 0.8, yy, yy + t + 1.0, Z0 + 1.0, z_top + 1)
     return add, cut
@@ -172,7 +177,14 @@ for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, 
         d = WAGO_D + CLR                       # entlang x
         # Spalte 1: Rueckwand rechts, Adern von links (Wandler); Spalte 2: Rueckwand links, Adern von rechts
         shell += frame(col_x, y, d, w, WALL_H_WAGO, sides=sides)
-        _a, _c = wago_clamp(col_x, y, d, w, Z0 + WALL_H_WAGO, WNOSE)
+        # Spalte 2 teilt sich die Waende zwischen den Wagos -> dort keine Nasen (Wagos stuetzen sich
+        # gegenseitig), nur an der ersten und letzten Aussenwand
+        if slots is wago_slots2:
+            idx = [sl[1] for sl in slots].index(y)
+            nose_sides = ("B" if idx == 0 else "") + ("T" if idx == len(slots) - 1 else "")
+        else:
+            nose_sides = "BT"
+        _a, _c = wago_clamp(col_x, y, d, w, Z0 + WALL_H_WAGO, WNOSE, sides=nose_sides)
         _wago_cuts.append(_c)
         shell += _a
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
