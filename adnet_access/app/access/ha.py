@@ -1,6 +1,8 @@
 """Home-Assistant-API über den Supervisor: Kamera-Snapshot, Benachrichtigung, Kalender."""
 from __future__ import annotations
 
+import asyncio
+
 import logging
 import os
 from datetime import datetime, timedelta
@@ -24,13 +26,21 @@ class HA:
     async def camera_snapshot(self, entity: str) -> bytes | None:
         if not (self.enabled and entity):
             return None
-        try:
-            r = await self.client.get(f"/camera_proxy/{entity}")
-            r.raise_for_status()
-            return r.content
-        except Exception as e:  # noqa: BLE001
-            log.warning("Snapshot von %s fehlgeschlagen: %s", entity, e)
-            return None
+        # UniFi Protect liefert ueber HA gelegentlich HTTP 500 oder antwortet langsam -> bis zu 3 Versuche
+        last = ""
+        for attempt in range(3):
+            try:
+                r = await self.client.get(f"/camera_proxy/{entity}", timeout=8)
+                if r.status_code == 200 and r.content:
+                    if attempt:
+                        log.info("Snapshot von %s im %d. Versuch", entity, attempt + 1)
+                    return r.content
+                last = f"HTTP {r.status_code}"
+            except Exception as e:  # noqa: BLE001
+                last = f"{type(e).__name__} {e}".strip()
+            await asyncio.sleep(1.0 + attempt)
+        log.warning("Snapshot von %s fehlgeschlagen (3 Versuche): %s", entity, last)
+        return None
 
     async def notify(self, service: str, title: str, message: str, image: str = "") -> None:
         """service z. B. 'notify.mobile_app_enrico'; image = '/media/local/...'"""

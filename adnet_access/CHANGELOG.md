@@ -1,5 +1,8 @@
 # Änderungen
 
+## 0.1.15
+- Kamera-Snapshot: bis zu 3 Versuche (UniFi Protect antwortet über HA gelegentlich mit HTTP 500), genauere Fehlermeldung im Log
+
 ## 0.1.14
 - Logbuch und Übersicht aktualisieren sich live (alle 3 s, neue Einträge werden kurz hervorgehoben)
 
