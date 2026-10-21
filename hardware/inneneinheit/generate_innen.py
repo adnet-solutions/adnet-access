@@ -159,7 +159,7 @@ for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, 
 # Die freien Pins (G5-G8, G38, G39, 5V, GND) sind Buchsen an der Unterseite. Der Atom liegt deshalb 16 mm hoch auf
 # vier Eckauflagen; darunter ist Platz fuer gerade Dupont-Stecker, die Kabel gehen seitlich durch Fenster raus.
 # USB-C zeigt nach oben (zum Flashen erreichbar), Grove nach unten.
-ATOM_X, ATOM_Y = 195.0, 96.0
+ATOM_X, ATOM_Y = 195.0, 78.0                 # ca. 29 mm Platz ueber USB-C fuer einen geraden Stecker
 ATOM_LIFT = 16.0
 aw = ATOM + CLR
 PT = 1.6                                    # Wandstaerke Podest
@@ -203,7 +203,7 @@ def tie_bridge(x, y, along_x=True):
     return b
 
 
-for (tx, ty, ax) in ((BORE[0], BORE[1] + 24, True), (190.0, 86.0, False), (NOTCH_X, 30.0, True)):
+for (tx, ty, ax) in ((BORE[0], BORE[1] + 15, True), (190.0, 86.0, False), (NOTCH_X, 30.0, True)):
     shell += tie_bridge(tx, ty, ax)
 
 # ---------------- Kerbe fuer das Netzteilkabel (Unterkante, zum Deckel hin offen) ----------------
