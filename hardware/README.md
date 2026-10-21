@@ -158,4 +158,4 @@ Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindr�
 
 Dünne Dupont-/Grove-Adern (ca. 0,14 mm²) im Wago: 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
 
-**Belegungsschild zum Einkleben** (innen in den Deckel): `belegung_schild.stl` (Schrift vertieft) und `belegung_schild_schrift.stl` (passende Einlage für zweifarbigen Druck). 74 × 114 × 1,6 mm, Schrift Inter ExtraBold 3,5 mm hoch (Strich ca. 0,8 mm = 2 Linien mit 0,4er-Düse). Platz innen am Deckel über dem Atom/rechten Wagos (von innen gesehen links neben den Fühlerklemmen), mit doppelseitigem Klebeband.
+**Belegungsschild zum Einkleben** (innen in den Deckel): `belegung_schild.stl` (Schrift auf der Unterseite, gespiegelt – liegt beim Druck auf dem Bett, danach umdrehen) und `belegung_schild_schrift.stl` (Einlage für die zweite Farbe). 74 × 114 × 1,6 mm, Schrift Inter ExtraBold 3,5 mm hoch (Strich ca. 0,8 mm = 2 Linien mit 0,4er-Düse). Platz innen am Deckel über dem Atom/rechten Wagos (von innen gesehen links neben den Fühlerklemmen), mit doppelseitigem Klebeband.

@@ -4,6 +4,7 @@ Schrift: Inter ExtraBold, 3,5 mm Versalhoehe -> Strichstaerke ca. 0,8 mm (2 Lini
 
 Erzeugt stl/belegung_schild.stl (Schrift 0,6 mm vertieft) und stl/belegung_schild_schrift.stl
 (passende Einlage fuer zweifarbigen Druck: beide zusammen als ein Objekt laden).
+Die Schrift liegt auf der Unterseite (Druckbett) und ist gespiegelt - nach dem Druck umdrehen.
 """
 from pathlib import Path
 
@@ -53,8 +54,11 @@ assert b[2] < W - 3, f"Text zu breit ({b[2]:.1f} mm)"
 plate = (CrossSection.square((W - 6, H - 6)).offset(3, JoinType.Round, circular_segments=32)
          .translate((3, 3))).extrude(T)
 # Trennlinie zwischen den Tabellen
-inlay = txt.extrude(DEPTH).translate((0, 0, T - DEPTH))
-plate -= txt.extrude(DEPTH + 0.01).translate((0, 0, T - DEPTH))
+# Schrift liegt UNTEN (Sichtseite auf dem Druckbett, gespiegelt): erste Schichten = scharfe Kanten,
+# kein Glaetten noetig, kein Verschmieren der Farbe. Nach dem Druck umdrehen.
+mtxt = txt.mirror((1, 0)).translate((W, 0))
+inlay = mtxt.extrude(DEPTH)
+plate -= mtxt.extrude(DEPTH + 0.01).translate((0, 0, -0.01))
 
 
 def save(m, name):
