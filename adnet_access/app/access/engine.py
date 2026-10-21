@@ -357,7 +357,8 @@ class Engine:
                                  "granted": granted, "reason": reason, "image": image})
         if granted and row.get("notify") and self.opts.notify_service:
             await self.ha.notify(self.opts.notify_service, "Haustür geöffnet",
-                                 f"{person.name} ({method}) um {self.now():%H:%M}", image)
+                                 f"{person.name} ({method}) um {self.now():%H:%M}", image,
+                                 camera=self.opts.camera_entity)
 
     def snapshot_roots(self) -> list[Path]:
         """Alle Ordner, in denen Snapshots liegen dürfen (gewählter Speicherort + Ausweich-Ordner)."""

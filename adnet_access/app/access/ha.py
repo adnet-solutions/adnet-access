@@ -26,11 +26,13 @@ class HA:
     async def camera_snapshot(self, entity: str) -> bytes | None:
         if not (self.enabled and entity):
             return None
-        # UniFi Protect liefert ueber HA gelegentlich HTTP 500 oder antwortet langsam -> bis zu 3 Versuche
+        # UniFi Protect liefert ueber HA gelegentlich HTTP 500 oder antwortet langsam (WLAN-Kamera, 4K).
+        # Full HD anfordern: Protect laesst die Kamera dann ein kleineres Bild erzeugen -> deutlich schneller.
         last = ""
         for attempt in range(3):
             try:
-                r = await self.client.get(f"/camera_proxy/{entity}", timeout=8)
+                r = await self.client.get(f"/camera_proxy/{entity}", params={"width": 1920, "height": 1080},
+                                          timeout=15)
                 if r.status_code == 200 and r.content:
                     if attempt:
                         log.info("Snapshot von %s im %d. Versuch", entity, attempt + 1)
@@ -42,14 +44,17 @@ class HA:
         log.warning("Snapshot von %s fehlgeschlagen (3 Versuche): %s", entity, last)
         return None
 
-    async def notify(self, service: str, title: str, message: str, image: str = "") -> None:
-        """service z. B. 'notify.mobile_app_enrico'; image = '/media/local/...'"""
+    async def notify(self, service: str, title: str, message: str, image: str = "", camera: str = "") -> None:
+        """service z. B. 'notify.mobile_app_enrico'; image = '/media/local/...'.
+        Ohne gespeichertes Bild, aber mit Kamera: aktuelles Kamerabild anhaengen (iOS: entity_id, Android: image)."""
         if not (self.enabled and service):
             return
         domain, _, name = service.partition(".")
         data = {"title": title, "message": message}
         if image:
             data["data"] = {"image": image}
+        elif camera:
+            data["data"] = {"image": f"/api/camera_proxy/{camera}", "entity_id": camera}
         try:
             r = await self.client.post(f"/services/{domain}/{name}", json=data)
             r.raise_for_status()
