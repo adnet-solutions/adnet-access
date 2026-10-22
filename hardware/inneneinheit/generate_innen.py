@@ -163,8 +163,9 @@ for _n, _l in ((5, "24V+"), (5, "24V-"), (5, "GND"), (3, "GND 2")):
     _y += WAGO_W[_n] + WCLR + 4.4
 LABEL_GAP = 12.0                  # Gang zwischen den Spalten (Beschriftung Spalte 2)
 WAGO2_X = WAGO_X + WAGO_D + CLR + 1.6 + LABEL_GAP + 1.6   # Spalte 2: Einfuehrung zeigt nach RECHTS (Cat 7, Atom)
-PITCH2 = WAGO_W[3] + WCLR + 1.6   # 20.6 mm: benachbarte Aufnahmen teilen sich eine Wand
-wago_slots2 = [(3, 4.0 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
+T2, GAP2 = 1.0, 0.6               # Spalte 2: jede Aufnahme eigene, duenne Waende (Federzungen) + 0,6 mm Luft
+PITCH2 = WAGO_W[3] + WCLR + 2 * T2 + GAP2   # 21,5 mm
+wago_slots2 = [(3, 1.6 + i * PITCH2, lbl) for i, lbl in enumerate(["D0 a", "D0 b", "D1 a", "D1 b", "LED", "BEEP"])]
 for _n, _y, _l in wago_slots:
     assert _y + WAGO_W[_n] + WCLR + 1.6 <= IN_H, f"Wago {_l} passt nicht"
 for _n, _y, _l in wago_slots2:
@@ -176,15 +177,9 @@ for col_x, slots, sides in ((WAGO_X, wago_slots, "RBT"), (WAGO2_X, wago_slots2, 
         w = WAGO_W[n] + WCLR                   # entlang y
         d = WAGO_D + CLR                       # entlang x
         # Spalte 1: Rueckwand rechts, Adern von links (Wandler); Spalte 2: Rueckwand links, Adern von rechts
-        shell += frame(col_x, y, d, w, WALL_H_WAGO, sides=sides)
-        # Spalte 2 teilt sich die Waende zwischen den Wagos -> dort keine Nasen (Wagos stuetzen sich
-        # gegenseitig), nur an der ersten und letzten Aussenwand
-        if slots is wago_slots2:
-            idx = [sl[1] for sl in slots].index(y)
-            nose_sides = ("B" if idx == 0 else "") + ("T" if idx == len(slots) - 1 else "")
-        else:
-            nose_sides = "BT"
-        _a, _c = wago_clamp(col_x, y, d, w, Z0 + WALL_H_WAGO, WNOSE, sides=nose_sides)
+        tw = T2 if slots is wago_slots2 else 1.6
+        shell += frame(col_x, y, d, w, WALL_H_WAGO, sides=sides, t=tw)
+        _a, _c = wago_clamp(col_x, y, d, w, Z0 + WALL_H_WAGO, WNOSE, t=tw)   # jede Aufnahme beidseitig
         _wago_cuts.append(_c)
         shell += _a
         parts_demo.append({"kind": "wago", "w": WAGO_D, "h": WAGO_W[n], "d": WAGO_H,
