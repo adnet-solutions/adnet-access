@@ -8,7 +8,7 @@ Inhalt (alles ohne Loeten, jedes Teil hat eine eigene Aufnahme):
   - Atom auf einem 16 mm hohen Podest: unten frei fuer zwei Dupont-Stecker (G5 = LED, G6 = BEEP ueber BAT85)
   - Oeffnung ueber der Wandbohrung (Cat-7-Kabel von hinten), Kerbe fuer das Netzteilkabel
 
-Druckteile:  innen_unterteil.stl, innen_deckel.stl, innen_niederhalter.stl (2 x drucken)
+Druckteile:  innen_unterteil.stl, innen_deckel.stl, innen_niederhalter_12v.stl + innen_niederhalter_5v.stl (je 1 x)
 Deckel:      wird aufgeschnappt (6 Rasthaken), Oeffnen mit Schlitzschraubendreher an der Kerbe unten Mitte
 Schrauben:   4 x 2,9 x 13 Linsenkopf (Niederhalter), 2 x 4 x 30 + Duebel (Wand)
 
@@ -446,7 +446,23 @@ save(lid, "innen_deckel.stl")
 save(einlage_logo_grau, "innen_deckel_einlage_logo_grau.stl")
 save(einlage_logo_orange, "innen_deckel_einlage_logo_orange.stl")
 save(einlage_schrift, "innen_deckel_einlage_schrift.stl")
-save(bar, "innen_niederhalter.stl")
+# Niederhalter je Wandler beschriftet ("12 V" / "5 V", 0,6 mm vertieft oben + Einlage fuer zweite Farbe)
+_FB = str(BASE / "fonts" / "Inter-ExtraBold.otf")
+
+
+def _label_bold(txt, cap):
+    tp = TextPath((0, 0), txt, size=100, prop=FontProperties(fname=_FB))
+    cs = CrossSection([q for q in tp.to_polygons(closed_only=True) if len(q) > 2], fillrule=FillRule.EvenOdd)
+    ref = TextPath((0, 0), "H", size=100, prop=FontProperties(fname=_FB)).get_extents().height
+    cs = cs.scale((cap / ref, cap / ref))
+    bb = cs.bounds()
+    return cs.translate((-(bb[0] + bb[2]) / 2, -(bb[1] + bb[3]) / 2))
+
+
+for _volt in ("12", "5"):
+    _t = _label_bold(f"{_volt} V", 4.6)
+    save(bar - _t.extrude(1.0).translate((0, 0, 4.0 - 0.6)), f"innen_niederhalter_{_volt}v.stl")
+    save(_t.extrude(0.6).translate((0, 0, 4.0 - 0.6)), f"innen_niederhalter_{_volt}v_schrift.stl")
 
 # Niederhalter-Platzhalter fuer die Vorschau
 for name, (x, y) in SD_POS.items():

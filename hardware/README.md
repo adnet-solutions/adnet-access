@@ -89,7 +89,7 @@ Die Aufnahmen sind im Boden beschriftet.
 | `innen_unterteil.stl` | Boden aufs Bett, keine Stützen |
 | `innen_unterteil_schrift.stl` | **optional, zweite Farbe (AMS):** die Bodenbeschriftung als eigenes Teil. Zusammen mit `innen_unterteil.stl` in Bambu Studio laden, Frage „als ein Objekt mit mehreren Teilen laden“ mit **Ja** beantworten, dem Teil „Schrift“ z. B. Schwarz zuweisen. Fertig kombiniert: `innen_unterteil_2farbig.3mf`. |
 | `innen_deckel.stl` | Außenseite unten, Rasthaken zeigen nach oben – keine Stützen nötig |
-| `innen_niederhalter.stl` | **2 ×** drucken |
+| `innen_niederhalter_12v.stl`, `innen_niederhalter_5v.stl` | je 1 × (oben „12 V“ bzw. „5 V“ vertieft; `…_schrift.stl` als Einlage für zweite Farbe) |
 
 Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinheit/generate_innen.py` (braucht `trimesh`, `shapely`, `manifold3d`, `fonttools`). Vorschau-Bilder: `python3 hardware/inneneinheit/vorschau.py`.
 
