@@ -113,6 +113,19 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 
 Der Shelly-Kontakt (O/I bzw. potentialfrei) kommt **parallel zum Kontakt des ekey-Relais** am Motorschloss-Eingang. Er schaltet einen 1-s-Impuls (`Switch.Set` mit `toggle_after`). Shelly mit Passwort, Zugriff per Firewall nur von HA und dem Atom (siehe [`../adnet_access/DOCS.md`](../adnet_access/DOCS.md)).
 
+### Druckeinstellungen pro Teil (Bambu Studio, X1C, 0,4-mm-Düse)
+
+Gemeinsam für alle Teile: **PETG** (Profil „Bambu PETG HF/Basic“ bzw. „Generic PETG“), **texturierte PEI-Platte** (Plattentyp „Textured PEI Plate“, ohne Kleber; auf der glatten PEI-Platte dünn Klebestift als Trennmittel), Profil **0,20 mm Standard**, **keine Stützen**, **Glätten (Ironing) aus**. Große Teile mittig aufs Bett legen. Rolle bei Fadenziehen 6–8 h bei 65 °C trocknen.
+
+| Teil | Lage auf dem Bett | Wände | Deck/Boden | Infill | Brim | Besonderes |
+|---|---|---|---|---|---|---|
+| `innen_unterteil.stl` | Boden unten | 4 | 5 / 5 | 25 % Gyroid | **5 mm** | zweifarbig: mit `innen_unterteil_schrift.stl` als ein Objekt (oder `innen_unterteil_2farbig.3mf`) |
+| `innen_deckel.stl` | **Außenseite unten** (Logo auf dem Bett, erscheint gespiegelt) | 3 | **5 / 5** (5 Bodenschichten = 1 mm, damit über der 1 mm tiefen Gravur massiv) | 30 % | – | Rasthaken zeigen nach oben; zweifarbig: mit den 3 `innen_deckel_einlage_*.stl` als ein Objekt |
+| `innen_niederhalter_12v.stl`, `…_5v.stl` | flach, Senkungen oben | 4 | 5 / 5 | 50 % | – | je 1 ×; zweifarbig mit `…_schrift.stl` |
+| `test_wago_*.stl` | flach | 3 | 4 / 4 | 15 % | 5 mm | nur Passungstest, PLA genügt |
+
+Temperaturen: Düse 240–250 °C (erste Schicht +5 °C), Bett 70 °C, Lüfter 30–50 % (erste 3 Schichten aus) – das Bambu-Profil passt. Erste Schicht 30–50 mm/s.
+
 ### Deckel mit Logo
 
 Logo, „AD.NET solutions“ und „ACCESS“ sind mittig untereinander 0,6 mm in die Außenseite eingraviert (einfarbig, z. B. alles weiß). Die Außenseite liegt beim Druck auf dem Bett; die Vertiefungen werden überbrückt, Brückeneinstellungen von Bambu Studio passen. Erhaben ginge nur mit Stützmaterial.
@@ -158,4 +171,4 @@ Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindr�
 
 Dünne Dupont-/Grove-Adern (ca. 0,14 mm²) im Wago: 11 mm abisolieren und doppelt umlegen oder Aderendhülse 0,25 mm².
 
-**Belegungsschild zum Einkleben** (innen in den Deckel): `belegung_schild.stl` (Schrift auf der Unterseite, gespiegelt – liegt beim Druck auf dem Bett, danach umdrehen) und `belegung_schild_schrift.stl` (Einlage für die zweite Farbe). 74 × 114 × 1,6 mm, Schrift Inter ExtraBold 3,5 mm hoch (Strich ca. 0,8 mm = 2 Linien mit 0,4er-Düse). Platz innen am Deckel über dem Atom/rechten Wagos (von innen gesehen links neben den Fühlerklemmen), mit doppelseitigem Klebeband.
+**Belegungsschild zum Einkleben:** [`inneneinheit/belegung_inneneinheit_A4.pdf`](inneneinheit/belegung_inneneinheit_A4.pdf) – A4 mit 100 % drucken (Kontrollstrich 50 mm), Papier an der durchgezogenen Linie ausschneiden (66 × 106 mm), laminieren, Folie mit 4 mm Rand auf das Endmaß **74 × 114 mm** zuschneiden (gestrichelte Linie), innen in den Deckel kleben (über Atom/rechter Wago-Spalte, von innen gesehen links neben den Fühlerklemmen; freie Fläche ca. 75 × 115 mm). Neu erzeugen: `python3 hardware/inneneinheit/belegung_pdf.py`.
