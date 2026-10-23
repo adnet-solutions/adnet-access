@@ -124,7 +124,7 @@ Gemeinsam für alle Teile: **PETG** (Profil „Bambu PETG HF/Basic“ bzw. „Ge
 | `innen_niederhalter_12v.stl`, `…_5v.stl` | flach, Senkungen oben | 4 | 5 / 5 | 50 % | – | je 1 ×; zweifarbig mit `…_schrift.stl` |
 | `test_wago_*.stl` | flach | 3 | 4 / 4 | 15 % | 5 mm | nur Passungstest, PLA genügt |
 
-Temperaturen: Düse 240–250 °C (erste Schicht +5 °C), Bett 70 °C, Lüfter 30–50 % (erste 3 Schichten aus) – das Bambu-Profil passt. Erste Schicht 30–50 mm/s.
+Temperaturen: Düse 240–250 °C (erste Schicht +5 °C), Bett 70 °C, Lüfter 30–50 % (erste 3 Schichten aus) – das Bambu-Profil passt. **Geschwindigkeiten (auch erste Schicht) auf Bambu-Standard lassen**: langsamer gedruckte erste Schichten wurden bei PETG unsauber.
 
 ### Deckel mit Logo
 
