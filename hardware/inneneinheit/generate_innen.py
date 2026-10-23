@@ -425,7 +425,7 @@ einlage_schrift = _pr(text_cs(TXT1, TXT1_CAP).translate((DECO_X, _y1))
 
 # ---------------- Niederhalter fuer die Wandler (2 x drucken) ----------------
 span = (SD_W + 2 * CLR) + 2 * HOLD_OFF
-bar = rrect(span + 9.0, 8.0, 3.0).extrude(4.0)
+bar = rrect(span + 9.0, 12.0, 4.0).extrude(4.0)          # 12 mm breit: steifer, groessere Auflage, Platz fuer Schrift
 for dy in (-span / 2, span / 2):
     bar -= cyl(dy, 0, 1.7, -1, 5)
     bar -= cyl(dy, 0, 3.1, 4.0 - 2.0, 5)          # Senkung fuer Linsenkopf 2,9 (Kopf 5,6 x 2,4) -> steht nur 0,4 mm ueber
@@ -460,13 +460,13 @@ def _label_bold(txt, cap):
 
 
 for _volt in ("12", "5"):
-    _t = _label_bold(f"{_volt} V", 4.6)
+    _t = _label_bold(f"{_volt} V", 7.0)
     save(bar - _t.extrude(1.0).translate((0, 0, 4.0 - 0.6)), f"innen_niederhalter_{_volt}v.stl")
     save(_t.extrude(0.6).translate((0, 0, 4.0 - 0.6)), f"innen_niederhalter_{_volt}v_schrift.stl")
 
 # Niederhalter-Platzhalter fuer die Vorschau
 for name, (x, y) in SD_POS.items():
-    parts_demo.append({"kind": "bar", "w": 8.0, "h": span + 9.0, "d": 4.0, "x": x + (SD_L + 2 * CLR) * SD_BAR_F[name],
+    parts_demo.append({"kind": "bar", "w": 12.0, "h": span + 9.0, "d": 4.0, "x": x + (SD_L + 2 * CLR) * SD_BAR_F[name],
                        "y": y + (SD_W + 2 * CLR) / 2, "z": Z0 + SD_H})
 (OUT / "innen_layout.json").write_text(json.dumps({
     "in_w": IN_W, "in_h": IN_H, "sd": {k: [x, y, SD_L, SD_W] for k, (x, y) in SD_POS.items()}, "sd_term": SD_TERM,
