@@ -87,7 +87,7 @@ Die Aufnahmen sind im Boden beschriftet.
 | Datei | Hinweis |
 |---|---|
 | `innen_unterteil.stl` | Boden aufs Bett, keine Stützen |
-| `innen_unterteil_schrift.stl` | **optional, zweite Farbe (AMS):** die Bodenbeschriftung als eigenes Teil. Zusammen mit `innen_unterteil.stl` in Bambu Studio laden, Frage „als ein Objekt mit mehreren Teilen laden“ mit **Ja** beantworten, dem Teil „Schrift“ z. B. Schwarz zuweisen. Fertig kombiniert: `innen_unterteil_2farbig.3mf`. |
+| `innen_unterteil_schrift.stl` | **optional, zweite Farbe (AMS):** die Bodenbeschriftung als eigenes Teil. Zusammen mit `innen_unterteil.stl` in Bambu Studio laden, Frage „als ein Objekt mit mehreren Teilen laden“ mit **Ja** beantworten, dem Teil „Schrift“ z. B. Schwarz zuweisen. |
 | `innen_deckel.stl` | Außenseite unten, Rasthaken zeigen nach oben – keine Stützen nötig |
 | `innen_niederhalter_12v.stl`, `innen_niederhalter_5v.stl` | je 1 × (oben „12 V“ bzw. „5 V“ vertieft; `…_schrift.stl` als Einlage für zweite Farbe) |
 
@@ -119,7 +119,7 @@ Gemeinsam für alle Teile: **PETG** (Profil „Bambu PETG HF/Basic“ bzw. „Ge
 
 | Teil | Lage auf dem Bett | Wände | Deck/Boden | Infill | Brim | Besonderes |
 |---|---|---|---|---|---|---|
-| `innen_unterteil.stl` | Boden unten | 4 | 5 / 5 | 25 % Gyroid | **5 mm** | zweifarbig: mit `innen_unterteil_schrift.stl` als ein Objekt (oder `innen_unterteil_2farbig.3mf`) |
+| `innen_unterteil.stl` | Boden unten | 4 | 5 / 5 | 25 % Gyroid | **5 mm** | zweifarbig: mit `innen_unterteil_schrift.stl` als **ein Objekt mit mehreren Teilen** laden (beide STLs gleichzeitig importieren → „Ja“), sonst meldet Bambu „floating regions“ |
 | `innen_deckel.stl` | **Außenseite unten** (Logo auf dem Bett, erscheint gespiegelt) | 3 | **5 / 5** (5 Bodenschichten = 1 mm, damit über der 1 mm tiefen Gravur massiv) | 30 % | – | Rasthaken zeigen nach oben; zweifarbig: mit den 3 `innen_deckel_einlage_*.stl` als ein Objekt |
 | `innen_niederhalter_12v.stl`, `…_5v.stl` | flach, Senkungen oben | 4 | 5 / 5 | 50 % | – | je 1 ×; zweifarbig mit `…_schrift.stl` |
 | `test_wago_*.stl` | flach | 3 | 4 / 4 | 15 % | 5 mm | nur Passungstest, PLA genügt |
