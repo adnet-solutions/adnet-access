@@ -69,7 +69,7 @@ for p, t in ((G5, "G5"), (G6, "G6")):
 
 bx, by, br = L["bore"]
 ax.add_patch(Circle((bx, by), br, fc="white", ec="#444", lw=0.8))
-ax.text(bx, by, "Cat 7\n(von hinten)", ha="center", va="center", fontsize=6)
+ax.text(bx, by, "Außenkabel\n10 × 0,75\n(von hinten)", ha="center", va="center", fontsize=5.5)
 jx, jd = L["jack"]
 ax.add_patch(Rectangle((jx - 6, -2.4), 12, 9, fc="#555", ec="#222"))
 ax.text(jx, -6.5, "DC-Buchse 24 V", ha="center", fontsize=6)
@@ -114,23 +114,22 @@ for i, key, lane in ((0, "12", 104.0), (1, "5", 103.0)):
 wire([PORT[("GND", 4)], (108, PORT[("GND", 4)][1]), (108, PORT[("GND 2", 0)][1]), PORT[("GND 2", 0)]], GNYE,
      "gn-ge", lw=1.1)
 
-# Cat 7 von der Bohrung
-c7 = (bx - br + 2, by)
+# Aussenkabel YSLY-JZ 10 x 0,75 von der Bohrung (gleiche Nummern wie innen)
+K = "#111"
 wire([(bx - 4, by + 8), (bx - 4, 133 - 6), (110, 127), (110, PORT[("24V+", 4)][1]), PORT[("24V+", 4)]],
-     "#f08a00", "Cat7 orange (Ring +)", lpos=0.35)
+     K, "außen 1 (Ring +)", lpos=0.35)
 wire([(bx - 2, by + 9), (bx - 2, 128.5), (109, 128.5), (109, PORT[("24V-", 4)][1]), PORT[("24V-", 4)]],
-     "#f08a00", "weiß-orange (Ring −)", white_stripe=True, lpos=0.7)
+     K, "außen 2 (Ring −)", lpos=0.7)
 wire([(bx - 6, by + 7), (bx - 6, 125.5), (111, 125.5), (111, PORT[("GND", 2)][1]), PORT[("GND", 2)]],
-     "#2a8a2a", "weiß-grün (Tastatur GND)", white_stripe=True, lpos=0.5)
+     GNYE, "außen gn-ge (Tastatur GND)", lpos=0.5)
 t = TERM[("12", "V+")]
-wire([(bx - 8, by + 5), (bx - 8, 130.5), (96, 130.5), (96, t[1]), t], "#2a8a2a", "Cat7 grün (+12 V Tastatur)",
+wire([(bx - 8, by + 5), (bx - 8, 130.5), (96, 130.5), (96, t[1]), t], K, "außen 3 (+12 V Tastatur)",
      lpos=0.25)
-for lab, col, ws, dy in (("D0 a", "#1f5fd0", False, -6), ("D1 a", "#8b5a2b", False, -3),
-                         ("LED", "#1f5fd0", True, 3), ("BEEP", "#8b5a2b", True, 6)):
+for lab, num, dy in (("D0 a", "5", -6), ("D1 a", "6", -3), ("LED", "7", 3), ("BEEP", "8", 6)):
     p = PORT[(lab, 1)]
     lane = 172 + (dy + 6) * 0.6
-    names = {"D0 a": "blau (D0)", "D1 a": "braun (D1)", "LED": "weiß-blau (LED)", "BEEP": "weiß-braun (BEEP)"}
-    wire([(bx - br + 1, by + dy), (lane, by + dy), (lane, p[1]), p], col, names[lab], white_stripe=ws,
+    names = {"D0 a": "D0", "D1 a": "D1", "LED": "LED", "BEEP": "BEEP"}
+    wire([(bx - br + 1, by + dy), (lane, by + dy), (lane, p[1]), p], K, f"außen {num} ({names[lab]})",
          lpos=0.82 if lab in ("LED", "BEEP") else 0.5)
 
 # Ader 5/6: Bruecke a <-> b (nur ohne Spannungsteiler)
@@ -171,20 +170,21 @@ fig.text(12 * MM * 25.4 / 297, 0.955, "Verkabelungsplan Inneneinheit – AD.NET 
 fig.text(12 / 297, 0.925, "Blick von vorn, Deckel ab · Gehäuse im Maßstab 1:1 (mit 100 % drucken) · "
          "Kabel laufen über die Wagos (darüber ca. 25 mm frei)", fontsize=7.5, transform=fig.transFigure)
 legend = [
-    ("1", "24 V + : Wago 24V+ → Eingang Vin+ beider Wandler (2 Stücke)"),
-    ("2", "24 V − : Wago 24V− → Eingang Vin− beider Wandler (2 Stücke)"),
-    ("gn-ge", "GND: Ausgang V− beider Wandler → Wago GND, Brücke GND ↔ GND 2"),
-    ("5 / 6", "Brücke D0 a ↔ D0 b bzw. D1 a ↔ D1 b – nur wenn KEIN Spannungsteiler nötig ist (sonst Widerstände, README)"),
-    ("3 / 4", "nur als Verlängerung, falls Cat-7-grün (12 V) bzw. Grove-rot (5 V) nicht bis zur Wandlerklemme reicht"),
-    ("7–9", "Reserve"),
+    ("1", "24 V + : außen Ring + · innen Wago 24V+ → Eingang Vin+ beider Wandler"),
+    ("2", "24 V − : außen Ring − · innen Wago 24V− → Eingang Vin− beider Wandler"),
+    ("3", "+12 V : SD-15B-12 Klemme +V → Tastatur rot"),
+    ("gn-ge", "GND : Tastatur schwarz · innen Ausgang −V beider Wandler → GND, Brücke GND ↔ GND 2"),
+    ("5 / 6", "D0 / D1 : Tastatur grün / weiß → Wago D0 a / D1 a · innen Brücke a ↔ b nur ohne Spannungsteiler"),
+    ("7 / 8", "LED / BEEP : Tastatur blau / gelb → Wago LED / BEEP"),
+    ("4, 9", "Reserve (4 innen ggf. als 5-V-Verlängerung)"),
 ]
 y0 = 0.205
-fig.text(12 / 297, y0, "Nummerierte Adern (YSLY-JZ 10 × 0,75 mm²)", fontsize=8, weight="bold")
+fig.text(12 / 297, y0, "Adern YSLY-JZ 10 × 0,75 mm² – außen und innen dieselben Nummern", fontsize=8, weight="bold")
 for i, (n, t) in enumerate(legend):
     fig.text(12 / 297, y0 - 0.026 * (i + 1), n, fontsize=7.5, weight="bold")
     fig.text(28 / 297, y0 - 0.026 * (i + 1), t, fontsize=7.5)
 fig.text(190 / 297, y0, "Hinweise", fontsize=8, weight="bold")
-notes = ["Cat 7: Belegung siehe README (orange/weiß-orange = Ring 24 V).",
+notes = ["Außenkabel: Belegung siehe README (1/2 = Ring 24 V).",
          "24 V− (Ring-Kreis) und GND sind getrennt – nicht verbinden.",
          "Klemmenreihenfolge der Wandler laut Aufdruck am Gerät",
          "  (Vin+/Vin− Eingang, +V/−V Ausgang).",

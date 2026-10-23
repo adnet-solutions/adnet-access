@@ -17,9 +17,9 @@ PAPER_W, PAPER_H = 66 * mm, 106 * mm
 LAM = 4 * mm                                   # Laminierrand je Seite
 FINAL_W, FINAL_H = PAPER_W + 2 * LAM, PAPER_H + 2 * LAM
 
-ADERN = [("gn-ge", "GND (Ausgänge −)"), ("1", "24 V + (Eingänge)"), ("2", "24 V − (Eingänge)"),
-         ("3", "12 V + Verlängerung"), ("4", "5 V + Verlängerung"), ("5", "D0 a ↔ b (o. Teiler)"),
-         ("6", "D1 a ↔ b (o. Teiler)"), ("7", "Reserve"), ("8", "Reserve"), ("9", "Reserve")]
+ADERN = [("gn-ge", "GND (nicht 24 V −!)"), ("1", "24 V + / Ring +"), ("2", "24 V − / Ring −"),
+         ("3", "12 V + Tastatur"), ("4", "Reserve"), ("5", "D0"), ("6", "D1"), ("7", "LED"), ("8", "BEEP"),
+         ("9", "Reserve")]
 ATOM = [("G1", "D0 (Grove)"), ("G2", "D1 (Grove)"), ("5V + GND", "Grove"), ("G5", "LED (über BAT85)"),
         ("G6", "BEEP (über BAT85)"), ("G7", "Temperatur DS18B20")]
 
@@ -41,7 +41,7 @@ def label(c, x, y):
     c.setFont("Helvetica-Bold", 13)
     c.drawString(left, ty, "Belegung Inneneinheit")
     c.setFont("Helvetica", 7)
-    c.drawString(left, ty - 3.8 * mm, "AD.NET Access · Adern YSLY-JZ 10 × 0,75 mm²")
+    c.drawString(left, ty - 3.8 * mm, "Adern YSLY-JZ 10 × 0,75 · außen = innen")
     ty -= 10 * mm
     for title, rows in (("Ader", ADERN), ("Atom", ATOM)):
         c.setFont("Helvetica-Bold", 8)

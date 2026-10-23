@@ -1,6 +1,6 @@
 # Hardware
 
-Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinheit** mit Netzteil-Verteilung und dem **AtomS3 Lite**. Dazwischen **eine Bohrung, ein Cat-7-Kabel**, das auch die Ring-Klingeln versorgt. Der **Shelly** sitzt am Motorschloss parallel zum ekey-Relais; ekey und Schlüssel bleiben unverändert.
+Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinheit** mit Netzteil-Verteilung und dem **AtomS3 Lite**. Dazwischen **eine Bohrung, ein 10-adriges Kabel** (YSLY-JZ 10 × 0,75 mm²), das auch die Ring-Klingeln versorgt. Der **Shelly** sitzt am Motorschloss parallel zum ekey-Relais; ekey und Schlüssel bleiben unverändert.
 
 ## Teileliste
 
@@ -19,22 +19,27 @@ Außen eine **Wiegand-Tastatur mit Kartenleser**, innen eine flache **Inneneinhe
 | Dupont-Kabel **Stecker–Buchse**, 10–20 cm | 2 | Atom G5/G6 → Diode | |
 | Schrumpfschlauch 1,5–2 mm | 10 cm | über Diode + Dupont-Buchse | |
 | Widerstand **10 kΩ**, ¼ W, bedrahtet | 4–8 | Spannungsteiler D0/D1 (nur falls nötig, siehe unten) | |
-| **Cat 7 Verlegekabel** (S/FTP, 4 × 2 × AWG23) | Wand + 1 m | das einzige Kabel nach außen | |
+| **Steuerleitung YSLY-JZ 10 × 0,75 mm²** (nummerierte Adern + grün-gelb) | Weg Leser ↔ Inneneinheit + 1 m Reserve + 1 m für die Innenverdrahtung | das einzige Kabel nach außen **und** Adern für die Innenverkabelung | z. B. ALPTEG (Meterware) |
 | 13,56-MHz-Karten / Schlüsselanhänger (MIFARE) | nach Bedarf | | |
 | Shelly Plus/Pro 1 (oder Mini Gen3) mit potentialfreiem Kontakt | 1 | parallel zum ekey-Relais (falls nicht schon vorhanden) | |
 
-## Ein Kabel, eine Bohrung: Belegung Cat 7
+## Ein Kabel, eine Bohrung: Außenkabel YSLY-JZ 10 × 0,75 mm²
 
-| Ader | Signal | außen | innen |
+Dasselbe Kabel wie für die Innenverdrahtung, **außen und innen dieselben Nummern**. Am Leser werden die Adern auf die Farben der Tastatur gelegt (z. B. Wago 221 im Leser-Gehäuse); die Ring-Klingeln hängen an 1/2.
+
+| Ader | Signal | außen (Leser/Ring) | innen |
 |---|---|---|---|
-| orange | Ring + | Ring-Klingeln | Wago `24V+` |
-| weiß-orange | Ring − | Ring-Klingeln | Wago `24V−` |
-| grün | +12 V | Tastatur rot | SD-15B-12 `+V` |
-| weiß-grün | GND | Tastatur schwarz | Wago `GND` |
-| blau | D0 | Tastatur D0 (grün) | Wago `D0 a` |
-| braun | D1 | Tastatur D1 (weiß) | Wago `D1 a` |
-| weiß-blau | LED | Tastatur **blau** (LED) | Wago `LED` |
-| weiß-braun | BEEP | Tastatur **gelb** (BEEP) | Wago `BEEP` |
+| 1 | 24 V + | Ring + | Wago `24V+` |
+| 2 | 24 V − | Ring − | Wago `24V−` |
+| 3 | +12 V | Tastatur **rot** | SD-15B-12 Klemme `+V` |
+| grün-gelb | GND | Tastatur **schwarz** | Wago `GND` |
+| 5 | D0 | Tastatur **grün** | Wago `D0 a` |
+| 6 | D1 | Tastatur **weiß** | Wago `D1 a` |
+| 7 | LED | Tastatur **blau** | Wago `LED` |
+| 8 | BEEP | Tastatur **gelb** | Wago `BEEP` |
+| 4, 9 | Reserve | – | – |
+
+Hinweise zum Kabel: Ø ca. 9 mm → Wandbohrung **≥ 12 mm** (Öffnung im Gehäuseboden 22 mm passt). YSLY-JZ (PVC) ist für feuchte Räume geeignet, aber **nicht UV-beständig** – wo es außen in der Sonne liegt, in ein Schutzrohr legen oder bis in das Leser-Gehäuse geschützt führen. Ungeschirmt ist für Wiegand auf wenigen Metern kein Problem. 0,75 mm² sind für die 24 V der Ring-Klingeln deutlich besser als Cat-7-Adern.
 
 Aderfarben laut Anleitung (Modell **HBK-D02K**, so von Amazon für die UHPPOTE-Tastatur bereitgestellt): rot +12 V, schwarz GND, grün D0, weiß D1, blau LED, gelb BEEP, grau Wiegand-34-Auswahl. Liegt eine andere Anleitung bei: immer danach gehen.
 
@@ -42,7 +47,7 @@ Aderfarben laut Anleitung (Modell **HBK-D02K**, so von Amazon für die UHPPOTE-T
 
 **Wiegand 34 einstellen:** **graue und schwarze Ader verbinden** (Standard ab Werk ist Wiegand 26). Mit 26 Bit überträgt sie nur einen Teil der Karten-ID.
 
-**Masse:** Minus von SD-15B-12, SD-15B-5, Atom und Tastatur liegen gemeinsam auf dem Wago `GND`. Der Ring-Kreis (24 V) bleibt davon getrennt, weil die SD-15B galvanisch trennen. Die Ring-Klingeln brauchen 24 V und hängen direkt am Netzteil.
+**Masse:** Minus von SD-15B-12, SD-15B-5, Atom und Tastatur liegen gemeinsam auf dem Wago `GND` (Ader grün-gelb). Der Ring-Kreis (24 V) bleibt davon getrennt, weil die SD-15B galvanisch trennen. Die Ring-Klingeln brauchen 24 V und hängen direkt am Netzteil.
 
 ## Spannungsteiler D0/D1 (ohne Löten)
 
@@ -70,7 +75,7 @@ Gehäuse **229 × 137 × 39 mm**, flach, **PETG weiß**. Jedes Teil hat seine Au
 | Mitte, Spalte 2 | 6 × **WAGO 221-413**: `D0 a/b`, `D1 a/b`, `LED`, `BEEP` | eindrücken, Rastnasen |
 | rechts oben | **AtomS3 Lite** auf 16-mm-Podest (USB-C oben, Grove unten, darunter Platz für 2 Dupont-Stecker an G5/G6) | auf Eckauflagen, Rastnasen |
 | unten, links neben 24V+ | **DC-Einbaubuchse** im Loch Ø 11,2 mm (Gewinde gemessen 10,73 mm) | von außen durchstecken, innen mit Mutter kontern (Wand innen auf 4 mm verstärkt) |
-| rechts | Öffnung **Ø 22 mm** über der Wandbohrung (Cat 7 von hinten) | Kabelbinder-Brücken |
+| rechts | Öffnung **Ø 22 mm** über der Wandbohrung (Außenkabel von hinten; Bodenbeschriftung „CAT 7“) | Kabelbinder-Brücken |
 
 Die Aufnahmen sind im Boden beschriftet.
 
@@ -99,12 +104,12 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 
 ## Verdrahtung Schritt für Schritt
 
-1. **24 V:** GST60A24 → DC-Einbaubuchse (von außen eingesteckt) → Litzen in Wago `24V+` / `24V−`. Von dort: Ring-Paar (orange/weiß-orange), Eingang SD-15B-12, Eingang SD-15B-5.
-2. **12 V:** SD-15B-12 `+V` → grüne Ader (Tastatur +12 V). `−V` → Wago `GND`.
-3. **5 V:** SD-15B-5 `+V` → rote Grove-Ader (Atom 5 V). `−V` → Wago `GND`.
-4. **GND-Wagos:** `GND` und `GND 2` mit einem kurzen Drahtstück verbinden. `GND`: Minus beider Wandler, schwarze Grove-Ader, weiß-grüne Ader (Tastatur GND), Brücke. `GND 2`: Brücke, untere Widerstände der Spannungsteiler, 2 Plätze Reserve.
-5. **D0/D1:** blau → `D0`, braun → `D1`, ggf. über die Teiler, dann an **G1 (D0)** und **G2 (D1)** des Atom.
-6. **LED/BEEP (erst nach dem Messen anschließen):** weiß-blaue Ader + **Anode** einer BAT85 (Seite ohne Ring) in den Wago `LED`. Auf die **Kathode** (Seite mit Ring) eine Dupont-Buchse stecken, Schrumpfschlauch drüber, Stecker in **G5** am Atom. Genauso weiß-braun → Wago `BEEP` → BAT85 → **G6**. Der Atom zieht die Leitung über die Diode auf GND (= LED grün bzw. Piep); bei 3,3 V sperrt die Diode, die 5 bzw. 12 V der Tastatur erreichen den Atom nicht.
+1. **24 V:** GST60A24 → DC-Einbaubuchse (von außen eingesteckt) → Litzen in Wago `24V+` / `24V−`. Von dort: Ring (Adern 1/2 des Außenkabels) und mit je einem Stück Ader 1/2 die Eingänge von SD-15B-12 und SD-15B-5.
+2. **12 V:** SD-15B-12 `+V` → Ader 3 (Tastatur rot). `−V` → Wago `GND` (Ader grün-gelb).
+3. **5 V:** SD-15B-5 `+V` → rote Grove-Ader (Atom 5 V). `−V` → Wago `GND` (Ader grün-gelb).
+4. **GND-Wagos:** `GND` und `GND 2` mit einem kurzen Drahtstück verbinden. `GND`: Minus beider Wandler, schwarze Grove-Ader, grün-gelbe Ader des Außenkabels (Tastatur GND), Brücke. `GND 2`: Brücke, untere Widerstände der Spannungsteiler, 2 Plätze Reserve.
+5. **D0/D1:** Ader 5 → `D0 a`, Ader 6 → `D1 a`, ggf. über die Teiler, dann an **G1 (D0)** und **G2 (D1)** des Atom.
+6. **LED/BEEP (erst nach dem Messen anschließen):** Ader 7 + **Anode** einer BAT85 (Seite ohne Ring) in den Wago `LED`. Auf die **Kathode** (Seite mit Ring) eine Dupont-Buchse stecken, Schrumpfschlauch drüber, Stecker in **G5** am Atom. Genauso Ader 8 → Wago `BEEP` → BAT85 → **G6**. Der Atom zieht die Leitung über die Diode auf GND (= LED grün bzw. Piep); bei 3,3 V sperrt die Diode, die 5 bzw. 12 V der Tastatur erreichen den Atom nicht.
 7. Litzen der DC-Buchse mit Kabelbinder an der Brücke über der Buchse sichern.
 
 **Vor dem Einschalten:** An den Wandler-Ausgängen 12 V bzw. 5 V messen, erst dann Tastatur und Atom anklemmen. **Beim Flashen per USB-C die 5-V-Ader vom Wandler abklemmen.**
@@ -144,18 +149,15 @@ Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Kl
 
 Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindrähtig, schwarz mit aufgedruckten Nummern + grün-gelb). 1 m Leitung = 10 Adern à 1 m, reicht für die ganze Inneneinheit. Mantel abziehen, Adern einzeln verwenden; Stücke so schneiden, dass eine Nummer sichtbar bleibt (sonst Enden mit Edding beschriften). Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig.
 
-| Ader | Verbindung |
+| Ader | Verbindung innen |
 |---|---|
 | grün-gelb | GND: Ausgang −V beider Wandler → Wago `GND`; Brücke `GND` ↔ `GND 2` |
 | 1 | 24 V +: Wago `24V+` → Eingang Vin+ beider Wandler (2 Stücke) |
 | 2 | 24 V −: Wago `24V−` → Eingang Vin− beider Wandler (2 Stücke) |
-| 3 | 12 V +: nur als Verlängerung, falls Cat-7-grün nicht bis zur Klemme +V des SD-15B-12 reicht |
-| 4 | 5 V +: nur als Verlängerung, falls Grove-rot nicht bis zur Klemme +V des SD-15B-5 reicht |
-| 5 | Brücke `D0 a` ↔ `D0 b` – nur ohne Spannungsteiler |
-| 6 | Brücke `D1 a` ↔ `D1 b` – nur ohne Spannungsteiler |
-| 7–9 | Reserve |
+| 5 / 6 | Brücke `D0 a` ↔ `D0 b` bzw. `D1 a` ↔ `D1 b` – nur ohne Spannungsteiler |
+| 4 | ggf. Verlängerung 5 V, falls Grove-rot nicht bis zur Klemme +V des SD-15B-5 reicht |
 
-Achtung: `24V−` (Ring-Kreis) und `GND` (Tastatur/Atom) sind **getrennt** – nicht verbinden. Cat-7-Adern, DC-Buchse und Grove-Kabel gehen direkt in die Wagos bzw. Klemmen (siehe Cat-7-Tabelle und Verdrahtung oben).
+Achtung: `24V−` (Ring-Kreis) und `GND` (Tastatur/Atom) sind **getrennt** – nicht verbinden. Außenkabel, DC-Buchse und Grove-Kabel gehen direkt in die Wagos bzw. Klemmen (siehe Tabelle Außenkabel und Verdrahtung oben).
 
 **Verkabelungsplan** (Skizze 1:1 mit allen Leitungen und Adernummern): [`inneneinheit/verkabelungsplan_inneneinheit_A4.pdf`](inneneinheit/verkabelungsplan_inneneinheit_A4.pdf), neu erzeugen mit `python3 hardware/inneneinheit/verkabelungsplan.py`.
 
