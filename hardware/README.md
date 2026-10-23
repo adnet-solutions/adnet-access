@@ -159,7 +159,7 @@ Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindr�
 
 Achtung: `24V−` (Ring-Kreis) und `GND` (Tastatur/Atom) sind **getrennt** – nicht verbinden. Außenkabel, DC-Buchse und Grove-Kabel gehen direkt in die Wagos bzw. Klemmen (siehe Tabelle Außenkabel und Verdrahtung oben).
 
-**Verkabelungsplan** (Skizze 1:1 mit allen Leitungen und Adernummern): [`inneneinheit/verkabelungsplan_inneneinheit_A4.pdf`](inneneinheit/verkabelungsplan_inneneinheit_A4.pdf), neu erzeugen mit `python3 hardware/inneneinheit/verkabelungsplan.py`.
+**Verkabelungsplan** (Skizze mit allen Leitungen und Adernummern, innen und außen bis zum Leser und den Ring-Klingeln): [`inneneinheit/verkabelungsplan_inneneinheit_A4.pdf`](inneneinheit/verkabelungsplan_inneneinheit_A4.pdf), neu erzeugen mit `python3 hardware/inneneinheit/verkabelungsplan.py`.
 
 **Zum Atom** passen die 0,75er-Adern nicht in die Buchsen. Stattdessen:
 

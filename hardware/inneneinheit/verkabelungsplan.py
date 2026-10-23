@@ -1,4 +1,4 @@
-"""Verkabelungsplan der Inneneinheit als A4-PDF (quer), Gehäuse im Maßstab 1:1.
+"""Verkabelungsplan Inneneinheit + Leser außen als A4-PDF (quer), verkleinert (ca. 1:1,4).
 
 Zeigt jede Leitung im Gehäuse: nummerierte Adern (YSLY-JZ), Cat-7-Adern, Grove-Kabel zum Atom,
 Litzen der DC-Buchse, Dioden/Dupont für LED/BEEP. Lagen kommen aus stl/innen_layout.json.
@@ -21,10 +21,12 @@ MM = 1 / 25.4
 
 fig = plt.figure(figsize=(297 * MM, 210 * MM))
 # Zeichenfläche 1:1: Ursprung (Innenecke unten links) bei 34 mm / 52 mm vom Blattrand
-ox, oy, aw, ah = 34, 52, 240, 150
+# Zeichenflaeche: Inneneinheit links (Datenkoordinaten = mm im Gehaeuse), Leser rechts daneben
+ox, oy, aw, ah = 10, 66, 277, 118           # mm auf dem Blatt
+DX0, DX1 = -8, 382                          # Datenbereich x (mm)
 ax = fig.add_axes([ox / 297, oy / 210, aw / 297, ah / 210])
-ax.set_xlim(-8, aw - 8)
-ax.set_ylim(-6, ah - 6)
+ax.set_xlim(DX0, DX1)
+ax.set_ylim(-14, -14 + (DX1 - DX0) * ah / aw)
 ax.set_aspect("equal")
 ax.axis("off")
 
@@ -164,10 +166,60 @@ for lab, g, yy in (("LED", G5, 0), ("BEEP", G6, 0)):
     wire([(mid[0] + 5, mid[1]), (190, mid[1]), (190, g[1]), g], "#666", "Dupont", lw=1.0, lpos=0.3)
 ax.text(180, PORT[("LED", 2)][1] - 3.6, "BAT85, Ring zum Atom", fontsize=5, color="#600")
 
+
+# ---------------- Außen: Kabel durch die Wand zum Leser, Ring-Klingeln ----------------
+RX, RY, RW, RH = 268, 6, 108, 124           # Leser-Gehaeuse (schematisch, nicht massstaeblich)
+ax.add_patch(FancyBboxPatch((RX, RY), RW, RH, boxstyle="round,pad=0,rounding_size=4", fc="#eef3ee", ec="#2a6a2a",
+                            lw=1.0, ls="--"))
+ax.text(RX + RW / 2, RY + RH + 2, "AUSSEN – Leser-Gehäuse (Wago 221 als Verbinder)", ha="center", fontsize=7,
+        weight="bold", color="#2a6a2a")
+# Kabelstrang von der Oeffnung durch die Wand
+ax.plot([bx + br, RX], [by, by], color="#888", lw=7, solid_capstyle="butt", zorder=2, alpha=0.55)
+ax.add_patch(Rectangle((236, 30), 10, 50, fc="#ccc", ec="#999", hatch="////", zorder=1))
+ax.text(241, 82, "Wand", ha="center", fontsize=6, color="#666")
+ax.text((bx + br + RX) / 2, by + 6, "Außenkabel YSLY-JZ 10 × 0,75", ha="center", fontsize=6.5, weight="bold")
+ax.text((bx + br + RX) / 2, by - 8, "1 · 2 · 3 · gn-ge · 5 · 6 · 7 · 8\n(4, 9 Reserve)", ha="center", fontsize=6)
+# Verbinder-Reihe im Leser-Gehaeuse: Ader -> Tastaturfarbe
+OUTMAP = [("1", "24 V +", None, "Ring +"), ("2", "24 V −", None, "Ring −"), ("3", "+12 V", "#d22", "rot"),
+          ("gn-ge", "GND", "#111", "schwarz + grau"), ("5", "D0", "#2a9a2a", "grün"), ("6", "D1", "#bbb", "weiß"),
+          ("7", "LED", "#1f5fd0", "blau"), ("8", "BEEP", "#e6c200", "gelb")]
+KX, KY, KW, KH = RX + 62, RY + 8, 40, 58     # Tastatur
+ax.add_patch(FancyBboxPatch((KX, KY), KW, KH, boxstyle="round,pad=0,rounding_size=3", fc="#2b2b2b", ec="#111"))
+ax.text(KX + KW / 2, KY + KH - 7, "Wiegand-\nTastatur", ha="center", va="center", color="white", fontsize=6.5,
+        weight="bold")
+for r in range(4):
+    for cc in range(3):
+        ax.add_patch(Rectangle((KX + 8 + cc * 9, KY + 6 + r * 9), 6, 6, fc="#555", ec="#777", lw=0.4))
+for i, (num, sig, col, farbe) in enumerate(OUTMAP):
+    yy = RY + RH - 32 - i * 11
+    wx = RX + 22
+    ax.add_patch(Rectangle((wx, yy - 3), 12, 6, fc="#ffc878", ec="#a66", lw=0.6, zorder=5))
+    # Ader vom Kabelstrang zum Verbinder
+    ax.plot([RX, RX + 8, RX + 8, wx], [by, by, yy, yy], color=GNYE if num == "gn-ge" else "#111", lw=1.1, zorder=4)
+    ax.text(RX + 9.5, yy + 1.4, num, fontsize=5.5, weight="bold", zorder=6,
+            bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="#111", lw=0.4))
+    ax.text(wx + 6, yy, sig, ha="center", va="center", fontsize=5, weight="bold", zorder=6)
+    if col:                     # Tastatur-Ader
+        tyk = KY + 4 + (len(OUTMAP) - 1 - i) * 6.5
+        ax.plot([wx + 12, KX - 6, KX - 6, KX], [yy, yy, tyk, tyk], color=col, lw=1.3, zorder=4)
+        ax.text(wx + 14, yy + 1.6, farbe, fontsize=5.5, color="#333")
+ax.text(KX + KW / 2, KY - 5, "grau + schwarz verbinden = Wiegand 34", ha="center", fontsize=5.5, color="#333")
+# Ring-Klingeln an 1/2 (oberhalb der Verbinder)
+y1, y2 = RY + RH - 32, RY + RH - 43          # Verbinder 1 und 2
+for j, name in enumerate(("Ring EG", "Ring OG")):
+    rx0 = RX + 46 + j * 30
+    ax.add_patch(FancyBboxPatch((rx0, RY + RH - 18), 24, 12, boxstyle="round,pad=0,rounding_size=2", fc="#1d2b3a",
+                                ec="#111"))
+    ax.text(rx0 + 12, RY + RH - 12, name, ha="center", va="center", color="white", fontsize=6, weight="bold")
+    ax.plot([RX + 34, rx0 + 6, rx0 + 6], [y1, y1, RY + RH - 18], color="#111", lw=0.9, zorder=3)
+    ax.plot([RX + 34, rx0 + 18, rx0 + 18], [y2, y2, RY + RH - 18], color="#111", lw=0.9, zorder=3)
+    ax.text(rx0 + 6, RY + RH - 21, "+", fontsize=6, ha="center", weight="bold")
+    ax.text(rx0 + 18, RY + RH - 21, "−", fontsize=6, ha="center", weight="bold")
+
 # ---------------- Texte ----------------
 fig.text(12 * MM * 25.4 / 297, 0.955, "Verkabelungsplan Inneneinheit – AD.NET Access", fontsize=13, weight="bold",
          transform=fig.transFigure)
-fig.text(12 / 297, 0.925, "Blick von vorn, Deckel ab · Gehäuse im Maßstab 1:1 (mit 100 % drucken) · "
+fig.text(12 / 297, 0.925, "Blick von vorn, Deckel ab · verkleinert, Lage der Bauteile maßstäblich · "
          "Kabel laufen über die Wagos (darüber ca. 25 mm frei)", fontsize=7.5, transform=fig.transFigure)
 legend = [
     ("1", "24 V + : außen Ring + · innen Wago 24V+ → Eingang Vin+ beider Wandler"),
