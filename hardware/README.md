@@ -105,7 +105,7 @@ Neu erzeugen (Maße oben im Skript, Spiel 0,5 mm): `python3 hardware/inneneinhei
 4. **GND-Wagos:** `GND` und `GND 2` mit einem kurzen Drahtstück verbinden. `GND`: Minus beider Wandler, schwarze Grove-Ader, weiß-grüne Ader (Tastatur GND), Brücke. `GND 2`: Brücke, untere Widerstände der Spannungsteiler, 2 Plätze Reserve.
 5. **D0/D1:** blau → `D0`, braun → `D1`, ggf. über die Teiler, dann an **G1 (D0)** und **G2 (D1)** des Atom.
 6. **LED/BEEP (erst nach dem Messen anschließen):** weiß-blaue Ader + **Anode** einer BAT85 (Seite ohne Ring) in den Wago `LED`. Auf die **Kathode** (Seite mit Ring) eine Dupont-Buchse stecken, Schrumpfschlauch drüber, Stecker in **G5** am Atom. Genauso weiß-braun → Wago `BEEP` → BAT85 → **G6**. Der Atom zieht die Leitung über die Diode auf GND (= LED grün bzw. Piep); bei 3,3 V sperrt die Diode, die 5 bzw. 12 V der Tastatur erreichen den Atom nicht.
-7. Netzteilkabel durch die Kerbe, mit Kabelbinder sichern.
+7. Litzen der DC-Buchse mit Kabelbinder an der Brücke über der Buchse sichern.
 
 **Vor dem Einschalten:** An den Wandler-Ausgängen 12 V bzw. 5 V messen, erst dann Tastatur und Atom anklemmen. **Beim Flashen per USB-C die 5-V-Ader vom Wandler abklemmen.**
 
@@ -144,18 +144,20 @@ Innen am Deckel, über dem Gang zwischen den beiden Wago-Spalten, sitzen zwei Kl
 
 Litze: Adern aus einem Stück Steuerleitung **YSLY-JZ 10 × 0,75 mm²** (feindrähtig, schwarz mit aufgedruckten Nummern + grün-gelb). 1 m Leitung = 10 Adern à 1 m, reicht für die ganze Inneneinheit. Mantel abziehen, Adern einzeln verwenden; Stücke so schneiden, dass eine Nummer sichtbar bleibt (sonst Enden mit Edding beschriften). Abisolieren 11 mm, Aderendhülsen bei Wago 221 nicht nötig.
 
-| Ader | Funktion |
+| Ader | Verbindung |
 |---|---|
-| grün-gelb | GND / alle Minus (bei 24 V gibt es keinen Schutzleiter) |
-| 1 | 24 V + |
-| 2 | 24 V − |
-| 3 | 12 V + (Tastatur) |
-| 4 | 5 V + (Atom) |
-| 5 | D0 |
-| 6 | D1 |
-| 7 | LED |
-| 8 | BEEP |
-| 9 | Reserve |
+| grün-gelb | GND: Ausgang −V beider Wandler → Wago `GND`; Brücke `GND` ↔ `GND 2` |
+| 1 | 24 V +: Wago `24V+` → Eingang Vin+ beider Wandler (2 Stücke) |
+| 2 | 24 V −: Wago `24V−` → Eingang Vin− beider Wandler (2 Stücke) |
+| 3 | 12 V +: nur als Verlängerung, falls Cat-7-grün nicht bis zur Klemme +V des SD-15B-12 reicht |
+| 4 | 5 V +: nur als Verlängerung, falls Grove-rot nicht bis zur Klemme +V des SD-15B-5 reicht |
+| 5 | Brücke `D0 a` ↔ `D0 b` – nur ohne Spannungsteiler |
+| 6 | Brücke `D1 a` ↔ `D1 b` – nur ohne Spannungsteiler |
+| 7–9 | Reserve |
+
+Achtung: `24V−` (Ring-Kreis) und `GND` (Tastatur/Atom) sind **getrennt** – nicht verbinden. Cat-7-Adern, DC-Buchse und Grove-Kabel gehen direkt in die Wagos bzw. Klemmen (siehe Cat-7-Tabelle und Verdrahtung oben).
+
+**Verkabelungsplan** (Skizze 1:1 mit allen Leitungen und Adernummern): [`inneneinheit/verkabelungsplan_inneneinheit_A4.pdf`](inneneinheit/verkabelungsplan_inneneinheit_A4.pdf), neu erzeugen mit `python3 hardware/inneneinheit/verkabelungsplan.py`.
 
 **Zum Atom** passen die 0,75er-Adern nicht in die Buchsen. Stattdessen:
 
